@@ -20,6 +20,8 @@ func main() {
     config.ConnectDB()
     app := fiber.New()
 
+    routes.CategoryRoutes(app)
+    routes.InventoryLogRoutes(app)
 	routes.AddRoutes(app)
 	routes.NewsRoutes(app)
 	routes.NotificationRoutes(app)
