@@ -1,57 +1,80 @@
-import React from 'react'
-import { Link } from 'react-router-dom'
+import React, { useState } from 'react';
+import { Link } from 'react-router-dom';
+import {Eye, EyeOff } from 'lucide-react';
 
 const LoginPage = () => {
+  const [showPassword, setShowPassword] = useState(false);
+
   return (
-    <div className="flex items-center justify-center min-h-screen bg-base-200">
-      <div className="card w-96 bg-base-100 shadow-xl">
-        <div className="card-body">
-          <h2 className="card-title justify-center text-2xl">Login</h2>
-          <p className="text-center text-sm mb-4">
-            Masuk untuk meminjam alat medis
+    <div className="flex items-center justify-center min-h-screen bg-gray-50 px-4 sm:px-6 lg:px-8 relative overflow-hidden">
+      
+      <div className="absolute top-0 right-0 w-72 h-72 bg-blue-500/10 rounded-full blur-3xl animate-pulse"></div>
+      <div className="absolute bottom-10 left-10 w-96 h-96 bg-teal-500/5 rounded-full blur-3xl animate-pulse delay-1000"></div>
+
+      <div className="relative z-10 max-w-md w-full p-8 sm:p-10 bg-white/70 backdrop-blur-md rounded-3xl shadow-xl border border-gray-200/50">
+        
+        <div className="flex flex-col items-center mb-8">
+          <h2 className="text-3xl font-bold text-center text-gray-900">
+            Login
+          </h2>
+          <p className="mt-2 text-center text-sm text-gray-600">
+            Masuk ke akun MedisLink untuk melanjutkan
           </p>
-
-          <form>
-            {/* Email Input */}
-            <div className="form-control w-full">
-              <label className="label">
-                <span className="label-text">Email</span>
-              </label>
-              <input
-                type="email"
-                placeholder="email@anda.com"
-                className="input input-bordered w-full"
-              />
-            </div>
-
-            {/* Password Input */}
-            <div className="form-control w-full mt-2">
-              <label className="label">
-                <span className="label-text">Password</span>
-              </label>
-              <input
-                type="password"
-                placeholder="******"
-                className="input input-bordered w-full"
-              />
-            </div>
-
-            <div className="card-actions justify-end mt-6">
-              <button type="submit" className="btn btn-primary w-full">
-                Login
-              </button>
-            </div>
-          </form>
-
-          <div className="text-center mt-4 text-sm">
-            <Link to="/" className="link link-primary">
-              Kembali ke Beranda
-            </Link>
-          </div>
         </div>
+
+        <form className="space-y-5">
+          <div className="relative">
+            <input
+              type="email"
+              placeholder="Email"
+              className="input input-bordered w-full pl-5 border-gray-300 rounded-lg bg-gray-50 focus:bg-white focus:border-teal-500 "
+              required
+            />
+          </div>
+
+          <div className="relative">
+            <input
+              type={showPassword ? "text" : "password"}
+              placeholder="Password"
+              className="input input-bordered border-gray-300 rounded-lg w-full pl-5 bg-gray-50 focus:bg-white focus:border-teal-500"
+              required
+            />
+            <button
+              type="button"
+              onClick={() => setShowPassword(!showPassword)}
+              className="absolute inset-y-0 right-0 flex items-center pr-3 text-gray-500 hover:text-gray-700"
+            >
+              {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+            </button>
+          </div>
+          
+          <div className="flex justify-end">
+            <a href="#" className="text-sm text-teal-600 hover:underline">
+              Lupa password?
+            </a>
+          </div>
+
+          <div>
+            <button
+              type="submit"
+              className="btn btn-primary w-full bg-teal-500 rounded-lg hover:bg-teal-600 border-none text-white font-semibold text-base h-12"
+            >
+              Login
+            </button>
+          </div>
+        </form>
+
+        <div className="divider text-sm text-gray-500 my-8">Atau masuk dengan</div>
+        
+        <p className="mt-8 text-center text-sm text-gray-600">
+          Belum punya akun?{' '}
+          <Link to="/register" className="font-medium text-teal-600 hover:underline">
+            Daftar di sini
+          </Link>
+        </p>
       </div>
     </div>
-  )
-}
+  );
+};
 
-export default LoginPage
+export default LoginPage;
