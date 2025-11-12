@@ -1,0 +1,101 @@
+import React, { useState } from 'react';
+import { Link } from 'react-router-dom';
+import { Eye, EyeOff } from 'lucide-react';
+
+const RegisterPage = () => {
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+
+  return (
+    <div className="flex items-center justify-center min-h-screen bg-gray-50 px-4 sm:px-6 lg:px-8 relative overflow-hidden">
+      
+      <div className="absolute top-0 right-0 w-72 h-72 bg-blue-500/10 rounded-full blur-3xl animate-pulse"></div>
+      <div className="absolute bottom-10 left-10 w-96 h-96 bg-teal-500/5 rounded-full blur-3xl animate-pulse delay-1000"></div>
+
+      <div className="relative z-10 max-w-md w-full p-8 sm:p-10 bg-white/70 backdrop-blur-md rounded-3xl shadow-xl border border-gray-200/50">
+        
+        <div className="flex flex-col items-center mb-8">
+          <h2 className="text-3xl font-bold text-center text-gray-900">
+            Register
+          </h2>
+          <p className="mt-2 text-center text-sm text-gray-600">
+            Daftar untuk mulai meminjam alat medis.
+          </p>
+        </div>
+
+        <form className="space-y-5">
+          <div className="relative">
+            <input
+              type="text"
+              placeholder="Nama Lengkap"
+              className="input input-bordered w-full pl-5 border-gray-300 rounded-lg bg-gray-50 focus:bg-white focus:border-teal-500 "
+              required
+            />
+          </div>
+
+          <div className="relative">
+            <input
+              type="email"
+              placeholder="Email"
+              className="input input-bordered w-full pl-5 border-gray-300 rounded-lg bg-gray-50 focus:bg-white focus:border-teal-500 "
+              required
+            />
+          </div>
+
+          <div className="relative">
+            <input
+              type={showPassword ? "text" : "password"}
+              placeholder="Password"
+              className="input input-bordered border-gray-300 rounded-lg w-full pl-5 bg-gray-50 focus:bg-white focus:border-teal-500"
+              required
+            />
+            <button
+              type="button"
+              onClick={() => setShowPassword(!showPassword)}
+              className="absolute inset-y-0 right-0 flex items-center pr-3 text-gray-500 hover:text-gray-700"
+            >
+              {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+            </button>
+          </div>
+
+          <div className="relative">
+            <input
+              type={showConfirmPassword ? "text" : "password"}
+              placeholder="Konfirmasi Password"
+              className="input input-bordered border-gray-300 rounded-lg w-full pl-5 bg-gray-50 focus:bg-white focus:border-teal-500"
+              required
+            />
+            <button
+              type="button"
+              onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+              className="absolute inset-y-0 right-0 flex items-center pr-3 text-gray-500 hover:text-gray-700"
+            >
+              {showConfirmPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+            </button>
+          </div>
+          
+          {/* 6. Tombol Submit (Diubah untuk Registrasi) */}
+          <div className="pt-2"> {/* Tambahan padding atas */}
+            <button
+              type="submit"
+              className="btn btn-primary w-full bg-teal-500 rounded-lg hover:bg-teal-600 border-none text-white font-semibold text-base h-12"
+            >
+              Daftar
+            </button>
+          </div>
+        </form>
+
+        <div className="divider text-sm text-gray-500 my-8">Atau daftar dengan</div>
+        
+        <p className="mt-8 text-center text-sm text-gray-600">
+          Sudah punya akun?{' '}
+          <Link to="/login" className="font-medium text-teal-600 hover:underline">
+            Login di sini
+          </Link>
+        </p>
+      </div>
+    </div>
+  );
+};
+
+export default RegisterPage;
