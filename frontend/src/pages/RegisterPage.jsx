@@ -1,10 +1,65 @@
+// 1. Import 'useNavigate' (untuk redirect) dan 'api' (yang baru kita buat)
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { Eye, EyeOff } from 'lucide-react';
+import api from '../services/api';
 
 const RegisterPage = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+
+  const [nama, setNama] = useState('');
+  const [email, setEmail] = useState('');
+  const [phone, setPhone] = useState('');
+  const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+
+  const [error, setError] = useState('');
+  const [success, setSuccess] = useState('');
+
+  const navigate = useNavigate();
+
+  const handleSubmit = async (e) => {
+    e.preventDefault(); 
+    setError(''); 
+    setSuccess(''); 
+
+    if (password !== confirmPassword) {
+      setError('Password dan Konfirmasi Password tidak cocok.');
+      return; 
+    }
+    const payload = {
+      nama: nama,
+      email: email,
+      phone: phone,
+      password: password,
+    };
+
+    try {
+      await api.post('/auth/register', payload);
+
+      setSuccess('Registrasi berhasil! Anda akan diarahkan ke halaman Login...');
+      
+      setNama('');
+      setEmail('');
+      setPhone('');
+      setPassword('');
+      setConfirmPassword('');
+
+      setTimeout(() => {
+        navigate('/login');
+      }, 2000);
+
+    } catch (err) {
+      if (err.response && err.response.data && err.response.data.message) {
+        setError(err.response.data.message);
+      } else {
+        setError('Registrasi gagal. Silakan coba lagi.');
+      }
+      console.error('Register error:', err); 
+    }
+  };
+
 
   return (
     <div className="flex items-center justify-center min-h-screen bg-gray-50 px-4 sm:px-6 lg:px-8 relative overflow-hidden">
@@ -23,13 +78,27 @@ const RegisterPage = () => {
           </p>
         </div>
 
-        <form className="space-y-5">
+        <form className="space-y-5" onSubmit={handleSubmit}>
+
+          {error && (
+            <div className="p-3 bg-red-100 border border-red-300 text-red-700 rounded-lg text-sm text-center">
+              {error}
+            </div>
+          )}
+          {success && (
+            <div className="p-3 bg-green-100 border border-green-300 text-green-700 rounded-lg text-sm text-center">
+              {success}
+            </div>
+          )}
+
           <div className="relative">
             <input
               type="text"
               placeholder="Nama Lengkap"
               className="input input-bordered w-full pl-5 border-gray-300 rounded-lg bg-gray-50 focus:bg-white focus:border-teal-500 "
               required
+              value={nama}
+              onChange={(e) => setNama(e.target.value)}
             />
           </div>
 
@@ -39,6 +108,8 @@ const RegisterPage = () => {
               placeholder="Email"
               className="input input-bordered w-full pl-5 border-gray-300 rounded-lg bg-gray-50 focus:bg-white focus:border-teal-500 "
               required
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
             />
           </div>
 
@@ -48,6 +119,8 @@ const RegisterPage = () => {
               placeholder="Phone Number"
               className="input input-bordered w-full pl-5 border-gray-300 rounded-lg bg-gray-50 focus:bg-white focus:border-teal-500 "
               required
+              value={phone}
+              onChange={(e) => setPhone(e.target.value)}
             />
           </div>
 
@@ -57,6 +130,8 @@ const RegisterPage = () => {
               placeholder="Password"
               className="input input-bordered border-gray-300 rounded-lg w-full pl-5 bg-gray-50 focus:bg-white focus:border-teal-500"
               required
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
             />
             <button
               type="button"
@@ -73,6 +148,8 @@ const RegisterPage = () => {
               placeholder="Konfirmasi Password"
               className="input input-bordered border-gray-300 rounded-lg w-full pl-5 bg-gray-50 focus:bg-white focus:border-teal-500"
               required
+              value={confirmPassword}
+              onChange={(e) => setConfirmPassword(e.target.value)}
             />
             <button
               type="button"
