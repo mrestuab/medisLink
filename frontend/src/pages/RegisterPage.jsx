@@ -44,6 +44,15 @@ const RegisterPage = () => {
 
           <div className="relative">
             <input
+              type="number"
+              placeholder="Phone Number"
+              className="input input-bordered w-full pl-5 border-gray-300 rounded-lg bg-gray-50 focus:bg-white focus:border-teal-500 "
+              required
+            />
+          </div>
+
+          <div className="relative">
+            <input
               type={showPassword ? "text" : "password"}
               placeholder="Password"
               className="input input-bordered border-gray-300 rounded-lg w-full pl-5 bg-gray-50 focus:bg-white focus:border-teal-500"
@@ -74,8 +83,7 @@ const RegisterPage = () => {
             </button>
           </div>
           
-          {/* 6. Tombol Submit (Diubah untuk Registrasi) */}
-          <div className="pt-2"> {/* Tambahan padding atas */}
+          <div className="pt-2">
             <button
               type="submit"
               className="btn btn-primary w-full bg-teal-500 rounded-lg hover:bg-teal-600 border-none text-white font-semibold text-base h-12"
