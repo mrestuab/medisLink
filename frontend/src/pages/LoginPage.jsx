@@ -1,9 +1,45 @@
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
-import {Eye, EyeOff } from 'lucide-react';
+import { Link, useNavigate } from 'react-router-dom';
+import { Eye, EyeOff } from 'lucide-react'; 
+import api from '../services/api'; 
 
 const LoginPage = () => {
   const [showPassword, setShowPassword] = useState(false);
+  
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [error, setError] = useState('');
+
+  const navigate = useNavigate();
+
+  const handleSubmit = async (e) => {
+    e.preventDefault(); 
+    setError('');
+
+    try {
+      const response = await api.post('/auth/login', {
+        email: email.trim(),
+        password: password, 
+      });
+
+      if (response.data && response.data.token) {
+        
+        localStorage.setItem('token', response.data.token);
+        navigate('/dashboard', { replace: true }); 
+
+      } else {
+        setError('Login berhasil tapi tidak menerima token.');
+      }
+
+    } catch (err) {
+      if (err.response && err.response.data && err.response.data.error) {
+        setError(err.response.data.error); 
+      } else {
+        setError('Login gagal. Periksa email dan password Anda.');
+      }
+      console.error('Login error:', err);
+    }
+  };
 
   return (
     <div className="flex items-center justify-center min-h-screen bg-gray-50 px-4 sm:px-6 lg:px-8 relative overflow-hidden">
@@ -22,22 +58,33 @@ const LoginPage = () => {
           </p>
         </div>
 
-        <form className="space-y-5">
+        <form className="space-y-5" onSubmit={handleSubmit}>
+          
+          {error && (
+            <div className="p-3 bg-red-100 border border-red-300 text-red-700 rounded-lg text-sm text-center">
+              {error}
+            </div>
+          )}
+
           <div className="relative">
             <input
               type="email"
               placeholder="Email"
               className="input input-bordered w-full pl-5 border-gray-300 rounded-lg bg-gray-50 focus:bg-white focus:border-teal-500 "
               required
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
             />
           </div>
 
           <div className="relative">
             <input
               type={showPassword ? "text" : "password"}
-              placeholder="Password"
+              placeholder="Password" 
               className="input input-bordered border-gray-300 rounded-lg w-full pl-5 bg-gray-50 focus:bg-white focus:border-teal-500"
               required
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
             />
             <button
               type="button"

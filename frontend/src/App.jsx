@@ -6,37 +6,28 @@ import LoginPage from './pages/LoginPage'
 import RegisterPage from './pages/RegisterPage'
 
 // Layout & Halaman Terproteksi
-import ProtectedRoute from './components/ProtectedRoute'
-import UserLayout from './layouts/UserLayout' // <-- IMPORT BARU
-import UserDashboardPage from './pages/UserDashboardPage' // <-- IMPORT BARU
-// import AdminDashboard from './pages/AdminDashboard' // <-- SUDAH ADA
-
+import ProtectedRoute from './components/ProtectedRoute' // Satpam "Halaman Aman"
+import PublicRoute from './components/PublicRoute'     // <-- IMPORT "SATPAM" BARU
+import UserLayout from './layouts/UserLayout'
+import UserDashboardPage from './pages/UserDashboardPage'
+import AdminDashboard from './pages/admin/AdminDashboardPage'
 function App() {
   return (
     <div>
       <Routes>
-        {/* Rute Publik */}
         <Route path="/" element={<HomePage />} />
-        <Route path="/login" element={<LoginPage />} />
-        <Route path="/register" element={<RegisterPage />} />
 
-        {/* Rute Terproteksi (Butuh Login) */}
+        <Route element={<PublicRoute />}>
+          <Route path="/login" element={<LoginPage />} />
+          <Route path="/register" element={<RegisterPage />} />
+          <Route path="/admin/dashboard" element={<AdminDashboard />} />
+
+        </Route>
+
         <Route element={<ProtectedRoute />}>
-          
-          {/* == Rute untuk PENGGUNA (User) == */}
-          {/* Ini yang akan dituju oleh navigate('/dashboard') */}
           <Route path="/dashboard" element={<UserLayout />}>
             <Route index element={<UserDashboardPage />} />
-            {/* Nanti, halaman "Riwayat" dan "Notifikasi" bisa ditambah di sini:
-              <Route path="riwayat" element={<HalamanRiwayat />} />
-              <Route path="notifikasi" element={<HalamanNotifikasi />} />
-            */}
           </Route>
-
-          {/* == Rute untuk ADMIN == */}
-          {/* Kita pindahkan rute admin ke '/admin/dashboard' */}
-          {/* <Route path="/admin/dashboard" element={<AdminDashboard />} /> */}
-
         </Route>
         
       </Routes>

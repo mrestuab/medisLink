@@ -2,7 +2,6 @@ import React from "react";
 import { Link, Outlet, useNavigate } from "react-router-dom";
 import { Bell, LogOut } from "lucide-react";
 
-// Mock Data (nanti bisa diganti API)
 const MOCK_USER = {
   name: "Budi Santoso",
   role: "user",
@@ -20,11 +19,9 @@ const UserLayout = () => {
 
   return (
     <div className="min-h-screen bg-white text-gray-900">
-      {/* HEADER */}
       <header className="fixed top-0 w-full z-40 border-b border-gray-200 bg-white/95 backdrop-blur-sm">
         <div className="max-w-7xl mx-auto w-full px-4 py-3 flex items-center justify-between">
           
-          {/* Kiri: Logo */}
           <div className="flex items-center gap-2">
             <div className="w-8 h-8 bg-teal-500 rounded-lg flex items-center justify-center text-white font-bold">
               M
@@ -32,10 +29,8 @@ const UserLayout = () => {
             <span className="font-semibold text-lg text-gray-800">MedisLink</span>
           </div>
 
-          {/* Kanan: Notifikasi + User + Logout */}
           <div className="flex items-center gap-5">
             
-            {/* Notifikasi */}
             <button className="relative">
               <Bell className="w-6 h-6" />
               {NOTIFICATION_COUNT > 0 && (
@@ -45,13 +40,11 @@ const UserLayout = () => {
               )}
             </button>
 
-            {/* User Info */}
             <div className="text-right">
               <p className="font-medium">{MOCK_USER.name}</p>
               <p className="text-xs text-gray-500 capitalize">{MOCK_USER.role}</p>
             </div>
 
-            {/* Logout */}
             <button
               onClick={handleLogout}
               className="text-red-500 hover:text-red-600"
@@ -64,7 +57,6 @@ const UserLayout = () => {
         </div>
       </header>
 
-      {/* CONTENT */}
       <main className="max-w-7xl mx-auto px-4 pt-20 pb-8">
         <Outlet />
       </main>
