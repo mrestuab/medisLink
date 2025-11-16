@@ -1,27 +1,36 @@
 package main
 
 import (
-    "log"
-    "os"
+	"log"
+	"os"
 
-    "github.com/gofiber/fiber/v2"
-    "github.com/joho/godotenv"
+	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/fiber/v2/middleware/cors"
+	"github.com/joho/godotenv"
 
-    "medislink-backend/config"
-    "medislink-backend/routes"
+	"medislink-backend/config"
+	"medislink-backend/routes"
 )
 
 func main() {
-    err := godotenv.Load()
-    if err != nil {
-        log.Fatal("Error loading .env file")
-    }
+	err := godotenv.Load()
+	if err != nil {
+		log.Fatal("Error loading .env file")
+	}
 
-    config.ConnectDB()
-    app := fiber.New()
+	config.ConnectDB()
+	app := fiber.New()
 
-    routes.CategoryRoutes(app)
-    routes.InventoryLogRoutes(app)
+	app.Use(cors.New(cors.Config{
+		AllowOrigins: "http://localhost:5173",
+
+		AllowHeaders: "Origin, Content-Type, Accept, Authorization",
+
+		AllowMethods: "GET, POST, PUT, DELETE, OPTIONS",
+	}))
+
+	routes.CategoryRoutes(app)
+	routes.InventoryLogRoutes(app)
 	routes.AddRoutes(app)
 	routes.NewsRoutes(app)
 	routes.NotificationRoutes(app)
@@ -30,8 +39,8 @@ func main() {
 	routes.ReturnRoutes(app)
 	routes.ToolRoutes(app)
 	routes.AuthRoutes(app)
-    routes.UserRoutes(app)
+	routes.UserRoutes(app)
 
-    port := os.Getenv("PORT")
-    app.Listen(":" + port)
+	port := os.Getenv("PORT")
+	app.Listen(":" + port)
 }
