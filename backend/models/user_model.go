@@ -6,9 +6,10 @@ type User struct {
 	ID        primitive.ObjectID `json:"id,omitempty" bson:"_id,omitempty"`
 	Name      string             `json:"name" bson:"name"`
 	Email     string             `json:"email" bson:"email"`
-	Password  string             `json:"-" bson:"password"`
-	Role      string             `json:"role" bson:"role"` // "admin" atau "user"
+	Password  string             `json:"password" bson:"password"`  // FIXED HERE
+	Role      string             `json:"role" bson:"role"`
 	Phone     string             `json:"phone" bson:"phone"`
 	Address   string             `json:"address" bson:"address"`
 	CreatedAt primitive.DateTime `json:"created_at" bson:"created_at"`
 }
+
