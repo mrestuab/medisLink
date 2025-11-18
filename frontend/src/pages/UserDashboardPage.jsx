@@ -1,14 +1,12 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 
-// --- Mock Data (Nanti diganti data dari API) ---
 const MOCK_TOOLS = [
   { id: 'T001', name: 'Kursi Roda Manual', category: 'Mobilitas', description: 'Kursi roda manual standar untuk mobilitas sehari-hari', stock: 5, price: 25000 },
   { id: 'T002', name: 'Kursi Roda Elektrik', category: 'Mobilitas', description: 'Kursi roda bertenaga baterai untuk jarak jauh', stock: 3, price: 100000 },
   { id: 'T003', name: 'Tongkat Jalan', category: 'Mobilitas', description: 'Tongkat jalan dengan pegangan nyaman', stock: 15, price: 10000 },
 ];
 const MOCK_CATEGORIES = ['Mobilitas', 'Rehabilitasi', 'Pernapasan'];
-// ---
 
 const UserDashboardPage = () => {
   const [activeTab, setActiveTab] = useState('jelajahi');
@@ -55,10 +53,8 @@ const UserDashboardPage = () => {
 
     </div>
 
-      {/* 2. Konten Halaman (Grid) */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         
-        {/* Kolom Kiri: Daftar Alat (col-span-2) */}
         <div className="lg:col-span-2 space-y-4">
           {MOCK_TOOLS.map((tool) => (
             <div key={tool.id} className="card card-side bg-base-100 shadow-sm border border-gray-200/60 p-4 items-center">
@@ -88,9 +84,7 @@ const UserDashboardPage = () => {
           ))}
         </div>
 
-        {/* Kolom Kanan: Sidebar (col-span-1) */}
         <div className="lg:col-span-1 space-y-4">
-          {/* Card Kategori */}
           <div className="card bg-base-100 shadow-sm border border-gray-200/60">
             <div className="card-body p-5">
               <h3 className="font-semibold mb-3">Kategori</h3>
@@ -106,7 +100,6 @@ const UserDashboardPage = () => {
             </div>
           </div>
 
-          {/* Card Hint */}
           <div className="card bg-teal-50 border-teal-200 border">
             <div className="card-body p-5">
               <p className="text-sm text-teal-700">
