@@ -1,16 +1,15 @@
-import { Routes, Route } from 'react-router-dom'
+import { Routes, Route, Navigate } from 'react-router-dom'
 
-// Halaman Publik
 import HomePage from './pages/HomePage'
 import LoginPage from './pages/LoginPage'
 import RegisterPage from './pages/RegisterPage'
-
-// Layout & Halaman Terproteksi
-import ProtectedRoute from './components/ProtectedRoute' // Satpam "Halaman Aman"
-import PublicRoute from './components/PublicRoute'     // <-- IMPORT "SATPAM" BARU
-import UserLayout from './layouts/UserLayout'
 import UserDashboardPage from './pages/UserDashboardPage'
 import AdminDashboard from './pages/admin/AdminDashboardPage'
+
+import UserLayout from './layouts/UserLayout'
+import ProtectedRoute from './components/ProtectedRoute'
+import PublicRoute from './components/PublicRoute'
+
 function App() {
   return (
     <div>
@@ -22,13 +21,17 @@ function App() {
           <Route path="/register" element={<RegisterPage />} />
         </Route>
 
-        <Route element={<ProtectedRoute />}>
+        <Route element={<ProtectedRoute allowedRoles={['user']} />}>
           <Route path="/dashboard" element={<UserLayout />}>
             <Route index element={<UserDashboardPage />} />
           </Route>
+        </Route>
 
+        <Route element={<ProtectedRoute allowedRoles={['admin']} />}>
           <Route path="/admin/dashboard" element={<AdminDashboard />} />
         </Route>
+        
+        <Route path="*" element={<Navigate to="/" replace />} />
         
       </Routes>
     </div>
