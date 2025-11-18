@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Eye, EyeOff } from 'lucide-react'; 
+import { Eye, EyeOff } from 'lucide-react';
+import { jwtDecode } from 'jwt-decode'; 
+
 import api from '../services/api'; 
 
 const LoginPage = () => {
@@ -14,18 +16,31 @@ const LoginPage = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault(); 
-    setError('');
+    setError(''); 
 
     try {
       const response = await api.post('/auth/login', {
         email: email.trim(),
-        password: password, 
+        password: password,
       });
 
       if (response.data && response.data.token) {
+        const token = response.data.token;
         
-        localStorage.setItem('token', response.data.token);
-        navigate('/dashboard', { replace: true }); 
+        localStorage.setItem('token', token);
+
+        try {
+            const decoded = jwtDecode(token);
+            
+            if (decoded.role === 'admin') {
+                navigate('/admin/dashboard', { replace: true });
+            } else {
+                navigate('/dashboard', { replace: true });
+            }
+        } catch (e) {
+            console.error("Gagal decode token:", e);
+            navigate('/dashboard', { replace: true });
+        }
 
       } else {
         setError('Login berhasil tapi tidak menerima token.');
@@ -33,7 +48,7 @@ const LoginPage = () => {
 
     } catch (err) {
       if (err.response && err.response.data && err.response.data.error) {
-        setError(err.response.data.error); 
+        setError(err.response.data.error);
       } else {
         setError('Login gagal. Periksa email dan password Anda.');
       }
@@ -70,7 +85,7 @@ const LoginPage = () => {
             <input
               type="email"
               placeholder="Email"
-              className="input w-full pl-5 border-gray-300 rounded-lg bg-gray-50 focus:bg-white focus:border-teal-500 "
+              className="input input-bordered w-full pl-5 border-gray-300 rounded-lg bg-gray-50 focus:bg-white focus:border-teal-500"
               required
               value={email}
               onChange={(e) => setEmail(e.target.value)}
@@ -80,8 +95,8 @@ const LoginPage = () => {
           <div className="relative">
             <input
               type={showPassword ? "text" : "password"}
-              placeholder="Password" 
-              className="input border-gray-300 rounded-lg w-full pl-5 bg-gray-50 focus:bg-white focus:border-teal-500"
+              placeholder="Password"
+              className="input input-bordered border-gray-300 rounded-lg w-full pl-5 bg-gray-50 focus:bg-white focus:border-teal-500"
               required
               value={password}
               onChange={(e) => setPassword(e.target.value)}
