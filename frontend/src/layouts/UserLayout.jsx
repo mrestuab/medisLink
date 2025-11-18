@@ -18,7 +18,7 @@ const UserLayout = () => {
   };
 
   return (
-    <div className="min-h-screen bg-white text-gray-900">
+    <div className="min-h-screen bg-gray-50 text-gray-900">
       <header className="fixed top-0 w-full z-40 border-b border-gray-200 bg-white/95 backdrop-blur-sm">
         <div className="max-w-7xl mx-auto w-full px-4 py-3 flex items-center justify-between">
           

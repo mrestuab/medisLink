@@ -95,7 +95,7 @@ const RegisterPage = () => {
             <input
               type="text"
               placeholder="Nama Lengkap"
-              className="input input-bordered w-full pl-5 border-gray-300 rounded-lg bg-gray-50 focus:bg-white focus:border-teal-500 "
+              className="input w-full pl-5 border-gray-300 rounded-lg bg-gray-50 focus:bg-white focus:border-teal-500 "
               required
               value={nama}
               onChange={(e) => setNama(e.target.value)}
@@ -106,7 +106,7 @@ const RegisterPage = () => {
             <input
               type="email"
               placeholder="Email"
-              className="input input-bordered w-full pl-5 border-gray-300 rounded-lg bg-gray-50 focus:bg-white focus:border-teal-500 "
+              className="input w-full pl-5 border-gray-300 rounded-lg bg-gray-50 focus:bg-white focus:border-teal-500 "
               required
               value={email}
               onChange={(e) => setEmail(e.target.value)}
@@ -117,7 +117,7 @@ const RegisterPage = () => {
             <input
               type="number"
               placeholder="Phone Number"
-              className="input input-bordered w-full pl-5 border-gray-300 rounded-lg bg-gray-50 focus:bg-white focus:border-teal-500 "
+              className="input w-full pl-5 border-gray-300 rounded-lg bg-gray-50 focus:bg-white focus:border-teal-500 "
               required
               value={phone}
               onChange={(e) => setPhone(e.target.value)}
@@ -128,7 +128,7 @@ const RegisterPage = () => {
             <input
               type={showPassword ? "text" : "password"}
               placeholder="Password"
-              className="input input-bordered border-gray-300 rounded-lg w-full pl-5 bg-gray-50 focus:bg-white focus:border-teal-500"
+              className="input border-gray-300 rounded-lg w-full pl-5 bg-gray-50 focus:bg-white focus:border-teal-500"
               required
               value={password}
               onChange={(e) => setPassword(e.target.value)}
@@ -146,7 +146,7 @@ const RegisterPage = () => {
             <input
               type={showConfirmPassword ? "text" : "password"}
               placeholder="Konfirmasi Password"
-              className="input input-bordered border-gray-300 rounded-lg w-full pl-5 bg-gray-50 focus:bg-white focus:border-teal-500"
+              className="input border-gray-300 rounded-lg w-full pl-5 bg-gray-50 focus:bg-white focus:border-teal-500"
               required
               value={confirmPassword}
               onChange={(e) => setConfirmPassword(e.target.value)}

@@ -20,14 +20,14 @@ function App() {
         <Route element={<PublicRoute />}>
           <Route path="/login" element={<LoginPage />} />
           <Route path="/register" element={<RegisterPage />} />
-          <Route path="/admin/dashboard" element={<AdminDashboard />} />
-
         </Route>
 
         <Route element={<ProtectedRoute />}>
           <Route path="/dashboard" element={<UserLayout />}>
             <Route index element={<UserDashboardPage />} />
           </Route>
+
+          <Route path="/admin/dashboard" element={<AdminDashboard />} />
         </Route>
         
       </Routes>
