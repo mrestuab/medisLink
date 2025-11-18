@@ -18,6 +18,11 @@ func CreateLoan(c *fiber.Ctx) error {
 		return c.Status(400).JSON(fiber.Map{"error": "Invalid request"})
 	}
 
+	// Default quantity to 1 if not provided or invalid
+	if loan.Quantity <= 0 {
+		loan.Quantity = 1
+	}
+
 	loan.ID = primitive.NewObjectID()
 	loan.LoanDate = time.Now().Format("2006-01-02")
 	loan.Status = "aktif"
@@ -28,14 +33,14 @@ func CreateLoan(c *fiber.Ctx) error {
 		return c.Status(500).JSON(fiber.Map{"error": "Failed to create loan"})
 	}
 
-	// update stok alat: -1
+	// update stok alat sesuai quantity dipinjam
 	toolColl := config.DB.Collection("medical_tools")
 	_, _ = toolColl.UpdateOne(context.Background(),
 		bson.M{"_id": loan.ToolID},
-		bson.M{"$inc": bson.M{"stock": -1}},
+		bson.M{"$inc": bson.M{"stock": -loan.Quantity}},
 	)
 
-	return c.Status(201).JSON(fiber.Map{"message": "Loan created successfully"})
+	return c.Status(201).JSON(fiber.Map{"message": "Loan created successfully", "quantity": loan.Quantity})
 }
 
 func GetAllLoans(c *fiber.Ctx) error {
