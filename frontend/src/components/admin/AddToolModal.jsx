@@ -79,7 +79,7 @@ const AddToolModal = ({ isOpen, onClose, onSubmit }) => {
                 name="category_id"
                 value={formData.category_id}
                 onChange={handleChange}
-                className="select w-full rounded-lg focus:ring-2 focus:ring-teal-400 focus:border-teal-400 px-4"
+                className="select select-bordered w-full rounded-lg bg-white px-4 focus:bg-white focus:ring-2 focus:ring-teal-400 focus:border-teal-400"
               >
                 <option value="mobilitas">Mobilitas</option>
                 <option value="rehabilitasi">Rehabilitasi</option>
@@ -109,7 +109,7 @@ const AddToolModal = ({ isOpen, onClose, onSubmit }) => {
               name="condition"
               value={formData.condition}
               onChange={handleChange}
-              className="select w-full rounded-lg focus:ring-2 focus:ring-teal-400 focus:border-teal-400 px-4"
+              className="select select-bordered w-full rounded-xl bg-white focus:bg-white focus:ring-2 focus:ring-teal-400 focus:border-teal-400 px-4"
             >
               <option value="baik">Baik</option>
               <option value="rusak ringan">Rusak Ringan</option>
@@ -141,7 +141,7 @@ const AddToolModal = ({ isOpen, onClose, onSubmit }) => {
             ></textarea>
           </div>
 
-          <div className="flex justify-end gap-3 mt-6 pt-4 border-t">
+          <div className="flex justify-end gap-3 mt-6 pt-4 border-t border-gray-200">
             <button 
               type="button" 
               onClick={onClose} 
@@ -152,8 +152,7 @@ const AddToolModal = ({ isOpen, onClose, onSubmit }) => {
 
             <button 
               type="submit" 
-              className="px-5 py-2 rounded-lg bg-teal-500 text-white font-semibold shadow 
-              hover:bg-teal-600 active:scale-95 transition"
+              className="px-5 py-2 rounded-lg bg-teal-500 text-white font-semibold shadow hover:bg-teal-600 active:scale-95 transition"
             >
               Simpan Data
             </button>
