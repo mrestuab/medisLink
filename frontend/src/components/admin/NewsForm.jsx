@@ -20,10 +20,14 @@ const NewsForm = ({ onSubmit }) => {
         </label>
         <input
           type="text"
-          className="input w-full bg-white border-gray-300 focus:border-teal-500 focus:ring-1 focus:ring-teal-500 rounded-lg"
           placeholder="Judul berita"
           value={title}
           onChange={(e) => setTitle(e.target.value)}
+          className="
+            input w-full bg-white border-gray-300 
+            focus:border-teal-500 focus:ring-2 focus:ring-teal-400
+            rounded-lg placeholder:px-2
+          "
         />
       </div>
 
@@ -33,15 +37,24 @@ const NewsForm = ({ onSubmit }) => {
         </label>
         <textarea
           rows={5}
-          className="textarea textarea-bordered w-full bg-white border-gray-300 focus:border-teal-500 focus:ring-1 focus:ring-teal-500 rounded-lg text-base"
           placeholder="Konten berita"
           value={content}
           onChange={(e) => setContent(e.target.value)}
+          className="
+            textarea textarea-bordered w-full bg-white border-gray-300
+            focus:border-teal-500 focus:ring-2 focus:ring-teal-400
+            rounded-lg text-base placeholder:px-2
+          "
         />
       </div>
 
       <div className="pt-2">
-        <button className="btn bg-teal-600 hover:bg-teal-700 text-white border-none px-8 rounded-lg capitalize font-semibold">
+        <button
+          className="
+            btn bg-teal-600 hover:bg-teal-700 text-white border-none 
+            px-8 rounded-lg capitalize font-semibold
+          "
+        >
           Publikasikan
         </button>
       </div>
