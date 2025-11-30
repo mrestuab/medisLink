@@ -32,7 +32,7 @@ const UserDashboardPage = () => {
 
   return (
     <>
-      <div className="flex gap-8 border-b border-gray-200 mb-8 overflow-x-auto">
+      <div className="flex gap-8 border-b border-gray-200 mb-8 overflow-x-auto mt-6">
         <button
           onClick={() => setActiveTab("jelajahi")}
           className={`pb-3 font-medium text-sm border-b-2 transition-colors whitespace-nowrap ${
