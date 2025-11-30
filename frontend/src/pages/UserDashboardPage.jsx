@@ -32,7 +32,7 @@ const UserDashboardPage = () => {
 
   return (
     <>
-      <div className="flex gap-8 border-b border-gray-200 mb-8 overflow-x-auto mt-6">
+      <div className="flex gap-8 border-b border-gray-200 mb-8 overflow-x-auto">
         <button
           onClick={() => setActiveTab("jelajahi")}
           className={`pb-3 font-medium text-sm border-b-2 transition-colors whitespace-nowrap ${
@@ -89,10 +89,24 @@ const UserDashboardPage = () => {
                   <div className="flex justify-between items-start mb-2">
                     <div>
                       <h2 className="text-lg font-bold text-gray-900">{tool.name}</h2>
-                      <span className="inline-block bg-gray-100 text-gray-600 text-xs px-2 py-1 rounded mt-1 capitalize">
-                        {tool.category}
-                      </span>
+                      
+                      <div className="flex flex-wrap gap-2 mt-2">
+                          <span className="inline-block bg-gray-100 text-gray-600 text-xs px-2 py-1 rounded capitalize">
+                            {tool.category}
+                          </span>
+                          {tool.type && (
+                             <span className="inline-block bg-blue-50 text-blue-600 text-xs px-2 py-1 rounded border border-blue-100">
+                                {tool.type}
+                             </span>
+                          )}
+                          {tool.size && (
+                             <span className="inline-block bg-purple-50 text-purple-600 text-xs px-2 py-1 rounded border border-purple-100 font-medium">
+                                Size: {tool.size}
+                             </span>
+                          )}
+                      </div>
                     </div>
+
                     <div className="text-right">
                        <span className={`text-xs font-medium px-2 py-1 rounded ${
                          tool.condition === 'baik' || tool.condition === 'Good' ? 'bg-green-50 text-green-700' : 'bg-yellow-50 text-yellow-700'
@@ -102,7 +116,12 @@ const UserDashboardPage = () => {
                     </div>
                   </div>
                   
-                  <p className="text-sm text-gray-600 mb-6 leading-relaxed">{tool.description}</p>
+                  <div className="text-xs text-gray-500 mb-3 space-y-1">
+                      {tool.dimensions && <p>📐 Dimensi: {tool.dimensions}</p>}
+                      {tool.weight_cap && <p>⚖️ Beban Maks: {tool.weight_cap}</p>}
+                  </div>
+
+                  <p className="text-sm text-gray-600 mb-6 leading-relaxed line-clamp-2">{tool.description}</p>
                   
                   <div className="flex justify-between items-center pt-4 border-t border-gray-100">
                     <div className="flex items-center gap-2">

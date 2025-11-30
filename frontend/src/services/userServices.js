@@ -1,18 +1,21 @@
 import api from './api';
 
-// Ambil semua alat (bisa difilter status=tersedia di backend nanti)
 export const getPublicTools = async () => {
   try {
     const response = await api.get('/tools');
-    // Mapping data jika perlu (menyesuaikan format backend ke frontend)
+    
     return response.data.map(tool => ({
       id: tool.id,
       name: tool.name,
-      category: tool.category_id, // Backend kamu pakai category_id string
+      category: tool.category_id,
+      type: tool.type,
+      size: tool.size,
+      dimensions: tool.dimensions,
+      weight_cap: tool.weight_cap,
       description: tool.description,
       stock: tool.stock,
       condition: tool.condition,
-      // Tambahkan field lain jika ada
+      image_url: tool.image_url,
     }));
   } catch (error) {
     console.error("Gagal ambil alat:", error);
@@ -20,7 +23,6 @@ export const getPublicTools = async () => {
   }
 };
 
-// Ambil kategori (jika backend punya endpoint categories)
 export const getCategories = async () => {
   try {
     const response = await api.get('/categories');

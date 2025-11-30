@@ -47,10 +47,10 @@ const LoansTable = ({ loans, tools, onApprove, onReject }) => {
               <p className="text-sm text-gray-600 leading-relaxed">{loan.purpose}</p>
             </div>
 
-            <div className="flex gap-4">
+            <div className="flex gap-2">
               <button
                 onClick={() => onApprove(loan.id)}
-                className="flex-1 bg-[#00C851] hover:bg-[#00a844] text-white font-semibold py-3 px-4 rounded-lg flex items-center justify-center gap-2 transition-colors text-lg"
+                className="flex-4 bg-teal-600 hover:bg-teal-700 text-white font-semibold py-2 px-3 rounded-lg flex items-center justify-center gap-1   transition-colors text-lg"
               >
                 <CheckCircle className="w-5 h-5" />
                 Setujui
@@ -58,7 +58,7 @@ const LoansTable = ({ loans, tools, onApprove, onReject }) => {
               
               <button
                 onClick={() => onReject(loan.id)}
-                className="flex-1 bg-[#DC0000] hover:bg-[#b30000] text-white font-semibold py-3 px-4 rounded-lg flex items-center justify-center gap-2 transition-colors text-lg"
+                className="flex-4 bg-red-600 hover:bg-red-700 text-white font-semibold py-2 px-3 rounded-lg flex items-center justify-center gap-1 transition-colors text-lg"
               >
                 <XCircle className="w-5 h-5" />
                 Tolak
