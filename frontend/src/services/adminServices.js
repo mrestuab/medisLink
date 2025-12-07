@@ -35,19 +35,27 @@ export const deleteTool = async (id) => {
 
 export const getPendingLoans = async () => {
   try {
-    const response = await api.get("/loans?status=pending");
-    return response.data.map(loan => ({
-      id: loan.id,
-      userId: loan.user_id,
-      medicalToolId: loan.tool_id,
-      startDate: loan.loan_date,
-      endDate: loan.return_due,
-      purpose: loan.notes,
-      status: loan.status,
-      quantity: loan.quantity || 1 
+    const response = await api.get("/loans?status=pending"); 
+    
+    return response.data
+      .filter(l => l.status === 'pending') 
+      .map(loan => ({
+        
+        borrowerName: loan.user_detail ? loan.user_detail.name : "User Tidak Dikenal",
+        borrowerPhone: loan.user_detail ? loan.user_detail.phone : "-",
+        
+        toolName: loan.tool_detail ? loan.tool_detail.name : "Alat Tidak Dikenal",
+        
+        medicalToolId: loan.tool_id, 
+        startDate: loan.loan_date,
+        endDate: loan.return_due,
+        purpose: loan.notes,
+        medicalCondition: loan.medical_condition, 
+        status: loan.status,
+        quantity: loan.quantity || 1 
     }));
   } catch (error) {
-    console.error("Gagal ambil peminjaman:", error);
+    console.error("Error fetch loans:", error);
     return [];
   }
 };

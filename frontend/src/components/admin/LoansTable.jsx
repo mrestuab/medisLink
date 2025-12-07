@@ -1,11 +1,11 @@
 import React from "react";
-import { CheckCircle, XCircle } from "lucide-react";
+import { CheckCircle, XCircle, User, Phone, Activity, Calendar } from "lucide-react";
 
-const LoansTable = ({ loans, tools, onApprove, onReject }) => {
-  if (loans.length === 0) {
+const LoansTable = ({ loans, onApprove, onReject }) => {
+  if (!loans || loans.length === 0) {
     return (
-      <div className="text-center py-12 text-gray-500 bg-white rounded-lg border border-gray-200">
-        <p>Tidak ada permintaan pinjaman saat ini.</p>
+      <div className="text-center py-16 text-gray-500 bg-white rounded-2xl border border-gray-200 shadow-sm">
+        <p>Tidak ada permintaan pinjaman yang menunggu persetujuan.</p>
       </div>
     );
   }
@@ -13,57 +13,95 @@ const LoansTable = ({ loans, tools, onApprove, onReject }) => {
   return (
     <div className="mt-6 space-y-6">
       {loans.map((loan) => {
-        const tool = tools.find((t) => t.id === loan.medicalToolId);
-        const borrower = { name: "Budi Santoso", phone: "08987654321" };
-
         return (
-          <div key={loan.id} className="bg-white border border-gray-200 rounded-xl p-8 shadow-sm">
-            <div className="grid md:grid-cols-3 gap-8 mb-6">
+          <div 
+            key={loan.id} 
+            className="bg-white border border-gray-200 rounded-2xl p-6 md:p-8 shadow-sm hover:shadow-md transition-all duration-200"
+          >
+            
+            <div className="grid md:grid-cols-3 gap-8 mb-8">
+              
               <div>
-                <p className="text-xs font-medium text-gray-500 mb-1">Peminjam</p>
-                <h4 className="text-lg font-bold text-gray-900">{borrower.name}</h4>
-                <p className="text-sm text-gray-500 mt-1">{borrower.phone}</p>
+                <p className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-3">Data Peminjam</p>
+                <div className="flex items-start gap-3">
+                    <div className="bg-teal-50 p-2.5 rounded-full flex-shrink-0">
+                        <User className="w-5 h-5 text-teal-600" />
+                    </div>
+                    <div>
+                        <h4 className="text-base font-bold text-gray-900 line-clamp-1">
+                            {loan.borrowerName || "Nama Tidak Tersedia"}
+                        </h4>
+                        <div className="flex items-center gap-1.5 text-sm text-gray-500 mt-1">
+                            <Phone className="w-3.5 h-3.5" /> 
+                            <span>{loan.borrowerPhone || "-"}</span>
+                        </div>
+                    </div>
+                </div>
               </div>
 
               <div>
-                <p className="text-xs font-medium text-gray-500 mb-1">Alat yang Diminta</p>
-                <h4 className="text-lg font-bold text-gray-900">{tool?.name || "Alat Tidak Dikenal"}</h4>
-                <p className="text-sm text-gray-500 mt-1">Jumlah: {loan.quantity}</p>
-              </div>
-
-              <div>
-                <p className="text-xs font-medium text-gray-500 mb-1">Periode Pinjam</p>
-                <h4 className="text-lg font-bold text-gray-900">
-                  {new Date(loan.startDate).toLocaleDateString("id-ID")}
+                <p className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-3">Alat Medis</p>
+                <h4 className="text-lg font-bold text-gray-900 text-teal-700 leading-tight">
+                    {loan.toolName || "Alat Tidak Dikenal"}
                 </h4>
-                <p className="text-sm text-gray-500 mt-1">
-                  s/d {new Date(loan.endDate).toLocaleDateString("id-ID")}
-                </p>
+                <div className="flex gap-4 mt-2.5">
+                    <span className="bg-gray-100 text-gray-600 px-2.5 py-1 rounded-md text-xs font-semibold">
+                        Jumlah: {loan.quantity} Unit
+                    </span>
+                </div>
+              </div>
+
+              <div>
+                <p className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-3">Durasi Peminjaman</p>
+                <div className="flex items-center gap-2 mb-1">
+                    <Calendar className="w-4 h-4 text-teal-500" />
+                    <span className="font-bold text-gray-800 text-sm">
+                        {new Date(loan.startDate).toLocaleDateString("id-ID", { day: 'numeric', month: 'short', year: 'numeric' })}
+                    </span>
+                </div>
+                <div className="pl-6 text-sm text-gray-500">
+                    s/d <span className="font-medium text-gray-700">{new Date(loan.endDate).toLocaleDateString("id-ID", { day: 'numeric', month: 'short', year: 'numeric' })}</span>
+                </div>
               </div>
             </div>
 
-            <div className="mb-8">
-              <p className="text-sm font-bold text-gray-800 mb-1">Tujuan Penggunaan:</p>
-              <p className="text-sm text-gray-600 leading-relaxed">{loan.purpose}</p>
+            <div className="grid md:grid-cols-2 gap-6 bg-gray-50 p-5 rounded-xl border border-gray-100 mb-8">
+                
+                <div>
+                    <p className="text-xs font-bold text-gray-500 mb-1.5 flex items-center gap-1.5">
+                        <Activity className="w-3.5 h-3.5 text-red-500" /> Kondisi Medis Pasien:
+                    </p>
+                    <p className="text-sm font-semibold text-gray-900 leading-relaxed">
+                        {loan.medicalCondition || "-"}
+                    </p>
+                </div>
+
+                <div>
+                    <p className="text-xs font-bold text-gray-500 mb-1.5">Tujuan / Catatan:</p>
+                    <p className="text-sm text-gray-600 italic leading-relaxed">
+                        "{loan.purpose}"
+                    </p>
+                </div>
             </div>
 
-            <div className="flex gap-2">
+            <div className="flex flex-col sm:flex-row gap-3 pt-2 border-t border-gray-100">
               <button
                 onClick={() => onApprove(loan.id)}
-                className="flex-4 bg-teal-600 hover:bg-teal-700 text-white font-semibold py-2 px-3 rounded-lg flex items-center justify-center gap-1   transition-colors text-lg"
+                className="flex-1 bg-teal-600 hover:bg-teal-700 text-white font-semibold py-3 px-4 rounded-xl flex items-center justify-center gap-2 transition-all shadow-sm hover:shadow-teal-100 active:scale-[0.98]"
               >
                 <CheckCircle className="w-5 h-5" />
-                Setujui
+                Setujui Peminjaman
               </button>
               
               <button
                 onClick={() => onReject(loan.id)}
-                className="flex-4 bg-red-600 hover:bg-red-700 text-white font-semibold py-2 px-3 rounded-lg flex items-center justify-center gap-1 transition-colors text-lg"
+                className="flex-1 bg-white hover:bg-red-50 text-red-600 border border-red-200 hover:border-red-300 font-semibold py-3 px-4 rounded-xl flex items-center justify-center gap-2 transition-all active:scale-[0.98]"
               >
                 <XCircle className="w-5 h-5" />
                 Tolak
               </button>
             </div>
+
           </div>
         );
       })}

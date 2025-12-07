@@ -1,0 +1,253 @@
+import React, { useState, useEffect } from "react";
+import { useParams, useNavigate } from "react-router-dom";
+import { ArrowLeft, Check, AlertCircle, Calendar, FileText, Ruler, Weight, Tag, Info, Heart, Activity } from "lucide-react";
+
+import { getToolById, createLoan } from "../services/userServices";
+
+export default function ToolDetailPage() {
+  const { id } = useParams();
+  const navigate = useNavigate();
+
+  const [tool, setTool] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const [formData, setFormData] = useState({
+    loanDate: "",
+    returnDue: "", 
+    medicalCondition: "",
+    notes: "",
+  });
+
+  useEffect(() => {
+    const fetchData = async () => {
+      setLoading(true);
+      const data = await getToolById(id);
+      setTool(data);
+      setLoading(false);
+    };
+    fetchData();
+  }, [id]);
+
+  const handleChange = (e) => {
+    setFormData({ ...formData, [e.target.name]: e.target.value });
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    if(!formData.loanDate || !formData.medicalCondition) {
+        alert("Mohon lengkapi Tanggal Mulai dan Kondisi Medis.");
+        return;
+    }
+
+    setIsSubmitting(true);
+    try {
+        await createLoan({
+            tool_id: tool.id,
+            quantity: 1, 
+            loan_date: formData.loanDate,
+            return_due: formData.returnDue || formData.loanDate, 
+            medical_condition: formData.medicalCondition,
+            notes: formData.notes
+        });
+        
+        alert("Permintaan berhasil diajukan! Cek status di Riwayat.");
+        navigate("/dashboard"); 
+
+    } catch (error) {
+        console.error("Error mengajukan pinjaman:", error);
+        alert("Gagal mengajukan pinjaman. Coba lagi.");
+    } finally {
+        setIsSubmitting(false);
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+        <span className="loading loading-spinner loading-lg text-teal-600"></span>
+      </div>
+    );
+  }
+
+  if (!tool) {
+    return (
+      <div className="min-h-screen flex flex-col items-center justify-center px-4 bg-gray-50">
+        <AlertCircle className="w-16 h-16 text-gray-300 mb-4" />
+        <h1 className="text-2xl font-bold text-gray-800 mb-2">Alat Tidak Ditemukan</h1>
+        <button onClick={() => navigate("/dashboard")} className="btn btn-primary bg-teal-500 border-none text-white">
+          Kembali ke Dashboard
+        </button>
+      </div>
+    );
+  }
+
+  return (
+    <main className="min-h-screen bg-gray-50 pb-20">
+      
+      <div className="bg-white border-b sticky top-0 z-40 shadow-sm">
+        <div className="max-w-5xl mx-auto px-4 py-4 flex items-center gap-4">
+          <button onClick={() => navigate("/dashboard")} className="btn btn-ghost btn-sm gap-2 text-gray-600 normal-case">
+            <ArrowLeft className="w-4 h-4" /> Kembali
+          </button>
+          <h1 className="text-lg font-bold text-gray-900 truncate hidden sm:block">{tool.name}</h1>
+        </div>
+      </div>
+
+      <div className="max-w-5xl mx-auto px-4 py-8">
+        <div className="grid lg:grid-cols-3 gap-8">
+          
+          <div className="lg:col-span-2 space-y-6">
+            <div className="bg-white border border-gray-200 rounded-2xl p-4 h-80 sm:h-96 flex items-center justify-center overflow-hidden shadow-sm relative group">
+                {tool.image_url ? (
+                    <img src={tool.image_url} alt={tool.name} className="w-full h-full object-contain rounded-xl transition-transform duration-500 group-hover:scale-105" />
+                ) : (
+                    <div className="flex flex-col items-center text-gray-300">
+                        <span className="text-6xl font-bold">{tool.name.charAt(0)}</span>
+                        <span className="text-sm mt-2">Tidak ada gambar</span>
+                    </div>
+                )}
+                <div className="absolute top-4 left-4">
+                    <span className="badge badge-lg bg-black/60 text-white border-none p-4 uppercase tracking-wider font-bold text-xs backdrop-blur-sm">
+                        {tool.category}
+                    </span>
+                </div>
+            </div>
+
+            <div className="bg-white border border-gray-200 rounded-2xl p-6 sm:p-8 shadow-sm space-y-8">
+              <div>
+                 <h1 className="text-3xl font-bold text-gray-900 mb-2">{tool.name}</h1>
+                 <div className="flex flex-wrap gap-2 mb-4">
+                    {tool.type && <span className="badge badge-outline border-blue-200 text-blue-700 bg-blue-50 p-3">{tool.type}</span>}
+                    {tool.size && <span className="badge badge-outline border-purple-200 text-purple-700 bg-purple-50 p-3">{tool.size}</span>}
+                 </div>
+                 <p className="text-gray-600 leading-relaxed text-base">{tool.description || "Tidak ada deskripsi tersedia."}</p>
+              </div>
+
+              <div className="divider"></div>
+
+              <div>
+                <h3 className="text-sm font-bold text-teal-600 uppercase tracking-wide mb-4 flex items-center gap-2">
+                    <Ruler className="w-4 h-4" /> Spesifikasi Teknis
+                </h3>
+                <div className="grid grid-cols-2 gap-4">
+                    <div className="bg-gray-50 p-4 rounded-xl border border-gray-100">
+                        <p className="text-xs text-gray-500 mb-1 font-bold uppercase">Dimensi</p>
+                        <p className="font-semibold text-gray-900">{tool.dimensions || "-"}</p>
+                    </div>
+                    <div className="bg-gray-50 p-4 rounded-xl border border-gray-100">
+                        <p className="text-xs text-gray-500 mb-1 font-bold uppercase">Beban Maks</p>
+                        <p className="font-semibold text-gray-900">{tool.weight_cap || "-"}</p>
+                    </div>
+                    <div className="bg-gray-50 p-4 rounded-xl border border-gray-100">
+                        <p className="text-xs text-gray-500 mb-1 font-bold uppercase">Kondisi</p>
+                        <span className={`badge border-none font-bold ${tool.condition === "baik" ? "bg-green-100 text-green-700" : "bg-yellow-100 text-yellow-700"}`}>
+                            {tool.condition ? tool.condition.toUpperCase() : "-"}
+                        </span>
+                    </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div>
+            <div className="bg-white border border-teal-100 rounded-2xl p-6 shadow-lg sticky top-24">
+              
+              <div className="mb-6 pb-6 border-b border-gray-100">
+                <p className="text-gray-500 text-xs font-semibold uppercase tracking-wider mb-2">Status Ketersediaan</p>
+                {tool.stock > 0 ? (
+                  <div className="flex items-center gap-2 text-green-600">
+                    <Check className="w-6 h-6" />
+                    <span className="text-xl font-bold">Tersedia ({tool.stock} Unit)</span>
+                  </div>
+                ) : (
+                  <div className="flex items-center gap-2 text-red-600">
+                    <AlertCircle className="w-6 h-6" />
+                    <span className="text-xl font-bold">Stok Habis</span>
+                  </div>
+                )}
+              </div>
+
+              <form onSubmit={handleSubmit} className="space-y-4">
+                  
+                  <div className="form-control">
+                      <label className="label-text text-xs font-bold text-gray-500 mb-1 block">Tanggal Mulai</label>
+                      <label className="input input-bordered flex items-center gap-2 w-full focus-within:border-teal-500">
+                        <Calendar className="w-4 h-4 text-gray-400" />
+                        <input 
+                            type="date" 
+                            name="loanDate"
+                            value={formData.loanDate}
+                            onChange={handleChange}
+                            className="grow" 
+                            required 
+                        />
+                      </label>
+                  </div>
+
+                  <div className="form-control">
+                      <label className="label-text text-xs font-bold text-gray-500 mb-1 block">Rencana Kembali</label>
+                      <label className="input input-bordered flex items-center gap-2 w-full focus-within:border-teal-500">
+                        <Calendar className="w-4 h-4 text-gray-400" />
+                        <input 
+                            type="date" 
+                            name="returnDue"
+                            value={formData.returnDue}
+                            onChange={handleChange}
+                            className="grow" 
+                            required 
+                        />
+                      </label>
+                  </div>
+
+                  <div className="form-control">
+                      <label className="label-text text-xs font-bold text-gray-500 mb-1 flex items-center gap-1">
+                        <Activity className="w-3 h-3 text-red-500" /> Kondisi Medis
+                      </label>
+                      <input 
+                        type="text"
+                        name="medicalCondition"
+                        value={formData.medicalCondition}
+                        onChange={handleChange}
+                        className="input input-bordered w-full focus:border-teal-500 text-sm"
+                        placeholder="Cth: Patah Tulang, Stroke"
+                        required
+                      />
+                  </div>
+
+                  <div className="form-control">
+                      <label className="label-text text-xs font-bold text-gray-500 mb-1 block">Tujuan Penggunaan</label>
+                      <textarea 
+                        name="notes"
+                        value={formData.notes}
+                        onChange={handleChange}
+                        className="textarea textarea-bordered w-full focus:border-teal-500 text-sm" 
+                        placeholder="Jelaskan kebutuhan Anda..."
+                        rows={2}
+                      ></textarea>
+                  </div>
+
+                  <button 
+                      type="submit"
+                      disabled={tool.stock === 0 || isSubmitting}
+                      className="btn btn-primary w-full bg-teal-600 hover:bg-teal-700 border-none text-white mt-4 shadow-lg shadow-teal-100 disabled:bg-gray-300 disabled:text-gray-500"
+                  >
+                    {isSubmitting ? "Mengirim..." : "Ajukan Permintaan"}
+                  </button>
+              </form>
+
+              <div className="mt-4 bg-blue-50 p-3 rounded-lg flex gap-3 items-start">
+                  <Info className="w-5 h-5 text-blue-500 flex-shrink-0 mt-0.5" />
+                  <p className="text-xs text-blue-700 leading-snug">
+                      Peminjaman bersifat sukarela. Admin akan memverifikasi data Anda.
+                  </p>
+              </div>
+
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </main>
+  );
+}

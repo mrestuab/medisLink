@@ -9,6 +9,7 @@ import AdminDashboard from './pages/admin/AdminDashboardPage'
 import UserLayout from './layouts/UserLayout'
 import ProtectedRoute from './components/ProtectedRoute'
 import PublicRoute from './components/PublicRoute'
+import ToolDetailPage from './pages/ToolDetailPage'
 
 function App() {
   return (
@@ -25,6 +26,7 @@ function App() {
           <Route path="/dashboard" element={<UserLayout />}>
             <Route index element={<UserDashboardPage />} />
           </Route>
+            <Route path="alat/:id" element={<ToolDetailPage />} />
         </Route>
 
         <Route element={<ProtectedRoute allowedRoles={['admin']} />}>

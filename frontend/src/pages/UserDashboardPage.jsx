@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
+import { Image, Tag, Ruler, Weight } from 'lucide-react'; 
 
 import { getPublicTools, getCategories } from '../services/userServices';
 
@@ -9,6 +10,8 @@ const UserDashboardPage = () => {
   const [tools, setTools] = useState([]);
   const [categories, setCategories] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
+
+  const [selectedCategory, setSelectedCategory] = useState('all');
 
   useEffect(() => {
     const fetchData = async () => {
@@ -30,9 +33,13 @@ const UserDashboardPage = () => {
     fetchData();
   }, []);
 
+  const filteredTools = selectedCategory === 'all' 
+    ? tools 
+    : tools.filter(t => t.category?.toLowerCase() === selectedCategory.toLowerCase());
+
   return (
     <>
-      <div className="flex gap-8 border-b border-gray-200 mb-8 overflow-x-auto mt-6">
+      <div className="flex gap-8 border-b border-gray-200 mb-8 mt-8 overflow-x-auto">
         <button
           onClick={() => setActiveTab("jelajahi")}
           className={`pb-3 font-medium text-sm border-b-2 transition-colors whitespace-nowrap ${
@@ -77,71 +84,106 @@ const UserDashboardPage = () => {
           
           <div className="lg:col-span-2 space-y-6">
             
+            {selectedCategory !== 'all' && (
+                <div className="flex justify-between items-center bg-teal-50 px-4 py-2 rounded-lg border border-teal-100">
+                    <span className="text-sm text-teal-800 capitalize">Kategori: <strong>{selectedCategory}</strong></span>
+                    <button onClick={() => setSelectedCategory('all')} className="text-xs text-teal-600 hover:underline font-bold">Lihat Semua</button>
+                </div>
+            )}
+
             {isLoading ? (
-              <div className="text-center py-12 text-gray-400">Memuat data alat...</div>
-            ) : tools.length === 0 ? (
+              <div className="text-center py-12 text-gray-400">
+                <span className="loading loading-spinner loading-md"></span> Memuat data...
+              </div>
+            ) : filteredTools.length === 0 ? (
               <div className="text-center py-12 text-gray-500 border rounded-xl bg-white">
-                Belum ada alat medis yang tersedia saat ini.
+                Tidak ada alat medis di kategori ini.
               </div>
             ) : (
-              tools.map((tool) => (
-                <div key={tool.id} className="bg-white border border-gray-200 rounded-xl p-6 shadow-sm hover:shadow-md transition-all">
-                  <div className="flex justify-between items-start mb-2">
-                    <div>
-                      <h2 className="text-lg font-bold text-gray-900">{tool.name}</h2>
-                      
-                      <div className="flex flex-wrap gap-2 mt-2">
-                          <span className="inline-block bg-gray-100 text-gray-600 text-xs px-2 py-1 rounded capitalize">
-                            {tool.category}
-                          </span>
-                          {tool.type && (
-                             <span className="inline-block bg-blue-50 text-blue-600 text-xs px-2 py-1 rounded border border-blue-100">
-                                {tool.type}
-                             </span>
-                          )}
-                          {tool.size && (
-                             <span className="inline-block bg-purple-50 text-purple-600 text-xs px-2 py-1 rounded border border-purple-100 font-medium">
-                                Size: {tool.size}
-                             </span>
-                          )}
+              filteredTools.map((tool) => (
+                <div key={tool.id} className="bg-white border border-gray-200 rounded-xl p-5 shadow-sm hover:shadow-md transition-all flex flex-col sm:flex-row gap-6">
+                  
+                  <div className="w-full sm:w-40 h-40 flex-shrink-0 bg-gray-100 rounded-lg overflow-hidden border border-gray-200 relative">
+                    {tool.image_url ? (
+                      <img src={tool.image_url} alt={tool.name} className="w-full h-full object-cover" />
+                    ) : (
+                      <div className="flex flex-col items-center justify-center h-full text-gray-400">
+                        <Image className="w-8 h-8 mb-2" />
+                        <span className="text-[10px]">No Image</span>
                       </div>
+                    )}
+                    <div className="absolute top-2 left-2 bg-black/60 text-white text-[10px] px-2 py-1 rounded backdrop-blur-sm uppercase font-bold tracking-wider">
+                      {tool.category}
                     </div>
-
-                    <div className="text-right">
-                       <span className={`text-xs font-medium px-2 py-1 rounded ${
-                         tool.condition === 'baik' || tool.condition === 'Good' ? 'bg-green-50 text-green-700' : 'bg-yellow-50 text-yellow-700'
-                       }`}>
-                         {tool.condition}
-                       </span>
-                    </div>
-                  </div>
-                  
-                  <div className="text-xs text-gray-500 mb-3 space-y-1">
-                      {tool.dimensions && <p>📐 Dimensi: {tool.dimensions}</p>}
-                      {tool.weight_cap && <p>⚖️ Beban Maks: {tool.weight_cap}</p>}
                   </div>
 
-                  <p className="text-sm text-gray-600 mb-6 leading-relaxed line-clamp-2">{tool.description}</p>
-                  
-                  <div className="flex justify-between items-center pt-4 border-t border-gray-100">
-                    <div className="flex items-center gap-2">
-                       <span className="text-sm text-gray-500">Stok:</span>
-                       <span className={`text-sm font-bold ${tool.stock > 0 ? 'text-teal-600' : 'text-red-500'}`}>
-                         {tool.stock > 0 ? `${tool.stock} tersedia` : 'Habis'}
-                       </span>
+                  <div className="flex-1 flex flex-col justify-between">
+                    <div>
+                        <div className="flex justify-between items-start">
+                            <div>
+                                <h3 className="text-xl font-bold text-gray-900">{tool.name}</h3>
+                                
+                                {/* Tags Spesifikasi (Type & Size) */}
+                                <div className="flex flex-wrap gap-2 mt-2 mb-2">
+                                    {tool.type && (
+                                      <span className="text-xs bg-blue-50 text-blue-700 px-2 py-1 rounded border border-blue-100 font-medium">
+                                        {tool.type}
+                                      </span>
+                                    )}
+                                    {tool.size && (
+                                      <span className="text-xs bg-purple-50 text-purple-700 px-2 py-1 rounded border border-purple-100 font-medium">
+                                        Size: {tool.size}
+                                      </span>
+                                    )}
+                                </div>
+                            </div>
+
+                            <span className={`text-[10px] font-bold px-2 py-1 rounded border uppercase ${
+                                tool.condition === 'baik' || tool.condition === 'Good' ? 'bg-green-50 text-green-700 border-green-200' : 
+                                tool.condition === 'rusak ringan' ? 'bg-yellow-50 text-yellow-700 border-yellow-200' :
+                                'bg-red-50 text-red-700 border-red-200'
+                            }`}>
+                                {tool.condition}
+                            </span>
+                        </div>
+
+                        <div className="text-xs text-gray-500 mb-3 space-y-1">
+                            {tool.weight_cap && (
+                              <p className="flex items-center gap-1">
+                                <Weight className="w-3 h-3 text-teal-500" /> Beban Maks: {tool.weight_cap}
+                              </p>
+                            )}
+                            {tool.dimensions && (
+                              <p className="flex items-center gap-1">
+                                <Ruler className="w-3 h-3 text-teal-500" /> Dimensi: {tool.dimensions}
+                              </p>
+                            )}
+                        </div>
                     </div>
-                    
-                    <Link 
-                      to={`/alat/${tool.id}`} 
-                      className={`btn btn-sm border-none px-6 h-10 min-h-0 rounded-lg font-medium ${
-                        tool.stock > 0 
-                        ? 'bg-teal-500 hover:bg-teal-600 text-white' 
-                        : 'bg-gray-300 text-gray-500 cursor-not-allowed pointer-events-none'
-                      }`}
-                    >
-                      {tool.stock > 0 ? 'Pilih' : 'Habis'}
-                    </Link>
+
+                    <p className="text-sm text-gray-600 mb-4 leading-relaxed line-clamp-2">{tool.description}</p>
+
+                    <div className="flex justify-between items-end border-t border-gray-100 pt-3">
+                        <div>
+                            <p className="text-xs text-gray-400 mb-0.5">Ketersediaan</p>
+                            <p className={`text-sm font-bold ${tool.stock > 0 ? 'text-teal-600' : 'text-red-500'}`}>
+                                {tool.stock > 0 ? `${tool.stock} Unit Tersedia` : 'Stok Habis'}
+                            </p>
+                        </div>
+                        
+                        <Link 
+                          to={tool.stock > 0 ? `/alat/${tool.id}` : '#'} 
+                          className={`btn btn-sm px-6 rounded-lg font-medium border-none ${
+                            tool.stock > 0 
+                            ? 'bg-teal-500 hover:bg-teal-600 text-white' 
+                            : 'bg-gray-200 text-gray-400 cursor-not-allowed'
+                          }`}
+                        >
+                          {tool.stock > 0 ? 'Pilih Alat' : 'Habis'}
+                        </Link>
+                    </div>
                   </div>
+
                 </div>
               ))
             )}
@@ -150,15 +192,39 @@ const UserDashboardPage = () => {
           <div className="lg:col-span-1 space-y-6">
             <div className="bg-white border border-gray-200 rounded-xl p-6 shadow-sm">
               <h3 className="font-bold text-gray-900 mb-4 text-lg">Kategori</h3>
-              <ul className="space-y-1">
-                {categories.map((cat) => (
-                  <li key={cat.id || cat.name}>
-                    <a href="#" className="block text-gray-600 hover:text-teal-700 hover:bg-teal-50 px-4 py-3 rounded-lg transition-colors text-sm font-medium capitalize">
-                      {cat.name}
-                    </a>
-                  </li>
-                ))}
-              </ul>
+              
+              {categories.length === 0 ? (
+                  <p className="text-sm text-gray-400">Memuat kategori...</p>
+              ) : (
+                  <ul className="space-y-1">
+                    <li>
+                        <button 
+                            onClick={() => setSelectedCategory('all')}
+                            className={`block w-full text-left px-4 py-3 rounded-lg transition-colors text-sm font-medium ${
+                                selectedCategory === 'all' 
+                                ? 'bg-teal-50 text-teal-700 font-bold border border-teal-100' 
+                                : 'text-gray-600 hover:text-teal-700 hover:bg-gray-50'
+                            }`}
+                        >
+                          Semua Alat
+                        </button>
+                    </li>
+                    {categories.map((cat) => (
+                      <li key={cat.id || cat.name}>
+                        <button 
+                            onClick={() => setSelectedCategory(cat.name)}
+                            className={`block w-full text-left px-4 py-3 rounded-lg transition-colors text-sm font-medium capitalize ${
+                                selectedCategory.toLowerCase() === cat.name.toLowerCase()
+                                ? 'bg-teal-50 text-teal-700 font-bold border border-teal-100' 
+                                : 'text-gray-600 hover:text-teal-700 hover:bg-gray-50'
+                            }`}
+                        >
+                          {cat.name}
+                        </button>
+                      </li>
+                    ))}
+                  </ul>
+              )}
             </div>
 
             <div className="bg-teal-50 border border-teal-100 rounded-xl p-6">
