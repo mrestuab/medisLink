@@ -8,7 +8,7 @@ const RegisterPage = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
-  const [nama, setNama] = useState('');
+  const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [phone, setPhone] = useState('');
   const [password, setPassword] = useState('');
@@ -29,7 +29,7 @@ const RegisterPage = () => {
       return; 
     }
     const payload = {
-      nama: nama,
+      name: name,
       email: email,
       phone: phone,
       password: password,
@@ -40,7 +40,7 @@ const RegisterPage = () => {
 
       setSuccess('Registrasi berhasil! Anda akan diarahkan ke halaman Login...');
       
-      setNama('');
+      setName('');
       setEmail('');
       setPhone('');
       setPassword('');
@@ -97,8 +97,8 @@ const RegisterPage = () => {
               placeholder="Nama Lengkap"
               className="input w-full pl-5 border-gray-300 rounded-lg bg-gray-50 focus:bg-white focus:border-teal-500 "
               required
-              value={nama}
-              onChange={(e) => setNama(e.target.value)}
+              value={name}
+              onChange={(e) => setName(e.target.value)}
             />
           </div>
 
