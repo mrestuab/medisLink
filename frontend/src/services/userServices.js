@@ -115,3 +115,28 @@ export const getMyLoans = async () => {
     return [];
   }
 };
+
+export const getAds = async () => {
+  try {
+    const response = await api.get('/adds');
+    return response.data;
+  } catch (error) {
+    console.error("Gagal ambil iklan:", error);
+    return [
+        {
+            id: 1,
+            title: "Promo Kursi Roda",
+            description: "Diskon 50% untuk penyewaan bulan pertama!",
+            image_url: "https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?auto=format&fit=crop&w=1200&q=80",
+            link: "/login"
+        },
+        {
+            id: 2,
+            title: "Layanan Antar Jemput",
+            description: "Gratis ongkir untuk wilayah Jakarta Selatan.",
+            image_url: "https://images.unsplash.com/photo-1581093458791-9f3c3900df4b?auto=format&fit=crop&w=1200&q=80",
+            link: "/tools"
+        }
+    ];
+  }
+};

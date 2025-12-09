@@ -9,10 +9,13 @@ import (
 
 func AddRoutes(app *fiber.App) {
 	api := app.Group("/api/adds")
-	api.Use(middlewares.JWTProtected())
 
-	api.Post("/", controllers.CreateAdd)
 	api.Get("/", controllers.GetAllAdds)
-	api.Put("/:id", controllers.UpdateAdd)
-	api.Delete("/:id", controllers.DeleteAdd)
+
+	protected := api.Group("/")
+	protected.Use(middlewares.JWTProtected())
+
+	protected.Post("/", controllers.CreateAdd)
+	protected.Put("/:id", controllers.UpdateAdd)
+	protected.Delete("/:id", controllers.DeleteAdd)
 }

@@ -10,6 +10,7 @@ import UserLayout from './layouts/UserLayout'
 import ProtectedRoute from './components/ProtectedRoute'
 import PublicRoute from './components/PublicRoute'
 import ToolDetailPage from './pages/ToolDetailPage'
+import ToolPage from './pages/ToolPage'
 
 function App() {
   return (
@@ -20,6 +21,7 @@ function App() {
         <Route element={<PublicRoute />}>
           <Route path="/login" element={<LoginPage />} />
           <Route path="/register" element={<RegisterPage />} />
+          <Route path="/alat" element={<ToolPage />} />
         </Route>
 
         <Route element={<ProtectedRoute allowedRoles={['user']} />}>

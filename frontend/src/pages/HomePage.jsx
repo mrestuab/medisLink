@@ -1,138 +1,228 @@
+import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
+import { ChevronLeft, ChevronRight, Star } from "lucide-react"; 
+
+import { getAds } from "../services/userServices"; 
 
 export default function HomePage() {
+  const [ads, setAds] = useState([]);
+  const [currentSlide, setCurrentSlide] = useState(0);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchAds = async () => {
+      try {
+        const data = await getAds();
+        if (data && data.length > 0) {
+          setAds(data);
+        } else {
+          setAds([
+            {
+              id: 1,
+              title: "Akses Alat Medis Mudah",
+              description: "Solusi penyewaan alat medis terpercaya untuk keluarga Indonesia.",
+              image_url: "https://images.unsplash.com/photo-1519494026892-80bbd2d6fd0d?auto=format&fit=crop&w=1200&q=80",
+              link: "/tools"
+            },
+            {
+              id: 2,
+              title: "Promo Kursi Roda",
+              description: "Dapatkan diskon spesial untuk penyewaan jangka panjang.",
+              image_url: "https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?auto=format&fit=crop&w=1200&q=80",
+              link: "/login"
+            }
+          ]);
+        }
+      } catch (error) {
+        console.error("Gagal load ads", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchAds();
+  }, []);
+
+  useEffect(() => {
+    if (ads.length <= 1) return;
+    const timer = setInterval(() => {
+      setCurrentSlide((prev) => (prev + 1) % ads.length);
+    }, 5000);
+    return () => clearInterval(timer);
+  }, [ads.length]);
+
+  const nextSlide = () => setCurrentSlide((prev) => (prev + 1) % ads.length);
+  const prevSlide = () => setCurrentSlide((prev) => (prev === 0 ? ads.length - 1 : prev - 1));
+
   return (
-    <div className="flex flex-col min-h-screen bg-gray-50 text-gray-900">
-      <nav className="navbar fixed top-0 w-full z-50 backdrop-blur-md bg-base-100/80 border-b border-gray-200/30">
-        <div className="max-w-7xl mx-auto w-full px-6 py-2 flex items-center justify-between">
+    <div className="flex flex-col min-h-screen bg-gray-50 text-gray-900 font-sans">
+      
+      <nav className="navbar fixed top-0 w-full z-50 backdrop-blur-md bg-white/80 border-b border-gray-200/50 transition-all">
+        <div className="max-w-7xl mx-auto w-full px-6 py-3 flex items-center justify-between">
           <Link to="/" className="flex items-center gap-2 group">
-            <div className="w-8 h-8 bg-teal-500 rounded-lg flex items-center justify-center text-white font-bold text-sm">
+            <div className="w-9 h-9 bg-teal-500 rounded-xl flex items-center justify-center text-white font-bold text-lg shadow-teal-200 shadow-lg">
               M
             </div>
-            <span className="font-semibold text-lg">MedisLink</span>
+            <span className="font-bold text-xl text-gray-800 tracking-tight">MedisLink</span>
           </Link>
-          <Link
-            to="/login"
-            className="btn btn-primary btn-sm bg-teal-500 hover:bg-teal-600 border-none text-white font-medium text-sm px-5 rounded-lg"
-          >
-            Login
-          </Link>
+          <div className="flex gap-4">
+             <Link
+                to="/login"
+                className="btn btn-primary btn-sm bg-teal-500 hover:bg-teal-600 border-none text-white font-semibold text-sm px-6 rounded-full shadow-md shadow-teal-100"
+            >
+                Masuk / Daftar
+            </Link>
+          </div>
         </div>
       </nav>
 
-      <section className="relative flex-1 flex items-center justify-center pt-24 pb-20 px-6 overflow-hidden">
-        <div className="absolute top-20 right-10 w-72 h-72 bg-blue-500/10 rounded-full blur-3xl"></div>
-        <div className="absolute bottom-10 left-20 w-96 h-96 bg-teal-500/5 rounded-full blur-3xl"></div>
+      <section className="relative pt-24 pb-12 px-4 sm:px-6">
+        <div className="max-w-7xl mx-auto relative rounded-2xl overflow-hidden h-[500px] sm:h-[600px] shadow-2xl bg-gray-900 group">
+            
+            {ads.map((ad, index) => (
+                <div 
+                    key={ad.id || index}
+                    className={`absolute inset-0 transition-opacity duration-1000 ease-in-out ${index === currentSlide ? 'opacity-100 z-10' : 'opacity-0 z-0'}`}
+                >
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-black/30 z-10"></div>
+                    <img 
+                        src={ad.image_url || "https://via.placeholder.com/1200x600?text=MedisLink"} 
+                        alt={ad.title} 
+                        className="w-full h-full object-cover transition-transform duration-[10000ms] ease-linear transform scale-105 group-hover:scale-110"
+                    />
+                    
+                    <div className="absolute inset-0 z-20 flex flex-col items-center justify-center text-center px-6 max-w-4xl mx-auto">
+                        <span className="inline-block py-1 px-4 rounded-full bg-teal-500/90 text-white text-xs font-bold uppercase tracking-widest mb-6 backdrop-blur-sm border border-white/20 animate-in fade-in slide-in-from-bottom-4 duration-700">
+                            Featured
+                        </span>
+                        <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold text-white mb-6 drop-shadow-lg leading-tight animate-in fade-in slide-in-from-bottom-6 duration-1000 delay-100">
+                            {ad.title}
+                        </h1>
+                        <p className="text-lg md:text-xl text-gray-200 mb-10 max-w-2xl drop-shadow-md leading-relaxed animate-in fade-in slide-in-from-bottom-8 duration-1000 delay-200">
+                            {ad.description}
+                        </p>
+                        
+                        <div className="flex gap-4 animate-in fade-in slide-in-from-bottom-10 duration-1000 delay-300">
+                            <Link 
+                                to={ad.link || "/tools"} 
+                                className="btn btn-primary bg-teal-500 hover:bg-teal-600 border-none text-white font-bold px-10 py-3 h-auto rounded-full shadow-lg hover:shadow-teal-500/30 hover:-translate-y-1 transition-all"
+                            >
+                                Cek Sekarang
+                            </Link>
+                            <button className="btn btn-outline text-white border-white/50 hover:bg-white/10 hover:border-white font-semibold px-8 py-3 h-auto rounded-full backdrop-blur-sm">
+                                Pelajari Lebih Lanjut
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            ))}
 
-        <div className="max-w-3xl mx-auto text-center relative z-10">
-          <div className="badge badge-lg gap-2 mb-8 px-4 py-4 rounded-full border border-gray-200/50 bg-white/50 backdrop-blur">
-            <span className="w-2 h-2 rounded-full bg-teal-500"></span>
-            <span className="text-sm text-gray-600">Solusi Terpercaya untuk Kesehatan Anda</span>
-          </div>
+            {ads.length > 1 && (
+                <>
+                    <button onClick={prevSlide} className="absolute left-4 top-1/2 -translate-y-1/2 z-30 p-3 bg-white/10 hover:bg-white/20 backdrop-blur-md rounded-full text-white transition-all border border-white/10 group-hover:opacity-100 opacity-0">
+                        <ChevronLeft className="w-6 h-6" />
+                    </button>
+                    <button onClick={nextSlide} className="absolute right-4 top-1/2 -translate-y-1/2 z-30 p-3 bg-white/10 hover:bg-white/20 backdrop-blur-md rounded-full text-white transition-all border border-white/10 group-hover:opacity-100 opacity-0">
+                        <ChevronRight className="w-6 h-6" />
+                    </button>
+                </>
+            )}
 
-          <h1 className="text-5xl md:text-6xl lg:text-7xl font-bold tracking-tight mb-6 text-balance">
-            Akses Alat Medis dengan{" "}
-            <span className="bg-gradient-to-r from-teal-500 to-emerald-700 bg-clip-text text-transparent">Mudah</span>
-          </h1>
-
-          <p className="text-lg md:text-xl text-gray-600 mb-8 max-w-2xl mx-auto leading-relaxed text-balance">
-            Pinjam kursi roda, tongkat, dan peralatan medis lainnya dengan harga terjangkau. Proses cepat, aman, dan
-            terpercaya.
-          </p>
-
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-12">
-            <Link
-              to="/tools"
-              className="btn btn-primary bg-teal-500 hover:bg-teal-600 border-none text-white font-semibold px-8 py-3 h-auto rounded-lg"
-            >
-              Lihat Alat Medis
-            </Link>
-            <button className="btn btn-outline border-gray-300 hover:border-gray-400 text-gray-700 hover:bg-gray-100 font-semibold px-8 py-3 h-auto">
-              Hubungi Kami
-            </button>
-          </div>
-
-          <div className="flex items-center justify-center gap-1 text-sm text-gray-600">
-            <span className="flex gap-1">
-              {[...Array(5)].map((_, i) => (
-                <span key={i} className="text-yellow-400">
-                  ★
-                </span>
-              ))}
-            </span>
-            <span>Dipercaya oleh ribuan keluarga Indonesia</span>
-          </div>
+            <div className="absolute bottom-8 left-1/2 -translate-x-1/2 z-30 flex gap-3">
+                {ads.map((_, idx) => (
+                    <button 
+                        key={idx}
+                        onClick={() => setCurrentSlide(idx)}
+                        className={`h-1.5 rounded-full transition-all duration-300 ${idx === currentSlide ? 'bg-teal-400 w-8' : 'bg-white/30 w-2 hover:bg-white/60'}`}
+                    />
+                ))}
+            </div>
         </div>
       </section>
 
-      <section className="py-20 px-6 border-t border-gray-200/30">
+      <section className="py-20 px-6">
         <div className="max-w-6xl mx-auto">
-          <h2 className="text-center text-3xl md:text-4xl font-bold mb-4 text-balance">Mengapa Memilih MedisLink?</h2>
+          <h2 className="text-center text-3xl md:text-4xl font-bold mb-4 text-gray-900">Mengapa Memilih MedisLink?</h2>
           <p className="text-center text-gray-600 mb-16 max-w-2xl mx-auto">
             Kami menyediakan solusi kesehatan yang terjangkau, transparan, dan mudah diakses
           </p>
 
-          <div className="grid md:grid-cols-3 gap-6">
-            <div className="p-6 rounded-2xl border border-gray-200/50 bg-white/50 hover:bg-white transition-colors group">
-              <div className="w-12 h-12 rounded-lg bg-teal-500/10 flex items-center justify-center text-teal-500 mb-4 group-hover:bg-teal-500/20 transition-colors">
-                <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
-                  <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm0-13c-2.76 0-5 2.24-5 5s2.24 5 5 5 5-2.24 5-5-2.24-5-5-5z" />
+          <div className="grid md:grid-cols-3 gap-8">
+            <div className="p-8 rounded-2xl border border-gray-100 bg-white shadow-sm hover:shadow-xl transition-all duration-300 group hover:-translate-y-1">
+              <div className="w-14 h-14 rounded-2xl bg-teal-50 flex items-center justify-center text-teal-600 mb-6 group-hover:bg-teal-500 group-hover:text-white transition-colors">
+                <svg className="w-7 h-7" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
               </div>
-              <h3 className="text-lg font-semibold mb-2">Harga Terjangkau</h3>
-              <p className="text-gray-600 text-sm">Paket sewa yang fleksibel sesuai kebutuhan Anda</p>
+              <h3 className="text-xl font-bold mb-3 text-gray-900">Harga Terjangkau</h3>
+              <p className="text-gray-600 leading-relaxed">Paket sewa yang fleksibel harian atau bulanan sesuai kebutuhan pemulihan Anda.</p>
             </div>
 
-            <div className="p-6 rounded-2xl border border-gray-200/50 bg-white/50 hover:bg-white transition-colors group">
-              <div className="w-12 h-12 rounded-lg bg-teal-500/10 flex items-center justify-center text-teal-500 mb-4 group-hover:bg-teal-500/20 transition-colors">
-                <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
-                  <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm3.5-9c.83 0 1.5-.67 1.5-1.5S16.33 8 15.5 8 14 8.67 14 9.5s.67 1.5 1.5 1.5zm-7 0c.83 0 1.5-.67 1.5-1.5S9.33 8 8.5 8 7 8.67 7 9.5 7.67 11 8.5 11zm3.5 6.5c2.33 0 4.31-1.46 5.11-3.5H6.89c.8 2.04 2.78 3.5 5.11 3.5z" />
+            <div className="p-8 rounded-2xl border border-gray-100 bg-white shadow-sm hover:shadow-xl transition-all duration-300 group hover:-translate-y-1">
+              <div className="w-14 h-14 rounded-2xl bg-teal-50 flex items-center justify-center text-teal-600 mb-6 group-hover:bg-teal-500 group-hover:text-white transition-colors">
+                <svg className="w-7 h-7" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
               </div>
-              <h3 className="text-lg font-semibold mb-2">Layanan Terbaik</h3>
-              <p className="text-gray-600 text-sm">Tim profesional siap melayani Anda 24/7</p>
+              <h3 className="text-xl font-bold mb-3 text-gray-900">Kualitas Terjamin</h3>
+              <p className="text-gray-600 leading-relaxed">Alat medis selalu disterilisasi dan dicek kondisinya sebelum diserahkan ke Anda.</p>
             </div>
 
-            <div className="p-6 rounded-2xl border border-gray-200/50 bg-white/50 hover:bg-white transition-colors group">
-              <div className="w-12 h-12 rounded-lg bg-teal-500/10 flex items-center justify-center text-teal-500 mb-4 group-hover:bg-teal-500/20 transition-colors">
-                <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
-                  <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm0-13c-2.76 0-5 2.24-5 5s2.24 5 5 5 5-2.24 5-5-2.24-5-5-5z" />
+            <div className="p-8 rounded-2xl border border-gray-100 bg-white shadow-sm hover:shadow-xl transition-all duration-300 group hover:-translate-y-1">
+              <div className="w-14 h-14 rounded-2xl bg-teal-50 flex items-center justify-center text-teal-600 mb-6 group-hover:bg-teal-500 group-hover:text-white transition-colors">
+                <svg className="w-7 h-7" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
                 </svg>
               </div>
-              <h3 className="text-lg font-semibold mb-2">Pengiriman Cepat</h3>
-              <p className="text-gray-600 text-sm">Terima alat medis dalam 24 jam ke lokasi Anda</p>
+              <h3 className="text-xl font-bold mb-3 text-gray-900">Proses Cepat</h3>
+              <p className="text-gray-600 leading-relaxed">Pesan online dalam hitungan menit, konfirmasi cepat dari admin kami.</p>
             </div>
           </div>
         </div>
       </section>
 
-      <section className="py-20 px-6 border-t border-gray-200/30 bg-white/30">
-        <div className="max-w-2xl mx-auto text-center">
-          <h2 className="text-3xl md:text-4xl font-bold mb-4">Mulai Hari Ini</h2>
-          <p className="text-gray-600 mb-8">Jangan biarkan keterbatasan fisik menghalangi aktivitas Anda</p>
-          <Link
-            to="/tools"
-            className="btn btn-primary bg-teal-500 hover:bg-teal-600 border-none text-white font-semibold px-8 py-3 h-auto rounded-lg"
-          >
-            Jelajahi Sekarang
-          </Link>
+      <section className="py-24 px-6 relative overflow-hidden">
+        <div className="absolute inset-0 bg-teal-600 skew-y-3 origin-bottom-right transform scale-110"></div>
+        <div className="max-w-4xl mx-auto text-center relative z-10">
+          <h2 className="text-3xl md:text-5xl font-bold mb-6 text-white">Mulai Perjalanan Pemulihan Anda</h2>
+          <p className="text-teal-100 mb-10 text-lg max-w-2xl mx-auto">Jangan biarkan keterbatasan fisik menghalangi aktivitas. Kami siap membantu menyediakan alat bantu terbaik.</p>
+          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+            <Link
+                to="/alat" 
+                className="btn btn-lg bg-white text-teal-700 hover:bg-gray-100 border-none font-bold px-10 rounded-full shadow-xl"
+            >
+                Jelajahi Alat
+            </Link>
+            <Link
+                to="/login"
+                className="btn btn-lg btn-outline text-white border-white hover:bg-white/10 font-bold px-10 rounded-full"
+            >
+                Hubungi Kami
+            </Link>
+          </div>
         </div>
       </section>
 
-      <footer className="border-t border-gray-200/30 py-8 px-6">
-        <div className="max-w-6xl mx-auto flex flex-col md:flex-row items-center justify-between">
-          <p className="text-gray-500 text-sm">© 2025 MedisLink. Semua hak dilindungi.</p>
-          <div className="flex gap-6 mt-4 md:mt-0">
-            <Link to="#" className="text-gray-500 hover:text-gray-900 text-sm transition-colors">
-              Tentang Kami
-            </Link>
-            <Link to="#" className="text-gray-500 hover:text-gray-900 text-sm transition-colors">
-              Kebijakan Privasi
-            </Link>
-            <Link to="#" className="text-gray-500 hover:text-gray-900 text-sm transition-colors">
-              Hubungi Kami
-            </Link>
-          </div>
+      <footer className="border-t border-gray-200 bg-white pt-16 pb-8 px-6">
+        <div className="max-w-6xl mx-auto">
+            <div className="flex flex-col md:flex-row justify-between items-center mb-8">
+                <div className="flex items-center gap-2 mb-4 md:mb-0">
+                    <div className="w-8 h-8 bg-teal-500 rounded-lg flex items-center justify-center text-white font-bold text-sm">M</div>
+                    <span className="font-bold text-xl text-gray-800">MedisLink</span>
+                </div>
+                <div className="flex gap-8">
+                    <Link to="#" className="text-gray-500 hover:text-teal-600 text-sm font-medium transition-colors">Tentang Kami</Link>
+                    <Link to="#" className="text-gray-500 hover:text-teal-600 text-sm font-medium transition-colors">Kebijakan Privasi</Link>
+                    <Link to="#" className="text-gray-500 hover:text-teal-600 text-sm font-medium transition-colors">Bantuan</Link>
+                </div>
+            </div>
+            <div className="border-t border-gray-100 pt-8 text-center md:text-left flex flex-col md:flex-row justify-between items-center">
+                <p className="text-gray-400 text-sm">© 2025 MedisLink. Semua hak dilindungi.</p>
+                <div className="flex gap-4 mt-4 md:mt-0">
+                    <div className="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center text-gray-400 hover:bg-teal-50 hover:text-teal-500 transition-colors cursor-pointer">
+                        <Star className="w-4 h-4" />
+                    </div>
+                </div>
+            </div>
         </div>
       </footer>
     </div>

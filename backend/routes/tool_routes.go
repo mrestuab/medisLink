@@ -9,13 +9,13 @@ import (
 
 func ToolRoutes(app *fiber.App) {
 	api := app.Group("/api/tools")
-
-	// Semua route butuh login
-	api.Use(middlewares.JWTProtected())
-
-	api.Post("/", controllers.CreateTool)
 	api.Get("/", controllers.GetAllTools)
 	api.Get("/:id", controllers.GetToolByID)
-	api.Put("/:id", controllers.UpdateTool)
-	api.Delete("/:id", controllers.DeleteTool)
+
+	protected := api.Group("/")
+	protected.Use(middlewares.JWTProtected())
+
+	protected.Post("/", controllers.CreateTool)
+	protected.Put("/:id", controllers.UpdateTool)
+	protected.Delete("/:id", controllers.DeleteTool)
 }
