@@ -91,3 +91,27 @@ export const createLoan = async (loanData) => {
     throw error; 
   }
 };
+
+export const getMyLoans = async () => {
+  try {
+    const response = await api.get('/loans/my');
+    
+    return response.data.map(loan => ({
+      id: loan._id,
+      
+      toolName: loan.tool_detail ? loan.tool_detail.name : "Alat Tidak Dikenal",
+      toolImage: loan.tool_detail ? loan.tool_detail.image_url : null,
+      
+      quantity: loan.quantity,
+      loanDate: loan.loan_date,
+      returnDue: loan.return_due,
+      status: loan.status, 
+      
+      medicalCondition: loan.medical_condition,
+      notes: loan.notes
+    }));
+  } catch (error) {
+    console.error("Gagal ambil riwayat pinjaman:", error);
+    return [];
+  }
+};

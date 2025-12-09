@@ -125,3 +125,50 @@ func CompleteLoan(c *fiber.Ctx) error {
 
 	return c.JSON(fiber.Map{"message": "Loan marked as completed"})
 }
+
+func GetMyLoans(c *fiber.Ctx) error {
+	userToken := c.Locals("user").(*jwt.Token)
+	claims := userToken.Claims.(jwt.MapClaims)
+	userID := claims["user_id"].(string)
+
+	coll := config.DB.Collection("loans")
+
+	pipeline := mongo.Pipeline{
+		{{Key: "$match", Value: bson.D{{Key: "user_id", Value: userID}}}},
+
+		{{Key: "$addFields", Value: bson.D{
+			{Key: "tool_object_id", Value: bson.D{{Key: "$toObjectId", Value: "$tool_id"}}},
+		}}},
+
+		{{Key: "$lookup", Value: bson.D{
+			{Key: "from", Value: "medical_tools"},
+			{Key: "localField", Value: "tool_object_id"},
+			{Key: "foreignField", Value: "_id"},
+			{Key: "as", Value: "tool_detail"},
+		}}},
+
+		{{Key: "$unwind", Value: bson.D{
+			{Key: "path", Value: "$tool_detail"},
+			{Key: "preserveNullAndEmptyArrays", Value: true},
+		}}},
+
+		{{Key: "$sort", Value: bson.D{{Key: "loan_date", Value: -1}}}},
+	}
+
+	cursor, err := coll.Aggregate(context.Background(), pipeline)
+	if err != nil {
+		return c.Status(500).JSON(fiber.Map{"error": "Gagal mengambil riwayat pinjaman"})
+	}
+	defer cursor.Close(context.Background())
+
+	var results []bson.M
+	if err = cursor.All(context.Background(), &results); err != nil {
+		return c.Status(500).JSON(fiber.Map{"error": "Gagal membaca data"})
+	}
+
+	if results == nil {
+		return c.JSON([]bson.M{})
+	}
+
+	return c.JSON(results)
+}
