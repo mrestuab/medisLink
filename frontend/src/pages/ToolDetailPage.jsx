@@ -2,7 +2,6 @@ import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { ArrowLeft, Check, AlertCircle, Calendar, Activity, Ruler, Weight, Info, Heart } from "lucide-react";
 
-// Import Service
 import { getToolById, createLoan } from "../services/userServices";
 
 export default function ToolDetailPage() {
@@ -13,7 +12,6 @@ export default function ToolDetailPage() {
   const [loading, setLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // State Form Peminjaman
   const [formData, setFormData] = useState({
     loanDate: "",
     returnDue: "", 
@@ -21,7 +19,6 @@ export default function ToolDetailPage() {
     notes: "",
   });
 
-  // --- HELPER: Dapatkan Tanggal Hari Ini (Format YYYY-MM-DD) ---
   const getTodayString = () => {
     const today = new Date();
     const yyyy = today.getFullYear();
@@ -30,9 +27,8 @@ export default function ToolDetailPage() {
     return `${yyyy}-${mm}-${dd}`;
   };
   
-  const todayString = getTodayString(); // Variable untuk atribut min=""
+  const todayString = getTodayString(); 
 
-  // Fetch Data Detail
   useEffect(() => {
     const fetchData = async () => {
       setLoading(true);
@@ -43,15 +39,11 @@ export default function ToolDetailPage() {
     fetchData();
   }, [id]);
 
-  // --- LOGIC HANDLE CHANGE (DENGAN VALIDASI) ---
   const handleChange = (e) => {
     const { name, value } = e.target;
     
-    // Logika Khusus Tanggal
     if (name === "loanDate") {
-        // Jika Tanggal Mulai diubah, cek apakah Tanggal Kembali jadi invalid (kurang dari tanggal mulai)
         if (formData.returnDue && value > formData.returnDue) {
-            // Reset Tanggal Kembali jika jadi lebih kecil dari Tanggal Mulai
             setFormData({ ...formData, loanDate: value, returnDue: "" }); 
         } else {
             setFormData({ ...formData, loanDate: value });
@@ -61,17 +53,14 @@ export default function ToolDetailPage() {
     }
   };
 
-  // Handle Submit Peminjaman
   const handleSubmit = async (e) => {
     e.preventDefault();
     
-    // 1. Validasi Input Kosong
     if(!formData.loanDate || !formData.medicalCondition) {
         alert("Mohon lengkapi Tanggal Mulai dan Kondisi Medis.");
         return;
     }
 
-    // 2. Validasi Tanggal Logic (Jaga-jaga)
     if (new Date(formData.loanDate) < new Date(todayString)) {
         alert("Tanggal mulai tidak boleh di masa lalu.");
         return;
@@ -126,7 +115,6 @@ export default function ToolDetailPage() {
   return (
     <main className="min-h-screen bg-gray-50 pb-20">
       
-      {/* Header Sticky */}
       <div className="bg-white border-b sticky top-0 z-40 shadow-sm">
         <div className="max-w-5xl mx-auto px-4 py-4 flex items-center gap-4">
           <button onClick={() => navigate("/dashboard")} className="btn btn-ghost btn-sm gap-2 text-gray-600 normal-case">
@@ -139,7 +127,6 @@ export default function ToolDetailPage() {
       <div className="max-w-5xl mx-auto px-4 py-8">
         <div className="grid lg:grid-cols-3 gap-8">
           
-          {/* === KONTEN KIRI (GAMBAR & DETAIL) === */}
           <div className="lg:col-span-2 space-y-6">
             <div className="bg-white border border-gray-200 rounded-2xl p-4 h-80 sm:h-96 flex items-center justify-center overflow-hidden shadow-sm relative group">
                 {tool.image_url ? (
@@ -193,7 +180,6 @@ export default function ToolDetailPage() {
             </div>
           </div>
 
-          {/* === SIDEBAR KANAN (FORMULIR PENGAJUAN) === */}
           <div>
             <div className="bg-white border border-teal-100 rounded-2xl p-6 shadow-lg sticky top-24">
               
@@ -212,10 +198,7 @@ export default function ToolDetailPage() {
                 )}
               </div>
 
-              {/* FORM PENGAJUAN */}
               <form onSubmit={handleSubmit} className="space-y-4">
-                  
-                  {/* Tanggal Mulai */}
                   <div className="form-control">
                       <label className="label-text text-xs font-bold text-gray-500 mb-1 block">Tanggal Mulai Pinjam</label>
                       <label className="input input-bordered flex items-center gap-2 w-full focus-within:border-teal-500">
@@ -223,7 +206,7 @@ export default function ToolDetailPage() {
                         <input 
                             type="date" 
                             name="loanDate"
-                            min={todayString} // Validasi: Tidak boleh sebelum hari ini
+                            min={todayString} 
                             value={formData.loanDate}
                             onChange={handleChange}
                             className="grow" 
@@ -232,7 +215,6 @@ export default function ToolDetailPage() {
                       </label>
                   </div>
 
-                  {/* Tanggal Kembali */}
                   <div className="form-control">
                       <label className="label-text text-xs font-bold text-gray-500 mb-1 block">Rencana Kembali</label>
                       <label className="input input-bordered flex items-center gap-2 w-full focus-within:border-teal-500">
@@ -240,7 +222,6 @@ export default function ToolDetailPage() {
                         <input 
                             type="date" 
                             name="returnDue"
-                            // Validasi: Minimal sama dengan loanDate, atau hari ini jika loanDate belum dipilih
                             min={formData.loanDate || todayString} 
                             value={formData.returnDue}
                             onChange={handleChange}
@@ -250,7 +231,6 @@ export default function ToolDetailPage() {
                       </label>
                   </div>
 
-                  {/* Kondisi Medis */}
                   <div className="form-control">
                       <label className="label-text text-xs font-bold text-gray-500 mb-1 flex items-center gap-1">
                         <Activity className="w-3 h-3 text-red-500" /> Kondisi Medis
@@ -266,7 +246,6 @@ export default function ToolDetailPage() {
                       />
                   </div>
 
-                  {/* Notes */}
                   <div className="form-control">
                       <label className="label-text text-xs font-bold text-gray-500 mb-1 block">Tujuan Penggunaan</label>
                       <textarea 
