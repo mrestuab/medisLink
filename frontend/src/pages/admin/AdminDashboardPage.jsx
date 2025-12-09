@@ -178,7 +178,6 @@ export default function AdminDashboard() {
         {activeTab === "loans" && (
           <LoansTable 
             loans={pendingLoans} 
-            tools={tools} 
             onApprove={approveLoan} 
             onReject={rejectLoan} 
           />

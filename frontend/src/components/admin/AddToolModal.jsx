@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { X, Info, Image as ImageIcon } from "lucide-react";
 
+// --- KONFIGURASI DATA ALAT (PRESET) ---
 const TOOL_PRESETS = {
   MOBILITAS: {
     types: ["Kursi Roda", "Kruk Ketiak", "Tongkat Jalan", "Walker"],
@@ -36,7 +37,12 @@ const TOOL_PRESETS = {
 
 const AddToolModal = ({ isOpen, onClose, onSubmit }) => {
   const [category, setCategory] = useState("MOBILITAS");
-  const [toolName, setToolName] = useState("");
+  
+  // --- PERBAIKAN STATE DISINI ---
+  const [selectedTool, setSelectedTool] = useState(""); // Untuk Dropdown
+  const [customName, setCustomName] = useState("");     // Untuk Input Manual
+  // ------------------------------
+
   const [isSubmitting, setIsSubmitting] = useState(false);
   
   const [formData, setFormData] = useState({
@@ -44,10 +50,12 @@ const AddToolModal = ({ isOpen, onClose, onSubmit }) => {
     stock: "", condition: "baik", image_url: "", description: "",
   });
 
+  // Reset saat modal dibuka/tutup
   useEffect(() => {
     if(!isOpen) {
        setCategory("MOBILITAS");
-       setToolName("");
+       setSelectedTool("");
+       setCustomName("");
        setFormData({type: "", size: "", dimensions: "", weight_cap: "", stock: "", condition: "baik", image_url: "", description: ""});
        setIsSubmitting(false);
     }
@@ -55,7 +63,8 @@ const AddToolModal = ({ isOpen, onClose, onSubmit }) => {
 
   const getLabels = () => {
     const catData = TOOL_PRESETS[category];
-    if (catData && catData.specs[toolName]) return catData.specs[toolName];
+    // Cek berdasarkan selectedTool (pilihan dropdown)
+    if (catData && catData.specs[selectedTool]) return catData.specs[selectedTool];
     return { sizeLabel: "Ukuran", capLabel: "Kapasitas/Beban", typeLabel: "Tipe/Varian" };
   };
   const labels = getLabels();
@@ -72,13 +81,20 @@ const AddToolModal = ({ isOpen, onClose, onSubmit }) => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!toolName || !formData.stock) return;
+    
+    // Tentukan nama akhir: Kalau pilih "Lainnya", pakai customName. Kalau tidak, pakai pilihan dropdown.
+    const finalName = selectedTool === "Lainnya" ? customName : selectedTool;
+
+    if (!finalName || !formData.stock) {
+        alert("Nama alat dan stok harus diisi!");
+        return;
+    }
 
     setIsSubmitting(true); 
 
     try {
         await onSubmit({
-            name: toolName,
+            name: finalName, // Kirim nama yang sudah difix
             category_id: category.toLowerCase(),
             type: formData.type,
             size: formData.size,
@@ -111,18 +127,40 @@ const AddToolModal = ({ isOpen, onClose, onSubmit }) => {
             <div className="grid grid-cols-2 gap-4 bg-teal-50 p-4 rounded-lg border border-teal-100">
                 <div className="form-control">
                     <label className="label-text text-sm font-bold text-teal-800 mb-1 block">Kategori</label>
-                    <select defaultValue="Color scheme" value={category} onChange={(e) => { setCategory(e.target.value); setToolName(""); }} className="select select-accent h-8 bg-white px-2">
+                    <select 
+                        value={category} 
+                        onChange={(e) => { setCategory(e.target.value); setSelectedTool(""); setCustomName(""); }} 
+                        className="select select-accent h-10 bg-white px-2 w-full"
+                    >
                         {Object.keys(TOOL_PRESETS).map(k => <option key={k} value={k}>{k}</option>)}
                     </select>
                 </div>
+                
                 <div className="form-control">
                     <label className="label-text text-sm font-bold text-teal-800 mb-1 block">Nama Alat</label>
-                    <select defaultValue="Color scheme" value={toolName} onChange={(e) => setToolName(e.target.value)} className="select select-accent h-8 bg-white px-2">
+                    {/* Dropdown memilih 'selectedTool' */}
+                    <select 
+                        value={selectedTool} 
+                        onChange={(e) => setSelectedTool(e.target.value)} 
+                        className="select select-accent h-10 bg-white px-2 w-full"
+                    >
                         <option value="">-- Pilih Alat --</option>
                         {TOOL_PRESETS[category].types.map(t => <option key={t} value={t}>{t}</option>)}
-                        <option value="Lainnya">Lainnya</option>
+                        <option value="Lainnya">Lainnya (Input Manual)</option>
                     </select>
-                    {toolName === "Lainnya" && <input type="text" className="input input-bordered input-sm w-full mt-2" placeholder="Nama alat..." onChange={(e) => setToolName(e.target.value)} />}
+
+                    {/* Input manual HANYA muncul jika selectedTool == "Lainnya" */}
+                    {/* Dan dia mengupdate 'customName', bukan 'selectedTool' */}
+                    {selectedTool === "Lainnya" && (
+                        <input 
+                            type="text" 
+                            className="input input-bordered input-sm w-full mt-2 bg-white focus:border-teal-500" 
+                            placeholder="Ketik nama alat..." 
+                            value={customName}
+                            onChange={(e) => setCustomName(e.target.value)}
+                            required
+                        />
+                    )}
                 </div>
             </div>
 
@@ -131,19 +169,19 @@ const AddToolModal = ({ isOpen, onClose, onSubmit }) => {
                 <div className="grid grid-cols-2 gap-4">
                     <div className="form-control">
                         <label className="label-text text-sm font-semibold text-gray-500 mb-1">{labels.typeLabel}</label>
-                        <input type="text" value={formData.type} onChange={(e) => setFormData({...formData, type: e.target.value})} className="input input-bordered border-gray-300 w-full h-8 px-2" required />
+                        <input type="text" value={formData.type} onChange={(e) => setFormData({...formData, type: e.target.value})} className="input input-bordered border-gray-300 w-full h-10 px-2" required />
                     </div>
                     <div className="form-control">
                         <label className="label-text text-sm font-semibold text-gray-500 mb-1">{labels.sizeLabel}</label>
-                        <input type="text" value={formData.size} onChange={(e) => setFormData({...formData, size: e.target.value})} className="input input-bordered border-gray-300 w-full h-8 px-2" />
+                        <input type="text" value={formData.size} onChange={(e) => setFormData({...formData, size: e.target.value})} className="input input-bordered border-gray-300 w-full h-10 px-2" />
                     </div>
                     <div className="form-control">
                         <label className="label-text text-sm font-semibold text-gray-500 mb-1">{labels.capLabel}</label>
-                        <input type="text" value={formData.weight_cap} onChange={(e) => setFormData({...formData, weight_cap: e.target.value})} className="input input-bordered border-gray-300 w-full h-8 px-2" />
+                        <input type="text" value={formData.weight_cap} onChange={(e) => setFormData({...formData, weight_cap: e.target.value})} className="input input-bordered border-gray-300 w-full h-10 px-2" />
                     </div>
                     <div className="form-control">
                         <label className="label-text text-sm font-semibold text-gray-500 mb-1 ">Stok Awal</label>
-                        <input type="number" value={formData.stock} onChange={(e) => setFormData({...formData, stock: e.target.value})} className="input input-bordered border-gray-300 w-full h-8 px-2" required />
+                        <input type="number" value={formData.stock} onChange={(e) => setFormData({...formData, stock: e.target.value})} className="input input-bordered border-gray-300 w-full h-10 px-2" required />
                     </div>
                 </div>
                 <div className="form-control">
@@ -155,20 +193,20 @@ const AddToolModal = ({ isOpen, onClose, onSubmit }) => {
             <div className="grid grid-cols-2 gap-4 pt-2">
                  <div className="form-control">
                     <label className="label-text text-sm font-semibold text-gray-500 mb-1">Kondisi</label>
-                    <select value={formData.condition} onChange={(e) => setFormData({...formData, condition: e.target.value})} className="select h-8 bg-white px-2 border-gray-300 w-full">
+                    <select value={formData.condition} onChange={(e) => setFormData({...formData, condition: e.target.value})} className="select h-10 bg-white px-2 border-gray-300 w-full">
                         <option value="baik">Baik</option>
                         <option value="rusak ringan">Rusak Ringan</option>
                     </select>
                 </div>
                 <div className="form-control">
                     <label className="label-text text-sm font-semibold text-gray-500 mb-1">Upload Gambar</label>
-                    <input type="file" className="file-input file-input-bordered file-input-sm border-gray-300 w-full h-8 px-2" onChange={handleImageUpload} accept="image/*" />
-                    {formData.image_url && <img src={formData.image_url} alt="Preview" className="h-10 w-10 mt-2 rounded object-cover" />}
+                    <input type="file" className="file-input file-input-bordered file-input-sm border-gray-300 w-full h-10 px-2" onChange={handleImageUpload} accept="image/*" />
+                    {formData.image_url && <img src={formData.image_url} alt="Preview" className="h-16 w-16 mt-2 rounded-lg object-cover border" />}
                 </div>
             </div>
 
             <div className="flex justify-end gap-3 mt-6 pt-4 border-t border-gray-300">
-                <button type="button" onClick={onClose} disabled={isSubmitting} className="btn btn-ghost border border-gray-300 w-16 rounded-lg hover:bg-gray-200">Batal</button>
+                <button type="button" onClick={onClose} disabled={isSubmitting} className="btn btn-ghost border border-gray-300 w-20 rounded-lg hover:bg-gray-200">Batal</button>
                 <button type="submit" disabled={isSubmitting} className="btn btn-primary bg-teal-600 hover:bg-teal-700 border-none rounded-lg text-white px-8">
                     {isSubmitting ? <span className="loading loading-spinner"></span> : "Simpan Data"}
                 </button>
