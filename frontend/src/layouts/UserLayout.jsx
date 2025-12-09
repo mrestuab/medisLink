@@ -1,24 +1,45 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { Link, Outlet, useNavigate } from "react-router-dom";
 import { Bell, LogOut } from "lucide-react";
-
-const MOCK_USER = {
-  name: "Budi Santoso",
-  role: "user",
-};
+import { getCurrentUserProfile } from "../services/userServices";
 
 const NOTIFICATION_COUNT = 2;
 
 const UserLayout = () => {
   const navigate = useNavigate();
+  
+  const [user, setUser] = useState({ name: "Memuat...", role: "" });
 
-  const handleLogout = () => {
+  const handleLogout = React.useCallback(() => {
     localStorage.removeItem("token");
     navigate("/login");
-  };
+  }, [navigate]);
+
+  useEffect(() => {
+    const fetchUser = async () => {
+      try {
+        const token = localStorage.getItem("token");
+        if (!token) {
+          navigate("/login");
+          return;
+        }
+        const profile = await getCurrentUserProfile();
+        if (profile) {
+          setUser({ name: profile.name, role: profile.role });
+        } else {
+          handleLogout();
+        }
+      } catch (err) {
+        console.error("Failed to fetch user profile:", err);
+        handleLogout();
+      }
+    };
+    fetchUser();
+  }, [navigate, handleLogout]);
 
   return (
     <div className="min-h-screen bg-gray-50 text-gray-900">
+      
       <header className="fixed top-0 w-full z-40 border-b border-gray-200 bg-white/95 backdrop-blur-sm">
         <div className="max-w-7xl mx-auto w-full px-4 py-3 flex items-center justify-between">
           
@@ -40,14 +61,14 @@ const UserLayout = () => {
               )}
             </button>
 
-            <div className="text-right">
-              <p className="font-medium">{MOCK_USER.name}</p>
-              <p className="text-xs text-gray-500 capitalize">{MOCK_USER.role}</p>
+            <div className="text-right hidden sm:block">
+              <p className="font-medium">{user.name}</p>
+              <p className="text-xs text-gray-500 capitalize">{user.role || "User"}</p>
             </div>
 
             <button
               onClick={handleLogout}
-              className="text-red-500 hover:text-red-600"
+              className="text-red-500 hover:text-red-600 transition-colors"
               title="Logout"
             >
               <LogOut className="w-6 h-6" />

@@ -17,6 +17,8 @@ import {
     createNews as apiCreateNews 
 } from "../../services/adminServices";
 
+import { getCurrentUserProfile } from "../../services/userServices"; 
+
 export default function AdminDashboard() {
   const navigate = useNavigate();
   
@@ -24,14 +26,27 @@ export default function AdminDashboard() {
   const [isAddToolOpen, setIsAddToolOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   
-  const [user] = useState({ name: "Admin", role: "Administrator" }); 
+  const [user, setUser] = useState({ name: "Memuat...", role: "" });
+  
   const [pendingLoans, setPendingLoans] = useState([]);
   const [tools, setTools] = useState([]);
   const [allNews, setAllNews] = useState([]);
 
   useEffect(() => {
     fetchData();
+    fetchUserData();
   }, []);
+
+  const fetchUserData = async () => {
+    try {
+        const profile = await getCurrentUserProfile();
+        if (profile) {
+            setUser({ name: profile.name, role: profile.role });
+        }
+    } catch (error) {
+        console.error("Gagal ambil profil admin:", error);
+    }
+  };
 
   const fetchData = async () => {
     setIsLoading(true);
@@ -81,12 +96,8 @@ export default function AdminDashboard() {
   const handleAddTool = async (formData) => {
       try {
         await createTool(formData);
-        
         setIsAddToolOpen(false);
-        setIsAddToolOpen(false);
-        
         fetchData(); 
-        
         alert("Berhasil menambahkan alat baru!");
       } catch (error) {
         console.error("Gagal create tool:", error);
@@ -111,7 +122,7 @@ export default function AdminDashboard() {
       await apiCreateNews({ 
         title, 
         content, 
-        author: "Admin", 
+        author: user.name || "Admin",
         image_url: "" 
       });
       fetchData(); 
@@ -136,13 +147,15 @@ export default function AdminDashboard() {
         <div className="max-w-7xl mx-auto flex items-center justify-between px-6 py-4">
           <div className="flex items-center gap-2">
             <div className="w-8 h-8 bg-teal-500 text-white rounded-lg flex items-center justify-center font-bold shadow-sm">M</div>
-            <span className="font-bold text-lg tracking-tight text-gray-800">MedisLink Admin</span>
+            <span className="font-semibold text-lg text-gray-800">MedisLink Admin</span>
           </div>
           <div className="flex items-center gap-4">
+            
             <div className="text-right text-sm hidden sm:block">
-              <p className="font-bold text-gray-900">{user?.name}</p>
-              <p className="text-xs text-gray-500">{user?.role}</p>
+              <p className="font-bold text-gray-900">{user.name}</p>
+              <p className="text-xs text-gray-500 capitalize">{user.role}</p>
             </div>
+
             <button 
                 onClick={handleLogout} 
                 className="p-2 hover:bg-red-50 rounded-lg text-red-500 transition-colors"
