@@ -1,4 +1,3 @@
-// 1. Import 'useNavigate' (untuk redirect) dan 'api' (yang baru kita buat)
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Eye, EyeOff } from 'lucide-react';
