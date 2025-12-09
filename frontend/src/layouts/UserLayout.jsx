@@ -44,9 +44,9 @@ const UserLayout = () => {
         <div className="max-w-7xl mx-auto w-full px-4 py-3 flex items-center justify-between">
           
           <div className="flex items-center gap-2">
-            <div className="w-8 h-8 bg-teal-500 rounded-lg flex items-center justify-center text-white font-bold">
-              M
-            </div>
+              <div className="w-8 h-8 bg-teal-500 rounded-lg flex items-center justify-center text-white font-bold text-lg shadow-teal-200 shadow-md">
+                M
+              </div>
             <span className="font-semibold text-lg text-gray-800">MedisLink</span>
           </div>
 

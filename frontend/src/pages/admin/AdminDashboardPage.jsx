@@ -146,8 +146,10 @@ export default function AdminDashboard() {
       <header className="fixed top-0 w-full bg-white z-40 shadow-sm">
         <div className="max-w-7xl mx-auto flex items-center justify-between px-6 py-4">
           <div className="flex items-center gap-2">
-            <div className="w-8 h-8 bg-teal-500 text-white rounded-lg flex items-center justify-center font-bold shadow-sm">M</div>
-            <span className="font-bold text-lg tracking-tight text-gray-800">MedisLink Admin</span>
+              <div className="w-8 h-8 bg-teal-500 rounded-lg flex items-center justify-center text-white font-bold text-lg shadow-teal-200 shadow-md">
+                M
+              </div>            
+              <span className="font-bold text-lg tracking-tight text-gray-800">MedisLink Admin</span>
           </div>
           <div className="flex items-center gap-4">
             

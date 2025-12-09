@@ -62,8 +62,12 @@ const LoginPage = () => {
       <div className="absolute top-0 right-0 w-72 h-72 bg-blue-500/10 rounded-full blur-3xl animate-pulse"></div>
       <div className="absolute bottom-10 left-10 w-96 h-96 bg-teal-500/5 rounded-full blur-3xl animate-pulse delay-1000"></div>
 
-      <div className="relative z-10 max-w-md w-full p-8 sm:p-10 bg-white/70 backdrop-blur-md rounded-3xl shadow-xl border border-gray-200/50">
-        
+      <div className="relative z-10 max-w-md w-full p-8 sm:p-10 bg-white/70 backdrop-blur-md rounded-3xl shadow-xl border border-gray-200/50 flex flex-col items-center">
+        <Link to="/" className="flex items-center gap-2 group mb-4">
+          <div className="w-9 h-9 bg-teal-500 rounded-xl flex items-center justify-center text-white font-bold text-lg shadow-teal-200 shadow-lg">
+            M
+          </div>
+        </Link>
         <div className="flex flex-col items-center mb-8">
           <h2 className="text-3xl font-bold text-center text-gray-900">
             Login
@@ -73,15 +77,15 @@ const LoginPage = () => {
           </p>
         </div>
 
-        <form className="space-y-5" onSubmit={handleSubmit}>
+        <form className="space-y-5 w-full flex flex-col items-center" onSubmit={handleSubmit}>
           
           {error && (
-            <div className="p-3 bg-red-100 border border-red-300 text-red-700 rounded-lg text-sm text-center">
+            <div className="p-3 bg-red-100 border border-red-300 text-red-700 rounded-lg text-sm text-center w-full">
               {error}
             </div>
           )}
 
-          <div className="relative">
+          <div className="relative w-full flex justify-center">
             <input
               type="email"
               placeholder="Email"
@@ -92,7 +96,7 @@ const LoginPage = () => {
             />
           </div>
 
-          <div className="relative">
+          <div className="relative w-full flex justify-center">
             <input
               type={showPassword ? "text" : "password"}
               placeholder="Password"
@@ -110,13 +114,13 @@ const LoginPage = () => {
             </button>
           </div>
           
-          <div className="flex justify-end">
+          <div className="flex justify-end w-full">
             <a href="#" className="text-sm text-teal-600 hover:underline">
               Lupa password?
             </a>
           </div>
 
-          <div>
+          <div className="w-full flex justify-center">
             <button
               type="submit"
               className="btn btn-primary w-full bg-teal-500 rounded-lg hover:bg-teal-600 border-none text-white font-semibold text-base h-12"
@@ -126,7 +130,7 @@ const LoginPage = () => {
           </div>
         </form>
 
-        <div className="divider text-sm text-gray-500 my-8">Atau masuk dengan</div>
+        <div className="divider text-sm text-gray-500 my-8 w-full text-center">Atau masuk dengan</div>
         
         <p className="mt-8 text-center text-sm text-gray-600">
           Belum punya akun?{' '}
