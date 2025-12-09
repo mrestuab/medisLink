@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { X, Info, Image as ImageIcon } from "lucide-react";
 
-// --- KONFIGURASI DATA ALAT (PRESET) ---
 const TOOL_PRESETS = {
   MOBILITAS: {
     types: ["Kursi Roda", "Kruk Ketiak", "Tongkat Jalan", "Walker"],
@@ -38,11 +37,8 @@ const TOOL_PRESETS = {
 const AddToolModal = ({ isOpen, onClose, onSubmit }) => {
   const [category, setCategory] = useState("MOBILITAS");
   
-  // --- PERBAIKAN STATE DISINI ---
-  const [selectedTool, setSelectedTool] = useState(""); // Untuk Dropdown
-  const [customName, setCustomName] = useState("");     // Untuk Input Manual
-  // ------------------------------
-
+  const [selectedTool, setSelectedTool] = useState(""); 
+  const [customName, setCustomName] = useState("");     
   const [isSubmitting, setIsSubmitting] = useState(false);
   
   const [formData, setFormData] = useState({
@@ -50,7 +46,6 @@ const AddToolModal = ({ isOpen, onClose, onSubmit }) => {
     stock: "", condition: "baik", image_url: "", description: "",
   });
 
-  // Reset saat modal dibuka/tutup
   useEffect(() => {
     if(!isOpen) {
        setCategory("MOBILITAS");
@@ -63,7 +58,6 @@ const AddToolModal = ({ isOpen, onClose, onSubmit }) => {
 
   const getLabels = () => {
     const catData = TOOL_PRESETS[category];
-    // Cek berdasarkan selectedTool (pilihan dropdown)
     if (catData && catData.specs[selectedTool]) return catData.specs[selectedTool];
     return { sizeLabel: "Ukuran", capLabel: "Kapasitas/Beban", typeLabel: "Tipe/Varian" };
   };
@@ -82,7 +76,6 @@ const AddToolModal = ({ isOpen, onClose, onSubmit }) => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     
-    // Tentukan nama akhir: Kalau pilih "Lainnya", pakai customName. Kalau tidak, pakai pilihan dropdown.
     const finalName = selectedTool === "Lainnya" ? customName : selectedTool;
 
     if (!finalName || !formData.stock) {
@@ -94,7 +87,7 @@ const AddToolModal = ({ isOpen, onClose, onSubmit }) => {
 
     try {
         await onSubmit({
-            name: finalName, // Kirim nama yang sudah difix
+            name: finalName,
             category_id: category.toLowerCase(),
             type: formData.type,
             size: formData.size,
@@ -116,45 +109,49 @@ const AddToolModal = ({ isOpen, onClose, onSubmit }) => {
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
-      <div className="bg-white rounded-xl shadow-xl w-full max-w-2xl p-6 relative overflow-y-auto max-h-[90vh]">
-        <div className="flex justify-between items-center mb-6 border-b pb-4">
-            <h3 className="text-xl font-bold text-gray-900">Tambah Alat Medis</h3>
-            <button onClick={onClose} disabled={isSubmitting} className="text-gray-400 hover:text-gray-600"><X className="w-6 h-6" /></button>
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
+      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-2xl p-6 relative overflow-y-auto max-h-[90vh] animate-in fade-in zoom-in duration-200">
+        
+        <div className="flex justify-between items-center mb-6 border-b border-gray-100 pb-4">
+            <div>
+              <h3 className="text-xl font-bold text-gray-900">Tambah Alat Medis</h3>
+              <p className="text-sm text-gray-500 mt-1">Lengkapi data inventaris baru</p>
+            </div>
+            <button onClick={onClose} disabled={isSubmitting} className="p-2 bg-gray-100 hover:bg-gray-200 rounded-full text-gray-500 transition-colors">
+                <X className="w-5 h-5" />
+            </button>
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-5">
-            <div className="grid grid-cols-2 gap-4 bg-teal-50 p-4 rounded-lg border border-teal-100">
+        <form onSubmit={handleSubmit} className="space-y-6">
+            
+            <div className="bg-teal-50/50 p-5 rounded-xl border border-teal-100 grid grid-cols-1 sm:grid-cols-2 gap-5">
                 <div className="form-control">
-                    <label className="label-text text-sm font-bold text-teal-800 mb-1 block">Kategori</label>
+                    <label className="label-text text-sm font-semibold text-teal-800 mb-2 block">Kategori Alat</label>
                     <select 
                         value={category} 
                         onChange={(e) => { setCategory(e.target.value); setSelectedTool(""); setCustomName(""); }} 
-                        className="select select-accent h-10 bg-white px-2 w-full"
+                        className="select select-bordered w-full bg-white focus:border-teal-500 focus:ring-1 focus:ring-teal-500 border-gray-300"
                     >
                         {Object.keys(TOOL_PRESETS).map(k => <option key={k} value={k}>{k}</option>)}
                     </select>
                 </div>
                 
                 <div className="form-control">
-                    <label className="label-text text-sm font-bold text-teal-800 mb-1 block">Nama Alat</label>
-                    {/* Dropdown memilih 'selectedTool' */}
+                    <label className="label-text text-sm font-semibold text-teal-800 mb-2 block">Nama Alat</label>
                     <select 
                         value={selectedTool} 
                         onChange={(e) => setSelectedTool(e.target.value)} 
-                        className="select select-accent h-10 bg-white px-2 w-full"
+                        className="select select-bordered w-full bg-white focus:border-teal-500 focus:ring-1 focus:ring-teal-500 border-gray-300"
                     >
                         <option value="">-- Pilih Alat --</option>
                         {TOOL_PRESETS[category].types.map(t => <option key={t} value={t}>{t}</option>)}
                         <option value="Lainnya">Lainnya (Input Manual)</option>
                     </select>
 
-                    {/* Input manual HANYA muncul jika selectedTool == "Lainnya" */}
-                    {/* Dan dia mengupdate 'customName', bukan 'selectedTool' */}
                     {selectedTool === "Lainnya" && (
                         <input 
                             type="text" 
-                            className="input input-bordered input-sm w-full mt-2 bg-white focus:border-teal-500" 
+                            className="input input-bordered w-full mt-3 bg-white focus:border-teal-500 focus:ring-1 focus:ring-teal-500 border-gray-300 placeholder:text-gray-400" 
                             placeholder="Ketik nama alat..." 
                             value={customName}
                             onChange={(e) => setCustomName(e.target.value)}
@@ -165,50 +162,114 @@ const AddToolModal = ({ isOpen, onClose, onSubmit }) => {
             </div>
 
             <div className="space-y-4">
-                <h4 className="text-sm font-bold text-gray-700 border-b border-gray-300 pb-2">Detail Spesifikasi</h4>
-                <div className="grid grid-cols-2 gap-4">
+                <div className="flex items-center gap-2 border-b border-gray-100 pb-2">
+                    <Info className="w-4 h-4 text-gray-400" />
+                    <h4 className="text-sm font-bold text-gray-700">Spesifikasi Teknis</h4>
+                </div>
+                
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
                     <div className="form-control">
-                        <label className="label-text text-sm font-semibold text-gray-500 mb-1">{labels.typeLabel}</label>
-                        <input type="text" value={formData.type} onChange={(e) => setFormData({...formData, type: e.target.value})} className="input input-bordered border-gray-300 w-full h-10 px-2" required />
+                        <label className="label-text text-sm font-medium text-gray-600 mb-1.5 block">{labels.typeLabel}</label>
+                        <input 
+                            type="text" 
+                            value={formData.type} 
+                            onChange={(e) => setFormData({...formData, type: e.target.value})} 
+                            className="input input-bordered w-full bg-gray-50 focus:bg-white focus:border-teal-500 border-gray-300 transition-all" 
+                            required 
+                        />
                     </div>
                     <div className="form-control">
-                        <label className="label-text text-sm font-semibold text-gray-500 mb-1">{labels.sizeLabel}</label>
-                        <input type="text" value={formData.size} onChange={(e) => setFormData({...formData, size: e.target.value})} className="input input-bordered border-gray-300 w-full h-10 px-2" />
+                        <label className="label-text text-sm font-medium text-gray-600 mb-1.5 block">{labels.sizeLabel}</label>
+                        <input 
+                            type="text" 
+                            value={formData.size} 
+                            onChange={(e) => setFormData({...formData, size: e.target.value})} 
+                            className="input input-bordered w-full bg-gray-50 focus:bg-white focus:border-teal-500 border-gray-300 transition-all" 
+                        />
                     </div>
                     <div className="form-control">
-                        <label className="label-text text-sm font-semibold text-gray-500 mb-1">{labels.capLabel}</label>
-                        <input type="text" value={formData.weight_cap} onChange={(e) => setFormData({...formData, weight_cap: e.target.value})} className="input input-bordered border-gray-300 w-full h-10 px-2" />
+                        <label className="label-text text-sm font-medium text-gray-600 mb-1.5 block">{labels.capLabel}</label>
+                        <input 
+                            type="text" 
+                            value={formData.weight_cap} 
+                            onChange={(e) => setFormData({...formData, weight_cap: e.target.value})} 
+                            className="input input-bordered w-full bg-gray-50 focus:bg-white focus:border-teal-500 border-gray-300 transition-all" 
+                        />
                     </div>
                     <div className="form-control">
-                        <label className="label-text text-sm font-semibold text-gray-500 mb-1 ">Stok Awal</label>
-                        <input type="number" value={formData.stock} onChange={(e) => setFormData({...formData, stock: e.target.value})} className="input input-bordered border-gray-300 w-full h-10 px-2" required />
+                        <label className="label-text text-sm font-medium mb-1.5 block text-teal-700">Stok Awal (Unit)</label>
+                        <input 
+                            type="number" 
+                            value={formData.stock} 
+                            onChange={(e) => setFormData({...formData, stock: e.target.value})} 
+                            className="input input-bordered w-full bg-gray-50 focus:bg-white focus:border-teal-500 border-teal-200 transition-all font-semibold text-gray-900" 
+                            required 
+                        />
                     </div>
                 </div>
+
                 <div className="form-control">
-                    <label className="label-text text-sm font-semibold text-gray-500 mb-1">Deskripsi / Dimensi</label>
-                    <textarea value={formData.description} onChange={(e) => setFormData({...formData, description: e.target.value})} className="textarea textarea-bordered border-gray-300 w-full px-2" rows={2}></textarea>
+                    <label className="label-text text-sm font-medium text-gray-600 mb-1.5 block">Deskripsi / Dimensi</label>
+                    <textarea 
+                        value={formData.description} 
+                        onChange={(e) => setFormData({...formData, description: e.target.value})} 
+                        className="textarea textarea-bordered w-full bg-gray-50 focus:bg-white focus:border-teal-500 border-gray-300 transition-all" 
+                        rows={2}
+                    ></textarea>
                 </div>
             </div>
 
-            <div className="grid grid-cols-2 gap-4 pt-2">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 pt-2">
                  <div className="form-control">
-                    <label className="label-text text-sm font-semibold text-gray-500 mb-1">Kondisi</label>
-                    <select value={formData.condition} onChange={(e) => setFormData({...formData, condition: e.target.value})} className="select h-10 bg-white px-2 border-gray-300 w-full">
-                        <option value="baik">Baik</option>
+                    <label className="label-text text-sm font-medium text-gray-600 mb-1.5 block">Kondisi Saat Ini</label>
+                    <select 
+                        value={formData.condition} 
+                        onChange={(e) => setFormData({...formData, condition: e.target.value})} 
+                        className="select select-bordered w-full bg-gray-50 focus:bg-white focus:border-teal-500 border-gray-300"
+                    >
+                        <option value="baik">Baik (Layak Pakai)</option>
                         <option value="rusak ringan">Rusak Ringan</option>
+                        <option value="baru">Baru</option>
                     </select>
                 </div>
+
                 <div className="form-control">
-                    <label className="label-text text-sm font-semibold text-gray-500 mb-1">Upload Gambar</label>
-                    <input type="file" className="file-input file-input-bordered file-input-sm border-gray-300 w-full h-10 px-2" onChange={handleImageUpload} accept="image/*" />
-                    {formData.image_url && <img src={formData.image_url} alt="Preview" className="h-16 w-16 mt-2 rounded-lg object-cover border" />}
+                    <label className="label-text text-sm font-medium text-gray-600 mb-1.5 block">Foto Alat</label>
+                    <div className="flex items-center gap-3">
+                        <input 
+                            type="file" 
+                            className="file-input file-input-bordered file-input-sm w-full bg-white focus:border-teal-500 text-gray-500" 
+                            onChange={handleImageUpload} 
+                            accept="image/*" 
+                        />
+                        {formData.image_url ? (
+                            <div className="w-10 h-10 rounded-lg border border-gray-200 overflow-hidden flex-shrink-0">
+                                <img src={formData.image_url} alt="Preview" className="w-full h-full object-cover" />
+                            </div>
+                        ) : (
+                            <div className="w-10 h-10 rounded-lg bg-gray-100 flex items-center justify-center text-gray-400 border border-dashed border-gray-300 flex-shrink-0">
+                                <ImageIcon className="w-5 h-5" />
+                            </div>
+                        )}
+                    </div>
                 </div>
             </div>
 
-            <div className="flex justify-end gap-3 mt-6 pt-4 border-t border-gray-300">
-                <button type="button" onClick={onClose} disabled={isSubmitting} className="btn btn-ghost border border-gray-300 w-20 rounded-lg hover:bg-gray-200">Batal</button>
-                <button type="submit" disabled={isSubmitting} className="btn btn-primary bg-teal-600 hover:bg-teal-700 border-none rounded-lg text-white px-8">
-                    {isSubmitting ? <span className="loading loading-spinner"></span> : "Simpan Data"}
+            <div className="flex justify-end gap-3 mt-8 pt-5 border-t border-gray-100">
+                <button 
+                    type="button" 
+                    onClick={onClose} 
+                    disabled={isSubmitting} 
+                    className="btn btn-ghost hover:bg-gray-100 text-gray-600 font-medium px-6"
+                >
+                    Batal
+                </button>
+                <button 
+                    type="submit" 
+                    disabled={isSubmitting} 
+                    className="btn btn-primary bg-teal-500 hover:bg-teal-600 border-none text-white font-semibold px-8 shadow-md shadow-teal-100"
+                >
+                    {isSubmitting ? <span className="loading loading-spinner loading-sm"></span> : "Simpan Data"}
                 </button>
             </div>
         </form>
