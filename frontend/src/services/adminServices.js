@@ -1,5 +1,9 @@
 import api from "./api";
 
+export const createTool = async (toolData) => {
+  return await api.post("/tools", toolData);
+};
+
 export const getTools = async () => {
   try {
     const response = await api.get("/tools");
@@ -25,33 +29,28 @@ export const getTools = async () => {
   }
 };
 
-export const createTool = async (toolData) => {
-  return await api.post("/tools", toolData);
-};
-
 export const deleteTool = async (id) => {
   return await api.delete(`/tools/${id}`);
 };
 
-export const getPendingLoans = async () => {
+export const getAllLoans = async () => {
   try {
-    const response = await api.get("/loans?status=pending"); 
-    
-    return response.data
-      .filter(l => l.status === 'pending') 
-      .map(loan => ({
+    const response = await api.get("/loans"); 
+  
+    return response.data.map(loan => ({
+        id: loan.id || loan._id,
         
         borrowerName: loan.user_detail ? loan.user_detail.name : "User Tidak Dikenal",
         borrowerPhone: loan.user_detail ? loan.user_detail.phone : "-",
         
         toolName: loan.tool_detail ? loan.tool_detail.name : "Alat Tidak Dikenal",
-        
         medicalToolId: loan.tool_id, 
+        
         startDate: loan.loan_date,
         endDate: loan.return_due,
         purpose: loan.notes,
-        medicalCondition: loan.medical_condition, 
-        status: loan.status,
+        medicalCondition: loan.medical_condition,
+        status: loan.status, 
         quantity: loan.quantity || 1 
     }));
   } catch (error) {
@@ -61,7 +60,11 @@ export const getPendingLoans = async () => {
 };
 
 export const updateLoanStatus = async (id, status) => {
-  return await api.put(`/loans/${id}`, { status });
+  return await api.put(`/loans/${id}/status`, { status });
+};
+
+export const createNews = async (newsData) => {
+  return await api.post("/news", newsData);
 };
 
 export const getNews = async () => {
@@ -72,8 +75,4 @@ export const getNews = async () => {
     console.error("Gagal ambil berita:", error);
     return [];
   }
-};
-
-export const createNews = async (newsData) => {
-  return await api.post("/news", newsData);
 };

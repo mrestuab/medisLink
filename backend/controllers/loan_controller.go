@@ -172,3 +172,50 @@ func GetMyLoans(c *fiber.Ctx) error {
 
 	return c.JSON(results)
 }
+
+func UpdateLoanStatus(c *fiber.Ctx) error {
+	id := c.Params("id")
+	objID, err := primitive.ObjectIDFromHex(id)
+	if err != nil {
+		return c.Status(400).JSON(fiber.Map{"error": "Invalid ID"})
+	}
+
+	type UpdateInput struct {
+		Status string `json:"status"`
+	}
+	var input UpdateInput
+	if err := c.BodyParser(&input); err != nil {
+		return c.Status(400).JSON(fiber.Map{"error": "Invalid request"})
+	}
+
+	loanColl := config.DB.Collection("loans")
+	toolColl := config.DB.Collection("medical_tools")
+
+	if input.Status == "rejected" || input.Status == "completed" {
+
+		var loan models.Loan
+		err := loanColl.FindOne(context.Background(), bson.M{"_id": objID}).Decode(&loan)
+		if err == nil && loan.Status != "completed" && loan.Status != "rejected" {
+
+			toolObjID, _ := primitive.ObjectIDFromHex(loan.ToolID)
+
+			_, err := toolColl.UpdateOne(context.Background(),
+				bson.M{"_id": toolObjID},
+				bson.M{"$inc": bson.M{"stock": loan.Quantity}},
+			)
+			if err != nil {
+				return c.Status(500).JSON(fiber.Map{"error": "Gagal mengembalikan stok alat"})
+			}
+		}
+	}
+	_, err = loanColl.UpdateOne(context.Background(),
+		bson.M{"_id": objID},
+		bson.M{"$set": bson.M{"status": input.Status}},
+	)
+
+	if err != nil {
+		return c.Status(500).JSON(fiber.Map{"error": "Gagal update status"})
+	}
+
+	return c.JSON(fiber.Map{"message": "Status berhasil diperbarui"})
+}

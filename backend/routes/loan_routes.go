@@ -15,4 +15,5 @@ func LoanRoutes(app *fiber.App) {
 	api.Get("/", controllers.GetAllLoans)
 	api.Put("/:id/complete", controllers.CompleteLoan)
 	api.Get("/my", controllers.GetMyLoans)
+	api.Put("/:id/status", controllers.UpdateLoanStatus)
 }

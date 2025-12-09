@@ -11,7 +11,7 @@ import {
     getTools, 
     createTool, 
     deleteTool, 
-    getPendingLoans, 
+    getAllLoans, 
     updateLoanStatus, 
     getNews, 
     createNews as apiCreateNews 
@@ -28,7 +28,7 @@ export default function AdminDashboard() {
   
   const [user, setUser] = useState({ name: "Memuat...", role: "" });
   
-  const [pendingLoans, setPendingLoans] = useState([]);
+  const [loans, setLoans] = useState([]); 
   const [tools, setTools] = useState([]);
   const [allNews, setAllNews] = useState([]);
 
@@ -53,12 +53,12 @@ export default function AdminDashboard() {
     try {
       const [toolsData, loansData, newsData] = await Promise.all([
         getTools(),
-        getPendingLoans(),
+        getAllLoans(), 
         getNews()
       ]);
 
       setTools(toolsData);
-      setPendingLoans(loansData);
+      setLoans(loansData); 
       setAllNews(newsData);
     } catch (error) {
       console.error("Error fetching dashboard data:", error);
@@ -72,24 +72,24 @@ export default function AdminDashboard() {
     navigate("/login");
   };
 
-  const approveLoan = async (id) => {
-    try {
-      await updateLoanStatus(id, "approved"); 
-      setPendingLoans((prev) => prev.filter((l) => l.id !== id));
-      alert("Permintaan pinjaman disetujui.");
-    } catch (error) {
-      console.error(error);
-      alert("Gagal menyetujui pinjaman.");
-    }
-  };
+  const handleUpdateStatus = async (id, newStatus) => {
+    let message = "Lanjutkan aksi ini?";
+    if (newStatus === "approved") message = "Setujui peminjaman? Barang akan di-booking.";
+    if (newStatus === "rejected") message = "Tolak peminjaman? Stok akan dikembalikan.";
+    if (newStatus === "active") message = "Konfirmasi user sudah datang dan barang diserahkan?";
+    if (newStatus === "completed") message = "Konfirmasi barang sudah kembali & stok ditambah?";
 
-  const rejectLoan = async (id) => {
+    if (!window.confirm(message)) return;
+
     try {
-      setPendingLoans((prev) => prev.filter((l) => l.id !== id));
-      alert("Permintaan pinjaman ditolak.");
+      await updateLoanStatus(id, newStatus);
+      
+      fetchData(); 
+      
+      alert("Status berhasil diperbarui!");
     } catch (error) {
       console.error(error);
-      alert("Gagal menolak pinjaman.");
+      alert("Gagal update status. Cek koneksi.");
     }
   };
   
@@ -147,7 +147,7 @@ export default function AdminDashboard() {
         <div className="max-w-7xl mx-auto flex items-center justify-between px-6 py-4">
           <div className="flex items-center gap-2">
             <div className="w-8 h-8 bg-teal-500 text-white rounded-lg flex items-center justify-center font-bold shadow-sm">M</div>
-            <span className="font-semibold text-lg text-gray-800">MedisLink Admin</span>
+            <span className="font-bold text-lg tracking-tight text-gray-800">MedisLink Admin</span>
           </div>
           <div className="flex items-center gap-4">
             
@@ -170,7 +170,7 @@ export default function AdminDashboard() {
       <main className="max-w-7xl mx-auto px-6 pt-28 pb-10">
         <div className="flex gap-8 border-b border-gray-200 mb-8 overflow-x-auto">
           {[
-            { id: "loans", label: `Permintaan Pinjaman (${pendingLoans.length})` },
+            { id: "loans", label: `Manajemen Peminjaman (${loans.length})` }, 
             { id: "inventory", label: "Inventaris" },
             { id: "news", label: "Berita" },
           ].map((tab) => (
@@ -190,9 +190,8 @@ export default function AdminDashboard() {
 
         {activeTab === "loans" && (
           <LoansTable 
-            loans={pendingLoans} 
-            onApprove={approveLoan} 
-            onReject={rejectLoan} 
+            loans={loans} 
+            onUpdateStatus={handleUpdateStatus}
           />
         )}
 

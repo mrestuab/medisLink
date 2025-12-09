@@ -115,7 +115,7 @@ export default function ToolDetailPage() {
   return (
     <main className="min-h-screen bg-gray-50 pb-20">
       
-      <div className="bg-white border-b sticky top-0 z-40 shadow-sm">
+      <div className="bg-white border-b border-gray-200 sticky top-0 z-40 shadow-sm">
         <div className="max-w-5xl mx-auto px-4 py-4 flex items-center gap-4">
           <button onClick={() => navigate("/dashboard")} className="btn btn-ghost btn-sm gap-2 text-gray-600 normal-case">
             <ArrowLeft className="w-4 h-4" /> Kembali
@@ -200,68 +200,82 @@ export default function ToolDetailPage() {
 
               <form onSubmit={handleSubmit} className="space-y-4">
                   <div className="form-control">
-                      <label className="label-text text-xs font-bold text-gray-500 mb-1 block">Tanggal Mulai Pinjam</label>
-                      <label className="input input-bordered flex items-center gap-2 w-full focus-within:border-teal-500">
-                        <Calendar className="w-4 h-4 text-gray-400" />
-                        <input 
-                            type="date" 
-                            name="loanDate"
-                            min={todayString} 
-                            value={formData.loanDate}
-                            onChange={handleChange}
-                            className="grow" 
-                            required 
-                        />
-                      </label>
+                    <label className="label-text text-xs font-bold text-gray-500 mb-1 block">
+                      Tanggal Mulai Pinjam
+                    </label>
+
+                    <label className="flex items-center gap-2 w-full border border-gray-300 rounded-lg px-3 py-2 focus-within:border-teal-500">
+                      <Calendar className="w-4 h-4 text-gray-400" />
+                      <input
+                        type="date"
+                        name="loanDate"
+                        min={todayString}
+                        value={formData.loanDate}
+                        onChange={handleChange}
+                        className="grow outline-none border-none bg-transparent"
+                        required
+                      />
+                    </label>
                   </div>
 
                   <div className="form-control">
-                      <label className="label-text text-xs font-bold text-gray-500 mb-1 block">Rencana Kembali</label>
-                      <label className="input input-bordered flex items-center gap-2 w-full focus-within:border-teal-500">
-                        <Calendar className="w-4 h-4 text-gray-400" />
-                        <input 
-                            type="date" 
-                            name="returnDue"
-                            min={formData.loanDate || todayString} 
-                            value={formData.returnDue}
-                            onChange={handleChange}
-                            className="grow" 
-                            required 
-                        />
-                      </label>
+                    <label className="label-text text-xs font-bold text-gray-500 mb-1 block">
+                      Rencana Kembali
+                    </label>
+
+                    <label className="flex items-center gap-2 w-full border border-gray-300 rounded-lg px-3 py-2 focus-within:border-teal-500">
+                      <Calendar className="w-4 h-4 text-gray-400" />
+                      <input
+                        type="date"
+                        name="returnDue"
+                        min={formData.loanDate || todayString}
+                        value={formData.returnDue}
+                        onChange={handleChange}
+                        className="grow outline-none border-none bg-transparent"
+                        required
+                      />
+                    </label>
                   </div>
 
                   <div className="form-control">
-                      <label className="label-text text-xs font-bold text-gray-500 mb-1 flex items-center gap-1">
-                        <Activity className="w-3 h-3 text-red-500" /> Kondisi Medis
-                      </label>
+                    <label className="label-text text-xs font-bold text-gray-500 mb-1 flex items-center gap-1">
+                      <Activity className="w-3 h-3 text-red-500" /> Kondisi Medis
+                    </label>
+
+                    <div className="flex items-center w-full border border-gray-300 rounded-lg px-3 py-2 focus-within:border-teal-500">
                       <input 
                         type="text"
                         name="medicalCondition"
                         value={formData.medicalCondition}
                         onChange={handleChange}
-                        className="input input-bordered w-full focus:border-teal-500 text-sm"
+                        className="grow outline-none border-none bg-transparent text-sm"
                         placeholder="Cth: Patah Tulang, Stroke"
                         required
                       />
+                    </div>
                   </div>
 
                   <div className="form-control">
-                      <label className="label-text text-xs font-bold text-gray-500 mb-1 block">Tujuan Penggunaan</label>
+                    <label className="label-text text-xs font-bold text-gray-500 mb-1 block">
+                      Tujuan Penggunaan
+                    </label>
+
+                    <div className="w-full border border-gray-300 rounded-lg px-3 py-2 focus-within:border-teal-500">
                       <textarea 
                         name="notes"
                         value={formData.notes}
                         onChange={handleChange}
-                        className="textarea textarea-bordered w-full focus:border-teal-500 text-sm" 
+                        className="w-full outline-none border-none bg-transparent text-sm resize-none"
                         placeholder="Jelaskan kebutuhan Anda..."
                         rows={2}
                       ></textarea>
+                    </div>
                   </div>
 
                   <button 
                       type="submit"
                       disabled={tool.stock === 0 || isSubmitting}
-                      className="btn btn-primary w-full bg-teal-600 hover:bg-teal-700 border-none text-white mt-4 shadow-lg shadow-teal-100 disabled:bg-gray-300 disabled:text-gray-500"
+                      className="btn btn-primary w-full bg-teal-600 rounded-lg hover:bg-teal-700 border-none text-white mt-4 shadow-lg shadow-teal-100 disabled:bg-gray-300 disabled:text-gray-500"
                   >
                     {isSubmitting ? "Mengirim..." : "Ajukan Permintaan"}
                   </button>

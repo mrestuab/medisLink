@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { Image, Tag, Ruler, Weight, Clock, CheckCircle, XCircle, Calendar, Activity } from 'lucide-react'; 
+import { Image, Tag, Ruler, Weight, Clock, CheckCircle, XCircle, Calendar, Activity, Package } from 'lucide-react'; 
 
 import { getPublicTools, getCategories, getMyLoans } from '../services/userServices';
 
@@ -205,6 +205,11 @@ const UserDashboardPage = () => {
                                             </span>
                                         )}
                                         {loan.status === 'approved' && (
+                                            <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold bg-blue-50 text-blue-700 border border-blue-200">
+                                                <Package className="w-3.5 h-3.5" /> Siap Diambil di Klinik
+                                            </span>
+                                        )}
+                                        {loan.status === 'active' && (
                                             <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold bg-green-50 text-green-700 border border-green-200">
                                                 <CheckCircle className="w-3.5 h-3.5" /> Sedang Dipinjam
                                             </span>
