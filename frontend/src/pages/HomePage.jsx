@@ -67,7 +67,7 @@ export default function HomePage() {
           <div className="flex gap-4">
              <Link
                 to="/login"
-                className="btn btn-primary btn-sm bg-teal-500 hover:bg-teal-600 border-none text-white font-semibold text-sm px-6 rounded-full shadow-md shadow-teal-100"
+                className="btn btn-primary btn-sm bg-teal-500 h-9 hover:bg-teal-600 border-none text-white font-semibold text-sm px-6 rounded-2xl shadow-md shadow-teal-100"
             >
                 Masuk / Daftar
             </Link>
