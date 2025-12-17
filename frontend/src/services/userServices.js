@@ -140,3 +140,23 @@ export const getAds = async () => {
     ];
   }
 };
+
+export const getMyNotifications = async () => {
+  try {
+    const response = await api.get('/notifications');
+    return response.data;
+  } catch (error) {
+    console.error("Gagal ambil notifikasi:", error);
+    return [];
+  }
+};
+
+export const markNotificationAsRead = async (id) => {
+  try {
+    await api.put(`/notifications/${id}/read`);
+    return true;
+  } catch (error) {
+    console.error("Gagal update status notif:", error);
+    return false;
+  }
+};

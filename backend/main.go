@@ -10,6 +10,7 @@ import (
 
 	"medislink-backend/config"
 	"medislink-backend/routes"
+	"medislink-backend/utils"
 )
 
 func main() {
@@ -28,6 +29,7 @@ func main() {
 
 		AllowMethods: "GET, POST, PUT, DELETE, OPTIONS",
 	}))
+	utils.StartCronJob()
 
 	routes.CategoryRoutes(app)
 	routes.InventoryLogRoutes(app)
@@ -43,4 +45,6 @@ func main() {
 
 	port := os.Getenv("PORT")
 	app.Listen(":" + port)
+
+	log.Fatal(app.Listen(":8080"))
 }

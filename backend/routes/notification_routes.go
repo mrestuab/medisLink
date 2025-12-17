@@ -11,7 +11,6 @@ func NotificationRoutes(app *fiber.App) {
 	api := app.Group("/api/notifications")
 	api.Use(middlewares.JWTProtected())
 
-	api.Post("/", controllers.CreateNotification)
-	api.Get("/:user_id", controllers.GetUserNotifications)
+	api.Get("/", controllers.GetMyNotifications)
 	api.Put("/:id/read", controllers.MarkAsRead)
 }

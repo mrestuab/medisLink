@@ -191,30 +191,53 @@ func UpdateLoanStatus(c *fiber.Ctx) error {
 	loanColl := config.DB.Collection("loans")
 	toolColl := config.DB.Collection("medical_tools")
 
+	var loan models.Loan
+	err = loanColl.FindOne(context.Background(), bson.M{"_id": objID}).Decode(&loan)
+	if err != nil {
+		return c.Status(404).JSON(fiber.Map{"error": "Loan not found"})
+	}
+
 	if input.Status == "rejected" || input.Status == "completed" {
-
-		var loan models.Loan
-		err := loanColl.FindOne(context.Background(), bson.M{"_id": objID}).Decode(&loan)
-		if err == nil && loan.Status != "completed" && loan.Status != "rejected" {
-
+		if loan.Status != "completed" && loan.Status != "rejected" {
 			toolObjID, _ := primitive.ObjectIDFromHex(loan.ToolID)
-
-			_, err := toolColl.UpdateOne(context.Background(),
+			toolColl.UpdateOne(context.Background(),
 				bson.M{"_id": toolObjID},
 				bson.M{"$inc": bson.M{"stock": loan.Quantity}},
 			)
-			if err != nil {
-				return c.Status(500).JSON(fiber.Map{"error": "Gagal mengembalikan stok alat"})
-			}
 		}
 	}
+
 	_, err = loanColl.UpdateOne(context.Background(),
 		bson.M{"_id": objID},
 		bson.M{"$set": bson.M{"status": input.Status}},
 	)
-
 	if err != nil {
 		return c.Status(500).JSON(fiber.Map{"error": "Gagal update status"})
+	}
+
+	var title, message, notifType string
+
+	switch input.Status {
+	case "approved":
+		title = "Permintaan Disetujui!"
+		message = "Alat medis Anda sudah siap. Silakan datang ke klinik untuk pengambilan barang."
+		notifType = "success"
+	case "rejected":
+		title = "Permintaan Ditolak"
+		message = "Maaf, permintaan peminjaman Anda ditolak. Silakan cek ketersediaan atau hubungi admin."
+		notifType = "error"
+	case "active":
+		title = "Peminjaman Dimulai"
+		message = "Alat telah diserahkan kepada Anda. Harap dijaga dengan baik selama masa peminjaman."
+		notifType = "info"
+	case "completed":
+		title = "Peminjaman Selesai"
+		message = "Terima kasih telah mengembalikan alat medis tepat waktu. Semoga sehat selalu!"
+		notifType = "success"
+	}
+
+	if title != "" {
+		CreateNotificationService(loan.UserID, title, message, notifType)
 	}
 
 	return c.JSON(fiber.Map{"message": "Status berhasil diperbarui"})
