@@ -160,3 +160,13 @@ export const markNotificationAsRead = async (id) => {
     return false;
   }
 };
+
+export const getPublicNews = async () => {
+  try {
+    const response = await api.get('/news');
+    return response.data;
+  } catch (error) {
+    console.error("Gagal ambil berita:", error);
+    return [];
+  }
+};

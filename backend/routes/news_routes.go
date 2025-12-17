@@ -9,10 +9,13 @@ import (
 
 func NewsRoutes(app *fiber.App) {
 	api := app.Group("/api/news")
-	api.Use(middlewares.JWTProtected())
 
-	api.Post("/", controllers.CreateNews)
 	api.Get("/", controllers.GetAllNews)
-	api.Put("/:id", controllers.UpdateNews)
-	api.Delete("/:id", controllers.DeleteNews)
+
+	protected := api.Group("/")
+	protected.Use(middlewares.JWTProtected())
+
+	protected.Post("/", controllers.CreateNews)
+	protected.Put("/:id", controllers.UpdateNews)
+	protected.Delete("/:id", controllers.DeleteNews)
 }
