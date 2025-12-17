@@ -76,3 +76,21 @@ export const getNews = async () => {
     return [];
   }
 };
+
+export const getAds = async () => {
+  try {
+    const response = await api.get('/adds'); 
+    return response.data;
+  } catch (error) {
+    console.error("Gagal ambil iklan:", error);
+    return [];
+  }
+};
+
+export const createAd = async (adData) => {
+  return await api.post('/adds', adData); 
+};
+
+export const deleteAd = async (id) => {
+  return await api.delete(`/adds/${id}`);
+};

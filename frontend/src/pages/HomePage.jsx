@@ -15,23 +15,6 @@ export default function HomePage() {
         const data = await getAds();
         if (data && data.length > 0) {
           setAds(data);
-        } else {
-          setAds([
-            {
-              id: 1,
-              title: "Akses Alat Medis Mudah",
-              description: "Solusi penyewaan alat medis terpercaya untuk keluarga Indonesia.",
-              image_url: "https://images.unsplash.com/photo-1519494026892-80bbd2d6fd0d?auto=format&fit=crop&w=1200&q=80",
-              link: "/tools"
-            },
-            {
-              id: 2,
-              title: "Promo Kursi Roda",
-              description: "Dapatkan diskon spesial untuk penyewaan jangka panjang.",
-              image_url: "https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?auto=format&fit=crop&w=1200&q=80",
-              link: "/login"
-            }
-          ]);
         }
       } catch (error) {
         console.error("Gagal load ads", error);
@@ -52,6 +35,15 @@ export default function HomePage() {
 
   const nextSlide = () => setCurrentSlide((prev) => (prev + 1) % ads.length);
   const prevSlide = () => setCurrentSlide((prev) => (prev === 0 ? ads.length - 1 : prev - 1));
+  const displayAds = ads.length > 0 ? ads : [
+    {
+      id: "default",
+      title: "Selamat Datang di MedisLink",
+      description: "Platform peminjaman alat medis terpercaya untuk kebutuhan pemulihan keluarga Anda.",
+      image_url: "https://images.unsplash.com/photo-1538108149393-fbbd81895907?auto=format&fit=crop&w=1200&q=80",
+      link: "/alat"
+    }
+  ];
 
   return (
     <div className="flex flex-col min-h-screen bg-gray-50 text-gray-900 font-sans">
@@ -78,7 +70,13 @@ export default function HomePage() {
       <section className="relative pt-24 pb-12 px-4 sm:px-6">
         <div className="max-w-7xl mx-auto relative rounded-2xl overflow-hidden h-[500px] sm:h-[600px] shadow-2xl bg-gray-900 group">
             
-            {ads.map((ad, index) => (
+            {loading && (
+                <div className="absolute inset-0 flex items-center justify-center bg-gray-100 z-50">
+                    <span className="loading loading-spinner loading-lg text-teal-600"></span>
+                </div>
+            )}
+
+            {displayAds.map((ad, index) => (
                 <div 
                     key={ad.id || index}
                     className={`absolute inset-0 transition-opacity duration-1000 ease-in-out ${index === currentSlide ? 'opacity-100 z-10' : 'opacity-0 z-0'}`}
@@ -92,7 +90,7 @@ export default function HomePage() {
                     
                     <div className="absolute inset-0 z-20 flex flex-col items-center justify-center text-center px-6 max-w-4xl mx-auto">
                         <span className="inline-block py-1 px-4 rounded-full bg-teal-500/90 text-white text-xs font-bold uppercase tracking-widest mb-6 backdrop-blur-sm border border-white/20 animate-in fade-in slide-in-from-bottom-4 duration-700">
-                            Featured
+                            {ads.length > 0 ? "Featured Offer" : "Welcome"}
                         </span>
                         <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold text-white mb-6 drop-shadow-lg leading-tight animate-in fade-in slide-in-from-bottom-6 duration-1000 delay-100">
                             {ad.title}
@@ -103,20 +101,22 @@ export default function HomePage() {
                         
                         <div className="flex gap-4 animate-in fade-in slide-in-from-bottom-10 duration-1000 delay-300">
                             <Link 
-                                to={ad.link || "/tools"} 
+                                to={ad.link || "/alat"} 
                                 className="btn btn-primary bg-teal-500 hover:bg-teal-600 border-none text-white font-bold px-10 py-3 h-auto rounded-full shadow-lg hover:shadow-teal-500/30 hover:-translate-y-1 transition-all"
                             >
-                                Cek Sekarang
+                                {ads.length > 0 ? "Cek Sekarang" : "Jelajahi Alat"}
                             </Link>
-                            <button className="btn btn-outline text-white border-white/50 hover:bg-white/10 hover:border-white font-semibold px-8 py-3 h-auto rounded-full backdrop-blur-sm">
-                                Pelajari Lebih Lanjut
-                            </button>
+                            {ads.length > 0 && (
+                                <button className="btn btn-outline text-white border-white/50 hover:bg-white/10 hover:border-white font-semibold px-8 py-3 h-auto rounded-full backdrop-blur-sm">
+                                    Pelajari Lebih Lanjut
+                                </button>
+                            )}
                         </div>
                     </div>
                 </div>
             ))}
 
-            {ads.length > 1 && (
+            {displayAds.length > 1 && (
                 <>
                     <button onClick={prevSlide} className="absolute left-4 top-1/2 -translate-y-1/2 z-30 p-3 bg-white/10 hover:bg-white/20 backdrop-blur-md rounded-full text-white transition-all border border-white/10 group-hover:opacity-100 opacity-0">
                         <ChevronLeft className="w-6 h-6" />
@@ -124,18 +124,18 @@ export default function HomePage() {
                     <button onClick={nextSlide} className="absolute right-4 top-1/2 -translate-y-1/2 z-30 p-3 bg-white/10 hover:bg-white/20 backdrop-blur-md rounded-full text-white transition-all border border-white/10 group-hover:opacity-100 opacity-0">
                         <ChevronRight className="w-6 h-6" />
                     </button>
+                    
+                    <div className="absolute bottom-8 left-1/2 -translate-x-1/2 z-30 flex gap-3">
+                        {displayAds.map((_, idx) => (
+                            <button 
+                                key={idx}
+                                onClick={() => setCurrentSlide(idx)}
+                                className={`h-1.5 rounded-full transition-all duration-300 ${idx === currentSlide ? 'bg-teal-400 w-8' : 'bg-white/30 w-2 hover:bg-white/60'}`}
+                            />
+                        ))}
+                    </div>
                 </>
             )}
-
-            <div className="absolute bottom-8 left-1/2 -translate-x-1/2 z-30 flex gap-3">
-                {ads.map((_, idx) => (
-                    <button 
-                        key={idx}
-                        onClick={() => setCurrentSlide(idx)}
-                        className={`h-1.5 rounded-full transition-all duration-300 ${idx === currentSlide ? 'bg-teal-400 w-8' : 'bg-white/30 w-2 hover:bg-white/60'}`}
-                    />
-                ))}
-            </div>
         </div>
       </section>
 

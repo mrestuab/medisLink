@@ -13,52 +13,45 @@ const NewsForm = ({ onSubmit }) => {
   };
 
   return (
-    <form onSubmit={submit} className="space-y-6">
-      <div className="form-control w-full">
-        <label className="label px-0 pt-0">
-          <span className="label-text font-bold text-gray-700 text-sm">Judul</span>
+    <form onSubmit={submit} className="space-y-4">
+      <div className="form-control">
+        <label className="label-text text-xs font-bold text-gray-500 mb-1 block">
+          Judul
         </label>
-        <input
-          type="text"
-          placeholder="Judul berita"
-          value={title}
-          onChange={(e) => setTitle(e.target.value)}
-          className="
-            input w-full bg-white border-gray-300 
-            focus:border-teal-500 focus:ring-2 focus:ring-teal-400
-            rounded-lg placeholder:px-2
-          "
-        />
+        <div className="w-full border border-gray-300 rounded-lg px-3 py-2 focus-within:border-teal-500">
+          <input
+            type="text"
+            placeholder="Judul berita"
+            value={title}
+            onChange={(e) => setTitle(e.target.value)}
+            className="w-full outline-none border-none bg-transparent text-sm"
+          />
+        </div>
       </div>
 
-      <div className="form-control w-full">
-        <label className="label px-0 pt-0">
-          <span className="label-text font-bold text-gray-700 text-sm">Konten</span>
+      <div className="form-control">
+        <label className="label-text text-xs font-bold text-gray-500 mb-1 block">
+          Konten
         </label>
-        <textarea
-          rows={5}
-          placeholder="Konten berita"
-          value={content}
-          onChange={(e) => setContent(e.target.value)}
-          className="
-            textarea textarea-bordered w-full bg-white border-gray-300
-            focus:border-teal-500 focus:ring-2 focus:ring-teal-400
-            rounded-lg text-base placeholder:px-2
-          "
-        />
+        <div className="w-full border border-gray-300 rounded-lg px-3 py-2 focus-within:border-teal-500">
+          <textarea
+            rows={5}
+            placeholder="Konten berita"
+            value={content}
+            onChange={(e) => setContent(e.target.value)}
+            className="w-full outline-none border-none bg-transparent text-sm resize-none"
+          />
+        </div>
       </div>
 
-      <div className="pt-2">
-        <button
-          className="
-            btn bg-teal-600 hover:bg-teal-700 text-white border-none 
-            px-8 rounded-lg capitalize font-semibold
-          "
-        >
-          Publikasikan
-        </button>
-      </div>
+      <button
+        type="submit"
+        className="btn w-full bg-teal-600 hover:bg-teal-700 text-white rounded-lg font-semibold shadow-lg shadow-teal-100 mt-2"
+      >
+        Publikasikan
+      </button>
     </form>
+
   );
 };
 
