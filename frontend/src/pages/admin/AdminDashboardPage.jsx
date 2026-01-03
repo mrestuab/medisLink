@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { LogOut, Plus, Trash2, Link as LinkIcon, Image as ImageIcon } from "lucide-react";
 
 import NewsForm from "../../components/admin/NewsForm";
+import NewsList from "../../components/admin/NewsList";
 import LoansTable from "../../components/admin/LoansTable";
 import InventoryTable from "../../components/admin/InventoryTable";
 import AddToolModal from "../../components/admin/AddToolModal";
@@ -66,13 +67,14 @@ export default function AdminDashboard() {
         getTools(),
         getAllLoans(),
         getNews(),
-        getAds() 
+        getAds()
       ]);
 
-      setTools(toolsData);
-      setLoans(loansData);
-      setAllNews(newsData);
+      setTools(toolsData || []); 
+      setLoans(loansData || []);
+      setAllNews(newsData || []);
       setAds(adsData || []); 
+      
     } catch (error) {
       console.error("Error fetching dashboard data:", error);
     } finally {
@@ -128,14 +130,10 @@ export default function AdminDashboard() {
     }
   };
 
-  const handleCreateNews = async (title, content) => {
+  const handleCreateNews = async (formData) => {
     try {
-      await apiCreateNews({ 
-        title, 
-        content, 
-        author: user.name || "Admin",
-        image_url: "" 
-      });
+      await apiCreateNews(formData); 
+      
       fetchData(); 
       alert("Berita berhasil dipublikasikan!");
     } catch (error) {
@@ -244,20 +242,7 @@ export default function AdminDashboard() {
               <NewsForm onSubmit={handleCreateNews} />
             </div>
             <h3 className="font-bold text-xl text-gray-900 mb-4">Daftar Berita</h3>
-            <div className="space-y-4">
-              {allNews.length === 0 ? <p className="text-gray-500 text-sm italic">Belum ada berita.</p> : (
-                allNews.map((n) => (
-                    <div key={n.id || Math.random()} className="bg-white border border-gray-200 rounded-xl shadow-sm p-6 hover:shadow-md transition-all">
-                      <div className="flex justify-between items-start mb-2">
-                          <h4 className="font-bold text-lg text-gray-900">{n.title}</h4>
-                          <span className="text-xs bg-green-100 text-green-700 px-2 py-1 rounded font-medium">Published</span>
-                      </div>
-                      <p className="text-sm text-gray-600 leading-relaxed mb-4 line-clamp-3">{n.content}</p>
-                      <p className="text-xs text-gray-400 font-medium">Diposting: {n.createdAt ? new Date(n.createdAt).toLocaleDateString("id-ID") : "-"}</p>
-                    </div>
-                  ))
-              )}
-            </div>
+            <NewsList news={allNews} />
           </div>
         )}
 
