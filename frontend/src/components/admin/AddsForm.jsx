@@ -2,7 +2,6 @@ import React from "react";
 import { Image as ImageIcon, X, Link as LinkIcon } from "lucide-react";
 
 const AddsForm = ({ newAd, setNewAd, onSubmit }) => {
-    // Preview only, simpan file asli di raw_image
     const handleImageChange = (e) => {
         const file = e.target.files[0];
         if (file) {
@@ -14,8 +13,8 @@ const AddsForm = ({ newAd, setNewAd, onSubmit }) => {
             reader.onloadend = () => {
                 setNewAd({
                     ...newAd,
-                    image_url: reader.result, // base64 hanya untuk preview
-                    raw_image: file // file asli untuk upload
+                    image_url: reader.result, 
+                    raw_image: file 
                 });
             };
             reader.readAsDataURL(file);
@@ -26,7 +25,6 @@ const AddsForm = ({ newAd, setNewAd, onSubmit }) => {
         setNewAd({ ...newAd, image_url: "", raw_image: null });
     };
 
-    // Form submit: kirim FormData sesuai backend
     const handleSubmit = (e) => {
         e.preventDefault();
         const formData = new FormData();
@@ -34,7 +32,7 @@ const AddsForm = ({ newAd, setNewAd, onSubmit }) => {
         formData.append("description", newAd.description);
         formData.append("link", newAd.link);
         if (newAd.raw_image) {
-            formData.append("image", newAd.raw_image); // key 'image' sesuai backend
+            formData.append("image", newAd.raw_image); 
         }
         onSubmit(formData);
     };
