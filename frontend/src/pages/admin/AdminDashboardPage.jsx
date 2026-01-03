@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { LogOut, Plus, Trash2, Link as LinkIcon, Image as ImageIcon } from "lucide-react";
+import { LogOut, Plus, Link as LinkIcon, Image as ImageIcon } from "lucide-react";
 
 import NewsForm from "../../components/admin/NewsForm";
 import NewsList from "../../components/admin/NewsList";
+import AddsForm from "../../components/admin/AddsForm";
+import AddsList from "../../components/admin/AddsList";
 import LoansTable from "../../components/admin/LoansTable";
 import InventoryTable from "../../components/admin/InventoryTable";
 import AddToolModal from "../../components/admin/AddToolModal";
@@ -253,118 +255,10 @@ export default function AdminDashboard() {
                     <h3 className="font-bold text-xl text-gray-900 mb-6 flex items-center gap-2">
                         <Plus className="w-5 h-5 text-teal-600" /> Pasang Iklan Baru (Slider)
                     </h3>
-                    <form onSubmit={handleCreateAd} className="space-y-4">
-                      <div className="form-control">
-                        <label className="label-text text-xs font-bold text-gray-500 mb-1 block">
-                          Judul Utama
-                        </label>
-                        <div className="w-full border border-gray-300 rounded-lg px-3 py-2 focus-within:border-teal-500">
-                          <input
-                            type="text"
-                            placeholder="Contoh: Diskon Kursi Roda 50%"
-                            className="w-full outline-none border-none bg-transparent text-sm"
-                            value={newAd.title}
-                            onChange={e => setNewAd({ ...newAd, title: e.target.value })}
-                            required
-                          />
-                        </div>
-                      </div>
-
-                      <div className="form-control">
-                        <label className="label-text text-xs font-bold text-gray-500 mb-1 block">
-                          Link Tujuan (Opsional)
-                        </label>
-                        <div className="flex items-center gap-2 w-full border border-gray-300 rounded-lg px-3 py-2 focus-within:border-teal-500">
-                          <LinkIcon className="w-4 h-4 text-gray-400" />
-                          <input
-                            type="text"
-                            placeholder="/tools atau /login"
-                            className="grow outline-none border-none bg-transparent text-sm"
-                            value={newAd.link}
-                            onChange={e => setNewAd({ ...newAd, link: e.target.value })}
-                          />
-                        </div>
-                      </div>
-
-                      <div className="form-control">
-                        <label className="label-text text-xs font-bold text-gray-500 mb-1 block">
-                          URL Gambar
-                        </label>
-                        <div className="flex items-center gap-2 w-full border border-gray-300 rounded-lg px-3 py-2 focus-within:border-teal-500">
-                          <ImageIcon className="w-4 h-4 text-gray-400" />
-                          <input
-                            type="text"
-                            placeholder="https://..."
-                            className="grow outline-none border-none bg-transparent text-sm"
-                            value={newAd.image_url}
-                            onChange={e => setNewAd({ ...newAd, image_url: e.target.value })}
-                            required
-                          />
-                        </div>
-                        <span className="text-xs text-gray-400 mt-1">
-                          Gunakan link gambar langsung (Unsplash / Imgur)
-                        </span>
-                      </div>
-
-                      <div className="form-control">
-                        <label className="label-text text-xs font-bold text-gray-500 mb-1 block">
-                          Deskripsi Singkat
-                        </label>
-                        <div className="w-full border border-gray-300 rounded-lg px-3 py-2 focus-within:border-teal-500">
-                          <textarea
-                            placeholder="Deskripsi yang muncul di bawah judul..."
-                            className="w-full outline-none border-none bg-transparent text-sm resize-none"
-                            rows={2}
-                            value={newAd.description}
-                            onChange={e => setNewAd({ ...newAd, description: e.target.value })}
-                            required
-                          />
-                        </div>
-                      </div>
-
-                      <button
-                        type="submit"
-                        className="btn btn-primary w-full bg-teal-600 rounded-lg hover:bg-teal-700 border-none text-white mt-4 shadow-lg shadow-teal-100"
-                      >
-                        Upload & Tampilkan di Slider
-                      </button>
-                    </form>
+                    <AddsForm newAd={newAd} setNewAd={setNewAd} onSubmit={handleCreateAd} />
                 </div>
 
-                <div>
-                    <h3 className="font-bold text-xl text-gray-900 mb-6">Iklan Aktif ({ads.length})</h3>
-                    {ads.length === 0 ? (
-                        <div className="text-center py-12 bg-gray-50 rounded-xl border border-dashed text-gray-500">
-                            Belum ada iklan yang aktif. Homepage akan menampilkan iklan dummy.
-                        </div>
-                    ) : (
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            {ads.map((ad) => (
-                                <div key={ad.id || ad._id} className="relative group rounded-xl overflow-hidden shadow-md bg-black h-64 border border-gray-200">
-                                    <img 
-                                        src={ad.image_url} 
-                                        alt={ad.title} 
-                                        className="w-full h-full object-cover opacity-80 group-hover:opacity-60 transition-opacity duration-300" 
-                                    />
-                                    
-                                    <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/90 to-transparent p-6 pt-12">
-                                        <h4 className="text-white font-bold text-xl mb-1">{ad.title}</h4>
-                                        <p className="text-gray-300 text-sm line-clamp-2">{ad.description}</p>
-                                    </div>
-
-                                    <div className="absolute top-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity">
-                                        <button 
-                                            onClick={() => handleDeleteAd(ad.id || ad._id)}
-                                            className="btn btn-sm btn-error bg-red-600 border-none text-white shadow-lg gap-2"
-                                        >
-                                            <Trash2 className="w-4 h-4" /> Hapus
-                                        </button>
-                                    </div>
-                                </div>
-                            ))}
-                        </div>
-                    )}
-                </div>
+                <AddsList ads={ads} onDelete={handleDeleteAd} />
             </div>
         )}
 
