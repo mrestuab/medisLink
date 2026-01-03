@@ -2,21 +2,20 @@ import React from "react";
 import { Image as ImageIcon, X, Link as LinkIcon } from "lucide-react";
 
 const AddsForm = ({ newAd, setNewAd, onSubmit }) => {
-
+    // Preview only, simpan file asli di raw_image
     const handleImageChange = (e) => {
         const file = e.target.files[0];
         if (file) {
-            if (file.size > 2 * 1024 * 1024) { 
+            if (file.size > 2 * 1024 * 1024) {
                 alert("Ukuran gambar maksimal 2MB");
                 return;
             }
-
             const reader = new FileReader();
             reader.onloadend = () => {
-                setNewAd({ 
-                    ...newAd, 
-                    image_url: reader.result, 
-                    raw_image: file 
+                setNewAd({
+                    ...newAd,
+                    image_url: reader.result, // base64 hanya untuk preview
+                    raw_image: file // file asli untuk upload
                 });
             };
             reader.readAsDataURL(file);
@@ -27,8 +26,21 @@ const AddsForm = ({ newAd, setNewAd, onSubmit }) => {
         setNewAd({ ...newAd, image_url: "", raw_image: null });
     };
 
+    // Form submit: kirim FormData sesuai backend
+    const handleSubmit = (e) => {
+        e.preventDefault();
+        const formData = new FormData();
+        formData.append("title", newAd.title);
+        formData.append("description", newAd.description);
+        formData.append("link", newAd.link);
+        if (newAd.raw_image) {
+            formData.append("image", newAd.raw_image); // key 'image' sesuai backend
+        }
+        onSubmit(formData);
+    };
+
     return (
-        <form onSubmit={onSubmit} className="space-y-4">
+        <form onSubmit={handleSubmit} className="space-y-4" encType="multipart/form-data">
             <div className="form-control">
                 <label className="label-text text-xs font-bold text-gray-500 mb-1 block">
                     Judul Utama

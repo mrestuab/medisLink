@@ -144,18 +144,17 @@ export default function AdminDashboard() {
     }
   };
 
-  const handleCreateAd = async (e) => {
-      e.preventDefault();
+    const handleCreateAd = async (formData) => {
       try {
-          await createAd(newAd);
-          setNewAd({ title: "", description: "", image_url: "", link: "" }); 
-          fetchData();
-          alert("Iklan berhasil ditambahkan ke Slider Homepage!");
+        await createAd(formData);
+        setNewAd({ title: "", description: "", image_url: "", link: "" }); 
+        fetchData();
+        alert("Iklan berhasil ditambahkan ke Slider Homepage!");
       } catch (error) {
-          console.error(error);
-          alert("Gagal membuat iklan.");
+        console.error(error);
+        alert("Gagal membuat iklan.");
       }
-  };
+    };
 
   const handleDeleteAd = async (id) => {
       if (!window.confirm("Hapus iklan ini dari slider?")) return;
