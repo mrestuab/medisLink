@@ -2,19 +2,17 @@ import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { ChevronLeft, ChevronRight, Star, Calendar, User, ArrowRight } from "lucide-react"; 
 
-// Pastikan import getPublicNews ada di sini
 import { getAds, getPublicNews } from "../services/userServices"; 
 
 export default function HomePage() {
   const [ads, setAds] = useState([]);
-  const [news, setNews] = useState([]); // <--- State untuk Berita
+  const [news, setNews] = useState([]); 
   const [currentSlide, setCurrentSlide] = useState(0);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        // Fetch Ads dan News secara paralel
         const [adsData, newsData] = await Promise.all([
             getAds(),
             getPublicNews()
@@ -25,7 +23,6 @@ export default function HomePage() {
         }
         
         if (newsData && newsData.length > 0) {
-            // Ambil 3 berita terbaru saja
             setNews(newsData.slice(0, 3));
         }
 
@@ -38,7 +35,6 @@ export default function HomePage() {
     fetchData();
   }, []);
 
-  // Auto Slide Logic
   useEffect(() => {
     if (ads.length <= 1) return;
     const timer = setInterval(() => {
@@ -50,7 +46,6 @@ export default function HomePage() {
   const nextSlide = () => setCurrentSlide((prev) => (prev + 1) % ads.length);
   const prevSlide = () => setCurrentSlide((prev) => (prev === 0 ? ads.length - 1 : prev - 1));
 
-  // Fallback Ads jika kosong
   const displayAds = ads.length > 0 ? ads : [
     {
       id: "default",
@@ -64,7 +59,6 @@ export default function HomePage() {
   return (
     <div className="flex flex-col min-h-screen bg-gray-50 text-gray-900 font-sans">
       
-      {/* NAVBAR */}
       <nav className="navbar fixed top-0 w-full z-50 backdrop-blur-md bg-white/80 border-b border-gray-200/50 transition-all">
         <div className="max-w-7xl mx-auto w-full px-6 py-3 flex items-center justify-between">
           <Link to="/" className="flex items-center gap-2 group">
@@ -84,7 +78,6 @@ export default function HomePage() {
         </div>
       </nav>
 
-      {/* HERO SECTION (SLIDER) */}
       <section className="relative pt-24 pb-12 px-4 sm:px-6">
         <div className="max-w-7xl mx-auto relative rounded-2xl overflow-hidden h-[500px] sm:h-[600px] shadow-2xl bg-gray-900 group">
             
@@ -129,7 +122,6 @@ export default function HomePage() {
                 </div>
             ))}
 
-            {/* Slider Controls */}
             {displayAds.length > 1 && (
                 <>
                     <button onClick={prevSlide} className="absolute left-4 top-1/2 -translate-y-1/2 z-30 p-3 bg-white/10 hover:bg-white/20 backdrop-blur-md rounded-full text-white transition-all border border-white/10 group-hover:opacity-100 opacity-0">
@@ -152,7 +144,6 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* FEATURES SECTION */}
       <section className="py-20 px-6">
         <div className="max-w-6xl mx-auto">
           <h2 className="text-center text-3xl md:text-4xl font-bold mb-4 text-gray-900">Mengapa Memilih MedisLink?</h2>
@@ -194,7 +185,6 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* --- SECTION BERITA TERBARU (NEW) --- */}
       {news.length > 0 && (
         <section className="py-20 px-6 bg-teal-50/50 border-t border-teal-100/50">
             <div className="max-w-6xl mx-auto">
@@ -251,7 +241,6 @@ export default function HomePage() {
         </section>
       )}
 
-      {/* CTA SECTION */}
       <section className="py-24 px-6 relative overflow-hidden bg-white">
         <div className="absolute inset-0 bg-teal-600 skew-y-3 origin-bottom-right transform scale-110"></div>
         <div className="max-w-4xl mx-auto text-center relative z-10">
@@ -274,7 +263,6 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* FOOTER */}
       <footer className="border-t border-gray-200 bg-white pt-16 pb-8 px-6">
         <div className="max-w-6xl mx-auto">
             <div className="flex flex-col md:flex-row justify-between items-center mb-8">
