@@ -43,7 +43,9 @@ const AddToolModal = ({ isOpen, onClose, onSubmit }) => {
   
   const [formData, setFormData] = useState({
     type: "", size: "", dimensions: "", weight_cap: "", 
-    stock: "", condition: "baik", image_url: "", description: "",
+    stock: "", condition: "baik", description: "",
+    image_url: "", 
+    raw_image: null, 
   });
 
   useEffect(() => {
@@ -51,7 +53,11 @@ const AddToolModal = ({ isOpen, onClose, onSubmit }) => {
        setCategory("MOBILITAS");
        setSelectedTool("");
        setCustomName("");
-       setFormData({type: "", size: "", dimensions: "", weight_cap: "", stock: "", condition: "baik", image_url: "", description: ""});
+       setFormData({
+         type: "", size: "", dimensions: "", weight_cap: "", 
+         stock: "", condition: "baik", description: "", 
+         image_url: "", raw_image: null
+       });
        setIsSubmitting(false);
     }
   }, [isOpen]);
@@ -67,8 +73,13 @@ const AddToolModal = ({ isOpen, onClose, onSubmit }) => {
     const file = e.target.files[0];
     if (file) {
       if (file.size > 2 * 1024 * 1024) { alert("Maks 2MB"); return; }
+      
       const reader = new FileReader();
-      reader.onloadend = () => setFormData({ ...formData, image_url: reader.result });
+      reader.onloadend = () => setFormData({ 
+          ...formData, 
+          image_url: reader.result, 
+          raw_image: file          
+      });
       reader.readAsDataURL(file);
     }
   };
@@ -83,22 +94,30 @@ const AddToolModal = ({ isOpen, onClose, onSubmit }) => {
         return;
     }
 
+    if (!formData.raw_image) {
+        alert("Mohon upload foto alat!");
+        return;
+    }
+
     setIsSubmitting(true); 
 
     try {
-        await onSubmit({
-            name: finalName,
-            category_id: category.toLowerCase(),
-            type: formData.type,
-            size: formData.size,
-            dimensions: formData.dimensions,
-            weight_cap: formData.weight_cap,
-            description: formData.description,
-            condition: formData.condition,
-            stock: parseInt(formData.stock),
-            status: "tersedia",
-            image_url: formData.image_url,
-        });
+        const dataToSend = new FormData();
+        
+        dataToSend.append("name", finalName);
+        dataToSend.append("category_id", category.toLowerCase());
+        dataToSend.append("type", formData.type);
+        dataToSend.append("size", formData.size);
+        dataToSend.append("dimensions", formData.dimensions);
+        dataToSend.append("weight_cap", formData.weight_cap);
+        dataToSend.append("description", formData.description);
+        dataToSend.append("condition", formData.condition);
+        dataToSend.append("stock", formData.stock);
+        
+        dataToSend.append("image", formData.raw_image); 
+
+        await onSubmit(dataToSend);
+        
     } catch (error) {
         console.error(error);
     } finally {

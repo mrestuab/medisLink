@@ -9,8 +9,8 @@ import (
 	"github.com/joho/godotenv"
 
 	"medislink-backend/config"
+	"medislink-backend/jobs"
 	"medislink-backend/routes"
-	"medislink-backend/utils"
 )
 
 func main() {
@@ -29,7 +29,7 @@ func main() {
 
 		AllowMethods: "GET, POST, PUT, DELETE, OPTIONS",
 	}))
-	utils.StartCronJob()
+	jobs.StartCronJob()
 
 	routes.CategoryRoutes(app)
 	routes.InventoryLogRoutes(app)

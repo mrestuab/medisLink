@@ -1,4 +1,4 @@
-package utils
+package jobs
 
 import (
 	"context"

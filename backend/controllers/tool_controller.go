@@ -2,10 +2,12 @@ package controllers
 
 import (
 	"context"
+	"strconv"
 	"time"
 
 	"medislink-backend/config"
 	"medislink-backend/models"
+	"medislink-backend/utils"
 
 	"github.com/gofiber/fiber/v2"
 	"go.mongodb.org/mongo-driver/bson"
@@ -13,23 +15,50 @@ import (
 )
 
 func CreateTool(c *fiber.Ctx) error {
-	var tool models.MedicalTool
-	if err := c.BodyParser(&tool); err != nil {
-		return c.Status(400).JSON(fiber.Map{"error": "Invalid request"})
+	fileHeader, err := c.FormFile("image")
+	if err != nil {
+		return c.Status(400).JSON(fiber.Map{"error": "Gambar wajib diupload"})
 	}
 
-	tool.ID = primitive.NewObjectID()
-	if tool.Status == "" {
-		tool.Status = "tersedia"
+	file, err := fileHeader.Open()
+	if err != nil {
+		return c.Status(500).JSON(fiber.Map{"error": "Gagal membuka file"})
+	}
+	defer file.Close()
+
+	imageUrl, err := utils.UploadToCloudinary(file, "alat_medis")
+	if err != nil {
+		return c.Status(500).JSON(fiber.Map{"error": "Gagal upload ke Cloudinary", "details": err.Error()})
+	}
+
+	stockStr := c.FormValue("stock")
+	stockInt, _ := strconv.Atoi(stockStr)
+
+	tool := models.MedicalTool{
+		ID:          primitive.NewObjectID(),
+		Name:        c.FormValue("name"),
+		CategoryID:  c.FormValue("category_id"),
+		Type:        c.FormValue("type"),
+		Size:        c.FormValue("size"),
+		Dimensions:  c.FormValue("dimensions"),
+		WeightCap:   c.FormValue("weight_cap"),
+		Description: c.FormValue("description"),
+		Condition:   c.FormValue("condition"),
+		Stock:       stockInt,
+		Status:      "tersedia",
+		ImageURL:    imageUrl,
 	}
 
 	coll := config.DB.Collection("medical_tools")
-	_, err := coll.InsertOne(context.Background(), tool)
+	_, err = coll.InsertOne(context.Background(), tool)
 	if err != nil {
-		return c.Status(500).JSON(fiber.Map{"error": "Failed to add tool"})
+		return c.Status(500).JSON(fiber.Map{"error": "Failed to add tool to database"})
 	}
 
-	return c.Status(201).JSON(fiber.Map{"message": "Tool added successfully"})
+	return c.Status(201).JSON(fiber.Map{
+		"message": "Tool added successfully",
+		"data":    tool,
+	})
 }
 
 func GetAllTools(c *fiber.Ctx) error {
