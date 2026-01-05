@@ -11,6 +11,7 @@ import ProtectedRoute from './components/ProtectedRoute'
 import PublicRoute from './components/PublicRoute'
 import ToolDetailPage from './pages/ToolDetailPage'
 import ToolPage from './pages/ToolPage'
+import DonationPage from './pages/DonationPage'
 
 function App() {
   return (
@@ -29,6 +30,7 @@ function App() {
             <Route index element={<UserDashboardPage />} />
           </Route>
             <Route path="alat/:id" element={<ToolDetailPage />} />
+            <Route path="/donasi" element={<DonationPage />} />
         </Route>
 
         <Route element={<ProtectedRoute allowedRoles={['admin']} />}>

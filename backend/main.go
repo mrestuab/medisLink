@@ -42,6 +42,7 @@ func main() {
 	routes.ToolRoutes(app)
 	routes.AuthRoutes(app)
 	routes.UserRoutes(app)
+	routes.DonationRoutes(app)
 
 	port := os.Getenv("PORT")
 	app.Listen(":" + port)

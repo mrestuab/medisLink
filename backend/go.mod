@@ -3,6 +3,7 @@ module medislink-backend
 go 1.24.2
 
 require (
+	github.com/cloudinary/cloudinary-go/v2 v2.14.0
 	github.com/gofiber/fiber/v2 v2.52.9
 	github.com/gofiber/jwt/v3 v3.3.10
 	github.com/golang-jwt/jwt/v4 v4.5.0
@@ -15,7 +16,6 @@ require (
 
 require (
 	github.com/andybalholm/brotli v1.1.0 // indirect
-	github.com/cloudinary/cloudinary-go/v2 v2.14.0 // indirect
 	github.com/creasty/defaults v1.7.0 // indirect
 	github.com/golang/snappy v0.0.4 // indirect
 	github.com/google/uuid v1.6.0 // indirect

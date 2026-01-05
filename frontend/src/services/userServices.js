@@ -170,3 +170,12 @@ export const getPublicNews = async () => {
     return [];
   }
 };
+
+export const createDonation = async (donationData) => {
+    const response = await api.post("/donations", donationData, {
+        headers: {
+            "Content-Type": "multipart/form-data",
+        },
+    });
+    return response.data;
+};

@@ -1,6 +1,10 @@
 package models
 
-import "go.mongodb.org/mongo-driver/bson/primitive"
+import (
+	"time"
+
+	"go.mongodb.org/mongo-driver/bson/primitive"
+)
 
 type MedicalTool struct {
 	ID         primitive.ObjectID `json:"id,omitempty" bson:"_id,omitempty"`
@@ -17,4 +21,7 @@ type MedicalTool struct {
 	Stock       int    `json:"stock" bson:"stock"`
 	Status      string `json:"status" bson:"status"`
 	ImageURL    string `json:"image_url" bson:"image_url"`
+
+	CreatedAt time.Time `json:"created_at" bson:"created_at"`
+	UpdatedAt time.Time `json:"updated_at" bson:"updated_at"`
 }

@@ -9,6 +9,7 @@ import AddsList from "../../components/admin/AddsList";
 import LoansTable from "../../components/admin/LoansTable";
 import InventoryTable from "../../components/admin/InventoryTable";
 import AddToolModal from "../../components/admin/AddToolModal";
+import DonationsTable from "./DonationTable";
 
 import { 
     getTools, 
@@ -20,7 +21,9 @@ import {
     createNews as apiCreateNews,
     getAds,      
     createAd,    
-    deleteAd     
+    deleteAd,
+    approveDonation,     
+    getDonations
 } from "../../services/adminServices";
 
 import { getCurrentUserProfile } from "../../services/userServices"; 
@@ -37,6 +40,7 @@ export default function AdminDashboard() {
   const [loans, setLoans] = useState([]); 
   const [tools, setTools] = useState([]);
   const [allNews, setAllNews] = useState([]);
+  const [donations, setDonations] = useState([]);
   const [ads, setAds] = useState([]);
 
   const [newAd, setNewAd] = useState({
@@ -65,17 +69,19 @@ export default function AdminDashboard() {
   const fetchData = async () => {
     setIsLoading(true);
     try {
-      const [toolsData, loansData, newsData, adsData] = await Promise.all([
+      const [toolsData, loansData, newsData, adsData, donationsData] = await Promise.all([
         getTools(),
         getAllLoans(),
         getNews(),
-        getAds()
+        getAds(),
+        getDonations()
       ]);
 
       setTools(toolsData || []); 
       setLoans(loansData || []);
       setAllNews(newsData || []);
       setAds(adsData || []); 
+      setDonations(donationsData || []);
       
     } catch (error) {
       console.error("Error fetching dashboard data:", error);
@@ -166,6 +172,16 @@ export default function AdminDashboard() {
           alert("Gagal menghapus iklan.");
       }
   };
+  const handleApproveDonation = async (id) => {
+      try {
+          await approveDonation(id);
+          alert("Berhasil! Stok inventaris telah ditambahkan.");
+          fetchData(); // Refresh agar status berubah jadi 'approved'
+      } catch (error) {
+          console.error(error);
+          alert("Gagal memproses donasi.");
+      }
+  };
 
   if (isLoading) {
     return (
@@ -202,6 +218,7 @@ export default function AdminDashboard() {
             { id: "inventory", label: "Inventaris" },
             { id: "news", label: "Berita" },
             { id: "ads", label: "Manajemen Iklan" }, 
+            { id: "donations", label: `Donasi (${donations.length})` },
           ].map((tab) => (
             <button
               key={tab.id}
@@ -258,6 +275,12 @@ export default function AdminDashboard() {
                 </div>
 
                 <AddsList ads={ads} onDelete={handleDeleteAd} />
+            </div>
+        )}
+
+        {activeTab === "donations" && (
+            <div className="mt-6">
+                <DonationsTable donations={donations} onApprove={handleApproveDonation} />
             </div>
         )}
 

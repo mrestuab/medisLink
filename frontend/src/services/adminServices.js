@@ -94,3 +94,17 @@ export const createAd = async (adData) => {
 export const deleteAd = async (id) => {
   return await api.delete(`/adds/${id}`);
 };
+
+export const getDonations = async () => {
+    try {
+        const response = await api.get("/donations");
+        return response.data;
+    } catch (error) {
+        console.error("Gagal ambil donasi:", error);
+        return [];
+    }
+};
+
+export const approveDonation = async (id) => {
+    return await api.put(`/donations/${id}/approve`);
+};
