@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Image as ImageIcon, X, UploadCloud, MapPin, Package } from "lucide-react";
-import { createDonation } from "../services/userServices"; // Import service tadi
+import { createDonation } from "../services/userServices";
 
 const TOOL_CATEGORIES = [
     "Mobilitas (Kursi Roda, Tongkat, dll)",
@@ -15,7 +15,6 @@ const DonationPage = () => {
     const navigate = useNavigate();
     const [isSubmitting, setIsSubmitting] = useState(false);
 
-    // State Form
     const [formData, setFormData] = useState({
         tool_name: "",
         category: TOOL_CATEGORIES[0],
@@ -24,16 +23,13 @@ const DonationPage = () => {
         pickup_address: "",
     });
 
-    // State Gambar
     const [imageFile, setImageFile] = useState(null);
     const [previewUrl, setPreviewUrl] = useState("");
 
-    // Handle Input Teks
     const handleChange = (e) => {
         setFormData({ ...formData, [e.target.name]: e.target.value });
     };
 
-    // Handle Input Gambar (Sama seperti logika di Admin)
     const handleImageChange = (e) => {
         const file = e.target.files[0];
         if (file) {
@@ -53,7 +49,6 @@ const DonationPage = () => {
         setPreviewUrl("");
     };
 
-    // Submit ke Backend
     const handleSubmit = async (e) => {
         e.preventDefault();
 
@@ -65,19 +60,18 @@ const DonationPage = () => {
         setIsSubmitting(true);
 
         try {
-            // BUNGKUS KE FORMDATA
             const dataToSend = new FormData();
             dataToSend.append("tool_name", formData.tool_name);
             dataToSend.append("category", formData.category);
             dataToSend.append("quantity", formData.quantity);
             dataToSend.append("description", formData.description);
             dataToSend.append("pickup_address", formData.pickup_address);
-            dataToSend.append("image", imageFile); // Key 'image' harus sama dgn Backend Go
+            dataToSend.append("image", imageFile); 
 
             await createDonation(dataToSend);
             
             alert("Terima kasih! Donasi Anda berhasil dikirim dan menunggu verifikasi Admin.");
-            navigate("/dashboard"); // Atau redirect ke halaman 'Donasi Saya'
+            navigate("/dashboard"); 
             
         } catch (error) {
             console.error("Gagal donasi:", error);
@@ -90,7 +84,6 @@ const DonationPage = () => {
     return (
         <div className="min-h-screen bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
             <div className="max-w-3xl mx-auto bg-white rounded-2xl shadow-xl overflow-hidden">
-                {/* Header */}
                 <div className="bg-teal-600 px-8 py-6">
                     <h2 className="text-2xl font-bold text-white flex items-center gap-2">
                         <Package className="w-6 h-6" /> Form Donasi Alat Medis
@@ -100,10 +93,8 @@ const DonationPage = () => {
                     </p>
                 </div>
 
-                {/* Form Body */}
                 <form onSubmit={handleSubmit} className="px-8 py-8 space-y-6">
                     
-                    {/* Grid Baris 1: Nama & Kategori */}
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div className="form-control">
                             <label className="label-text text-sm font-bold text-gray-700 mb-2 block">
@@ -137,7 +128,6 @@ const DonationPage = () => {
                         </div>
                     </div>
 
-                    {/* Baris 2: Deskripsi & Stok */}
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                         <div className="md:col-span-2 form-control">
                             <label className="label-text text-sm font-bold text-gray-700 mb-2 block">
@@ -170,7 +160,6 @@ const DonationPage = () => {
                         </div>
                     </div>
 
-                    {/* Baris 3: Upload Gambar */}
                     <div className="form-control">
                         <label className="label-text text-sm font-bold text-gray-700 mb-2 block">
                             Foto Alat (Wajib)
@@ -210,7 +199,6 @@ const DonationPage = () => {
                         )}
                     </div>
 
-                    {/* Baris 4: Alamat Jemput */}
                     <div className="form-control">
                         <label className="label-text text-sm font-bold text-gray-700 mb-2 flex items-center gap-2">
                             <MapPin className="w-4 h-4 text-teal-600" /> Alamat Penjemputan / Lokasi Barang
@@ -226,7 +214,6 @@ const DonationPage = () => {
                         />
                     </div>
 
-                    {/* Footer Buttons */}
                     <div className="pt-6 border-t border-gray-100 flex justify-end gap-4">
                         <button
                             type="button"

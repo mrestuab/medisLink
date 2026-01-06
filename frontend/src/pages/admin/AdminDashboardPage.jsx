@@ -176,7 +176,7 @@ export default function AdminDashboard() {
       try {
           await approveDonation(id);
           alert("Berhasil! Stok inventaris telah ditambahkan.");
-          fetchData(); // Refresh agar status berubah jadi 'approved'
+          fetchData(); 
       } catch (error) {
           console.error(error);
           alert("Gagal memproses donasi.");
