@@ -43,6 +43,7 @@ func CreateDonation(c *fiber.Ctx) error {
 		Category:      c.FormValue("category"),
 		Description:   c.FormValue("description"),
 		PickupAddress: c.FormValue("pickup_address"),
+		PickupDate:    c.FormValue("pickup_date"),
 		Quantity:      qty,
 		ImageURL:      imageUrl,
 		Status:        "pending",
@@ -81,6 +82,7 @@ func GetAllDonations(c *fiber.Ctx) error {
 			"image_url":      1,
 			"quantity":       1,
 			"pickup_address": 1,
+			"pickup_date":    1,
 			"status":         1,
 			"created_at":     1,
 			"user_detail": bson.M{

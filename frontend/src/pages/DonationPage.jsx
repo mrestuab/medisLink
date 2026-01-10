@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Image as ImageIcon, X, UploadCloud, MapPin, Package } from "lucide-react";
+import { Image as ImageIcon, X, UploadCloud, MapPin, Package, Calendar } from "lucide-react";
 import { createDonation } from "../services/userServices";
 
 const TOOL_CATEGORIES = [
@@ -21,6 +21,7 @@ const DonationPage = () => {
         quantity: 1,
         description: "",
         pickup_address: "",
+        pickup_date: "", 
     });
 
     const [imageFile, setImageFile] = useState(null);
@@ -33,10 +34,6 @@ const DonationPage = () => {
     const handleImageChange = (e) => {
         const file = e.target.files[0];
         if (file) {
-            if (file.size > 2 * 1024 * 1024) {
-                alert("Ukuran gambar maksimal 2MB!");
-                return;
-            }
             setImageFile(file);
             const reader = new FileReader();
             reader.onloadend = () => setPreviewUrl(reader.result);
@@ -66,13 +63,25 @@ const DonationPage = () => {
             dataToSend.append("quantity", formData.quantity);
             dataToSend.append("description", formData.description);
             dataToSend.append("pickup_address", formData.pickup_address);
+            dataToSend.append("pickup_date", formData.pickup_date);
             dataToSend.append("image", imageFile); 
 
             await createDonation(dataToSend);
-            
+
+            setFormData({
+                tool_name: "",
+                category: TOOL_CATEGORIES[0],
+                quantity: 1,
+                description: "",
+                pickup_address: "",
+                pickup_date: "",
+            });
+            setImageFile(null);
+            setPreviewUrl("");
+
             alert("Terima kasih! Donasi Anda berhasil dikirim dan menunggu verifikasi Admin.");
             navigate("/dashboard"); 
-            
+
         } catch (error) {
             console.error("Gagal donasi:", error);
             alert("Maaf, terjadi kesalahan saat mengirim data. Coba lagi nanti.");
@@ -106,7 +115,7 @@ const DonationPage = () => {
                                 value={formData.tool_name}
                                 onChange={handleChange}
                                 placeholder="Contoh: Kursi Roda Bekas"
-                                className="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-teal-500 focus:border-transparent outline-none transition-all"
+                                className="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-teal-500 outline-none"
                                 required
                             />
                         </div>
@@ -138,7 +147,6 @@ const DonationPage = () => {
                                 value={formData.description}
                                 onChange={handleChange}
                                 rows={3}
-                                placeholder="Jelaskan kondisi alat (misal: lecet pemakaian, fungsi normal, merk, dll)..."
                                 className="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-teal-500 outline-none resize-none"
                                 required
                             />
@@ -160,11 +168,11 @@ const DonationPage = () => {
                         </div>
                     </div>
 
+                    {/* ... Input Foto TETAP SAMA ... */}
                     <div className="form-control">
                         <label className="label-text text-sm font-bold text-gray-700 mb-2 block">
                             Foto Alat (Wajib)
                         </label>
-                        
                         {!previewUrl ? (
                             <div className="border-2 border-dashed border-gray-300 rounded-xl p-8 flex flex-col items-center justify-center bg-gray-50 hover:bg-teal-50 hover:border-teal-300 transition-all cursor-pointer relative group">
                                 <input
@@ -177,41 +185,50 @@ const DonationPage = () => {
                                     <UploadCloud className="w-6 h-6 text-teal-600" />
                                 </div>
                                 <p className="text-sm text-gray-500 font-medium">Klik untuk upload atau drag & drop</p>
-                                <p className="text-xs text-gray-400 mt-1">Format: JPG, PNG (Max 2MB)</p>
                             </div>
                         ) : (
                             <div className="relative w-full h-64 bg-gray-100 rounded-xl overflow-hidden border border-gray-200 group">
-                                <img
-                                    src={previewUrl}
-                                    alt="Preview"
-                                    className="w-full h-full object-contain"
-                                />
-                                <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                                    <button
-                                        type="button"
-                                        onClick={handleRemoveImage}
-                                        className="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg flex items-center gap-2 shadow-lg transform translate-y-4 group-hover:translate-y-0 transition-all"
-                                    >
-                                        <X className="w-4 h-4" /> Ganti Foto
-                                    </button>
-                                </div>
+                                <img src={previewUrl} alt="Preview" className="w-full h-full object-contain" />
+                                <button
+                                    type="button"
+                                    onClick={handleRemoveImage}
+                                    className="absolute top-2 right-2 bg-red-500 text-white p-2 rounded-lg"
+                                >
+                                    <X className="w-4 h-4" />
+                                </button>
                             </div>
                         )}
                     </div>
 
-                    <div className="form-control">
-                        <label className="label-text text-sm font-bold text-gray-700 mb-2 flex items-center gap-2">
-                            <MapPin className="w-4 h-4 text-teal-600" /> Alamat Penjemputan / Lokasi Barang
-                        </label>
-                        <textarea
-                            name="pickup_address"
-                            value={formData.pickup_address}
-                            onChange={handleChange}
-                            rows={2}
-                            placeholder="Alamat lengkap tempat barang berada (untuk verifikasi admin)..."
-                            className="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-teal-500 outline-none resize-none"
-                            required
-                        />
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div className="form-control">
+                            <label className="label-text text-sm font-bold text-gray-700 mb-2 flex items-center gap-2">
+                                <Calendar className="w-4 h-4 text-teal-600" /> Rencana Tanggal Penjemputan
+                            </label>
+                            <input 
+                                type="date"
+                                name="pickup_date"
+                                value={formData.pickup_date}
+                                onChange={handleChange}
+                                className="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-teal-500 outline-none"
+                                required
+                            />
+                        </div>
+
+                        <div className="form-control">
+                            <label className="label-text text-sm font-bold text-gray-700 mb-2 flex items-center gap-2">
+                                <MapPin className="w-4 h-4 text-teal-600" /> Lokasi Barang
+                            </label>
+                            <textarea
+                                name="pickup_address"
+                                value={formData.pickup_address}
+                                onChange={handleChange}
+                                rows={1}
+                                placeholder="Alamat lengkap..."
+                                className="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-teal-500 outline-none resize-none h-[42px]" 
+                                required
+                            />
+                        </div>
                     </div>
 
                     <div className="pt-6 border-t border-gray-100 flex justify-end gap-4">
@@ -227,13 +244,7 @@ const DonationPage = () => {
                             disabled={isSubmitting}
                             className="px-8 py-2.5 rounded-lg bg-teal-600 hover:bg-teal-700 text-white font-bold shadow-lg shadow-teal-200 disabled:opacity-70 disabled:cursor-not-allowed flex items-center gap-2 transition-all"
                         >
-                            {isSubmitting ? (
-                                <>
-                                    <span className="loading loading-spinner loading-sm"></span> Mengirim...
-                                </>
-                            ) : (
-                                "Kirim Donasi"
-                            )}
+                            {isSubmitting ? "Mengirim..." : "Kirim Donasi"}
                         </button>
                     </div>
 

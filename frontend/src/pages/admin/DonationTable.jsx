@@ -28,7 +28,7 @@ const DonationsTable = ({ donations, onApprove }) => {
   const formatDate = (dateString) => {
     if (!dateString) return "-";
     return new Date(dateString).toLocaleDateString("id-ID", {
-        day: "numeric", month: "short", year: "numeric"
+        weekday: "short", day: "numeric", month: "short", year: "numeric"
     });
   };
 
@@ -41,7 +41,7 @@ const DonationsTable = ({ donations, onApprove }) => {
               <tr className="bg-gray-50 border-b border-gray-200 text-xs font-bold text-gray-500 uppercase tracking-wider">
                 <th className="px-6 py-4">Barang Donasi</th>
                 <th className="px-6 py-4">Data Donatur</th>
-                <th className="px-6 py-4 text-center">Tanggal</th>
+                <th className="px-6 py-4 text-center">Jadwal & Waktu</th> {/* Diubah Header-nya */}
                 <th className="px-6 py-4 text-center">Status</th>
                 <th className="px-6 py-4 text-center">Aksi</th>
               </tr>
@@ -92,10 +92,22 @@ const DonationsTable = ({ donations, onApprove }) => {
                       </div>
                     </td>
 
+                    {/* --- UPDATE: KOLOM TANGGAL LEBIH LENGKAP --- */}
                     <td className="px-6 py-4 text-center">
-                        <div className="text-xs font-medium text-gray-500 bg-gray-100 px-2 py-1 rounded-full inline-flex items-center gap-1">
-                            <Calendar className="w-3 h-3" />
-                            {formatDate(item.created_at)}
+                        <div className="flex flex-col gap-2 items-center">
+                            {/* Tanggal Pengajuan */}
+                            <div className="flex items-center gap-1.5 text-xs text-gray-500" title="Tanggal Pengajuan">
+                                <Calendar className="w-3 h-3" />
+                                <span>{formatDate(item.created_at)}</span>
+                            </div>
+
+                            {/* Tanggal Jemput (Highlight Teal) */}
+                            {item.pickup_date && (
+                                <div className="inline-flex items-center gap-1.5 px-2 py-1 rounded-md bg-teal-50 text-teal-700 border border-teal-100 text-xs font-bold" title="Rencana Tanggal Jemput">
+                                    <Clock className="w-3 h-3" />
+                                    <span>Jemput: {formatDate(item.pickup_date)}</span>
+                                </div>
+                            )}
                         </div>
                     </td>
 
@@ -192,26 +204,40 @@ const DonationsTable = ({ donations, onApprove }) => {
                         </div>
 
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                             {/* --- UPDATE: BAGIAN LOKASI DIGABUNG DENGAN TANGGAL --- */}
                              <div>
                                 <h4 className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-2 flex items-center gap-1">
-                                    <MapPin className="w-3.5 h-3.5" /> Lokasi Penjemputan
+                                    <MapPin className="w-3.5 h-3.5" /> Logistik Penjemputan
                                 </h4>
-                                <p className="text-sm text-gray-800 font-medium bg-gray-50 p-3 rounded-lg border border-gray-100 h-full">
-                                    {selectedDonation.pickup_address}
-                                </p>
+                                <div className="bg-orange-50 p-4 rounded-xl border border-orange-100 h-full space-y-3">
+                                    <div>
+                                        <span className="text-[10px] font-bold text-orange-400 uppercase block mb-1">Lokasi Barang</span>
+                                        <p className="text-sm text-gray-900 font-medium leading-snug">
+                                            {selectedDonation.pickup_address}
+                                        </p>
+                                    </div>
+                                    <div className="border-t border-orange-200/50 pt-2">
+                                        <span className="text-[10px] font-bold text-orange-400 uppercase block mb-1">Rencana Tanggal Jemput</span>
+                                        <div className="flex items-center gap-2 text-orange-800 font-bold text-sm">
+                                            <Calendar className="w-4 h-4" />
+                                            {selectedDonation.pickup_date ? formatDate(selectedDonation.pickup_date) : "-"}
+                                        </div>
+                                    </div>
+                                </div>
                              </div>
 
                              <div>
                                 <h4 className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-2 flex items-center gap-1">
                                     <User className="w-3.5 h-3.5" /> Profil Donatur
                                 </h4>
-                                <div className="flex items-center gap-3 bg-indigo-50 p-3 rounded-lg border border-indigo-100 h-full">
+                                <div className="flex items-center gap-3 bg-indigo-50 p-4 rounded-xl border border-indigo-100 h-full">
                                     <div className="w-10 h-10 rounded-full bg-white text-indigo-700 font-bold flex items-center justify-center border border-indigo-100 shadow-sm shrink-0">
                                         {selectedDonation.user_detail?.name?.charAt(0)}
                                     </div>
                                     <div className="overflow-hidden">
                                         <p className="text-sm font-bold text-gray-900 truncate">{selectedDonation.user_detail?.name}</p>
                                         <p className="text-xs text-indigo-600 truncate">{selectedDonation.user_detail?.phone}</p>
+                                        <p className="text-xs text-gray-500 truncate mt-0.5">{selectedDonation.user_detail?.email}</p>
                                     </div>
                                 </div>
                              </div>
