@@ -10,10 +10,10 @@ import (
 func DonationRoutes(app *fiber.App) {
 	api := app.Group("/api/donations")
 
-	// Middleware Login Wajib
 	api.Use(middlewares.JWTProtected())
 
-	api.Post("/", controllers.CreateDonation)            // User
-	api.Get("/", controllers.GetAllDonations)            // Admin
-	api.Put("/:id/approve", controllers.ApproveDonation) // Admin
+	api.Post("/", controllers.CreateDonation)
+	api.Get("/history", controllers.GetUserDonations)
+	api.Get("/", controllers.GetAllDonations)
+	api.Put("/:id/approve", controllers.ApproveDonation)
 }

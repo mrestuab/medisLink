@@ -179,3 +179,8 @@ export const createDonation = async (donationData) => {
     });
     return response.data;
 };
+
+export const getUserDonations = async () => {
+    const response = await api.get("/donations/history");
+    return response.data;
+};

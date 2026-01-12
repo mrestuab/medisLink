@@ -105,6 +105,9 @@ export const getDonations = async () => {
     }
 };
 
-export const approveDonation = async (id) => {
-    return await api.put(`/donations/${id}/approve`);
+export const approveDonation = async (id, condition) => {
+    const response = await api.put(`/donations/${id}/approve`, {
+        condition: condition
+    });
+    return response.data;
 };

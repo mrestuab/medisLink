@@ -9,18 +9,28 @@ import {
     Box, 
     Package, 
     Calendar,
-    Phone
+    Phone,
+    AlertCircle
 } from "lucide-react";
+
+// Opsi kondisi untuk Admin
+const CONDITIONS = ["Sangat Baik (Seperti Baru)", "Baik (Layak Pakai)", "Cukup (Perlu Perbaikan Kecil)", "Rusak Ringan"];
 
 const DonationsTable = ({ donations, onApprove }) => {
   const [selectedDonation, setSelectedDonation] = useState(null);
+  const [adminCondition, setAdminCondition] = useState(CONDITIONS[1]); // Default: Baik (Layak Pakai)
 
-  const handleReviewClick = (donation) => setSelectedDonation(donation);
+  const handleReviewClick = (donation) => {
+      setSelectedDonation(donation);
+      setAdminCondition(CONDITIONS[1]); // Reset pilihan saat buka modal
+  };
+
   const handleCloseModal = () => setSelectedDonation(null);
   
   const handleConfirmApproval = () => {
     if (selectedDonation) {
-        onApprove(selectedDonation.id || selectedDonation._id);
+        // Kirim ID donasi DAN Kondisi yang dipilih admin
+        onApprove(selectedDonation.id || selectedDonation._id, adminCondition);
         handleCloseModal();
     }
   };
@@ -41,7 +51,7 @@ const DonationsTable = ({ donations, onApprove }) => {
               <tr className="bg-gray-50 border-b border-gray-200 text-xs font-bold text-gray-500 uppercase tracking-wider">
                 <th className="px-6 py-4">Barang Donasi</th>
                 <th className="px-6 py-4">Data Donatur</th>
-                <th className="px-6 py-4 text-center">Jadwal & Waktu</th> {/* Diubah Header-nya */}
+                <th className="px-6 py-4 text-center">Jadwal & Waktu</th>
                 <th className="px-6 py-4 text-center">Status</th>
                 <th className="px-6 py-4 text-center">Aksi</th>
               </tr>
@@ -92,16 +102,13 @@ const DonationsTable = ({ donations, onApprove }) => {
                       </div>
                     </td>
 
-                    {/* --- UPDATE: KOLOM TANGGAL LEBIH LENGKAP --- */}
                     <td className="px-6 py-4 text-center">
                         <div className="flex flex-col gap-2 items-center">
-                            {/* Tanggal Pengajuan */}
                             <div className="flex items-center gap-1.5 text-xs text-gray-500" title="Tanggal Pengajuan">
                                 <Calendar className="w-3 h-3" />
                                 <span>{formatDate(item.created_at)}</span>
                             </div>
 
-                            {/* Tanggal Jemput (Highlight Teal) */}
                             {item.pickup_date && (
                                 <div className="inline-flex items-center gap-1.5 px-2 py-1 rounded-md bg-teal-50 text-teal-700 border border-teal-100 text-xs font-bold" title="Rencana Tanggal Jemput">
                                     <Clock className="w-3 h-3" />
@@ -156,7 +163,7 @@ const DonationsTable = ({ donations, onApprove }) => {
                 <div className="flex justify-between items-center px-6 py-4 border-b border-gray-100 bg-white sticky top-0 z-10">
                     <div>
                         <h3 className="text-lg font-bold text-gray-900 flex items-center gap-2">
-                            <Box className="w-5 h-5 text-teal-600" /> Review Barang Donasi
+                            <Box className="w-5 h-5 text-teal-600" /> Verifikasi Barang Donasi
                         </h3>
                         <p className="text-xs text-gray-500 mt-0.5">ID: {selectedDonation.id || selectedDonation._id}</p>
                     </div>
@@ -166,7 +173,7 @@ const DonationsTable = ({ donations, onApprove }) => {
                 </div>
 
                 <div className="p-0 overflow-y-auto">
-                    <div className="relative w-full h-64 bg-gray-100">
+                    <div className="relative w-full h-56 bg-gray-100">
                         <img 
                             src={selectedDonation.image_url} 
                             alt="Detail" 
@@ -180,31 +187,26 @@ const DonationsTable = ({ donations, onApprove }) => {
                     </div>
 
                     <div className="p-6 space-y-6">
-                        <div className="grid grid-cols-2 gap-6 p-4 bg-gray-50 rounded-xl border border-gray-100">
+                        <div className="grid grid-cols-2 gap-4">
                             <div>
                                 <label className="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1 block">Nama Alat</label>
                                 <p className="font-bold text-gray-900 text-lg leading-tight">{selectedDonation.tool_name}</p>
                             </div>
                             <div className="text-right">
                                 <label className="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1 block">Jumlah Donasi</label>
-                                <div className="inline-flex items-center gap-2 px-3 py-1 bg-white rounded-lg border border-gray-200 shadow-sm">
+                                <div className="inline-flex items-center gap-2 px-3 py-1 bg-white rounded-lg border border-gray-200 shadow-sm float-right">
                                     <Package className="w-4 h-4 text-teal-600" />
                                     <span className="font-bold text-gray-900 text-lg">{selectedDonation.quantity} Unit</span>
                                 </div>
                             </div>
                         </div>
 
-                        <div>
-                            <h4 className="text-sm font-bold text-gray-900 mb-2 flex items-center gap-2">
-                                Deskripsi & Kondisi Fisik
-                            </h4>
-                            <div className="text-sm text-gray-600 bg-white p-4 rounded-xl border border-gray-200 leading-relaxed shadow-sm">
-                                {selectedDonation.description}
-                            </div>
+                        <div className="bg-gray-50 p-4 rounded-xl border border-gray-200">
+                            <label className="text-[10px] font-bold text-gray-400 uppercase mb-2 block">Deskripsi dari Donatur</label>
+                            <p className="text-sm text-gray-700 italic leading-relaxed">"{selectedDonation.description}"</p>
                         </div>
 
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                             {/* --- UPDATE: BAGIAN LOKASI DIGABUNG DENGAN TANGGAL --- */}
+                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                              <div>
                                 <h4 className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-2 flex items-center gap-1">
                                     <MapPin className="w-3.5 h-3.5" /> Logistik Penjemputan
@@ -242,6 +244,38 @@ const DonationsTable = ({ donations, onApprove }) => {
                                 </div>
                              </div>
                         </div>
+
+                        {/* --- INPUT ADMIN QC --- */}
+                        <div className="bg-teal-50 p-5 rounded-xl border border-teal-100 ring-1 ring-teal-200/50 mt-2">
+                            <h4 className="text-sm font-bold text-teal-800 mb-3 flex items-center gap-2">
+                                <AlertCircle className="w-4 h-4" /> Penilaian Admin (Quality Control)
+                            </h4>
+                            
+                            <div className="form-control w-full">
+                                <label className="label-text text-xs font-bold text-gray-600 mb-1.5 block uppercase tracking-wide">
+                                    Tentukan Kondisi Barang Saat Diterima:
+                                </label>
+                                <div className="relative">
+                                    <select 
+                                        className="w-full px-4 py-3 rounded-lg border border-teal-300 focus:outline-none focus:ring-2 focus:ring-teal-500 bg-white font-medium text-gray-800 appearance-none shadow-sm"
+                                        value={adminCondition}
+                                        onChange={(e) => setAdminCondition(e.target.value)}
+                                    >
+                                        {CONDITIONS.map((c) => (
+                                            <option key={c} value={c}>{c}</option>
+                                        ))}
+                                    </select>
+                                    <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-teal-600">
+                                        <svg className="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z"/></svg>
+                                    </div>
+                                </div>
+                                <p className="text-[11px] text-teal-600/80 mt-2 flex items-start gap-1">
+                                    <span>*</span> 
+                                    <span>Status ini akan disimpan di inventaris sistem. Jika barang dengan kondisi sama sudah ada, stok akan digabung. Jika tidak, item baru akan dibuat.</span>
+                                </p>
+                            </div>
+                        </div>
+
                     </div>
                 </div>
 
@@ -257,7 +291,7 @@ const DonationsTable = ({ donations, onApprove }) => {
                         className="px-6 py-2.5 rounded-xl bg-teal-600 hover:bg-teal-700 text-white font-bold shadow-lg shadow-teal-200 flex items-center gap-2 transition-all transform hover:scale-[1.02] active:scale-95 text-sm"
                     >
                         <CheckCircle className="w-4 h-4" /> 
-                        Terima & Masukkan Stok
+                        Validasi & Simpan ke Inventaris
                     </button>
                 </div>
             </div>

@@ -172,10 +172,10 @@ export default function AdminDashboard() {
           alert("Gagal menghapus iklan.");
       }
   };
-  const handleApproveDonation = async (id) => {
+  const handleApproveDonation = async (id, condition) => {
       try {
-          await approveDonation(id);
-          alert("Berhasil! Stok inventaris telah ditambahkan.");
+          await approveDonation(id, condition);
+          alert("Berhasil! Stok inventaris telah diperbarui sesuai kondisi barang.");
           fetchData(); 
       } catch (error) {
           console.error(error);
