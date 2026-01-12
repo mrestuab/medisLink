@@ -68,7 +68,6 @@ func CreateDonation(c *fiber.Ctx) error {
 func GetAllDonations(c *fiber.Ctx) error {
 	coll := config.DB.Collection("donations")
 
-	// Pipeline: Join Donation + User
 	pipeline := mongo.Pipeline{
 		{{Key: "$lookup", Value: bson.M{
 			"from":         "users",
@@ -115,16 +114,13 @@ func GetAllDonations(c *fiber.Ctx) error {
 }
 
 func GetUserDonations(c *fiber.Ctx) error {
-	// 1. Ambil User ID dari Token JWT
 	user := c.Locals("user").(*jwt.Token)
 	claims := user.Claims.(jwt.MapClaims)
 	userIDStr := claims["user_id"].(string)
 	userID, _ := primitive.ObjectIDFromHex(userIDStr)
 
-	// 2. Query ke Database (Filter by user_id)
 	coll := config.DB.Collection("donations")
 
-	// Sort berdasarkan created_at desc (terbaru paling atas)
 	opts := options.Find().SetSort(bson.D{{Key: "created_at", Value: -1}})
 
 	cursor, err := coll.Find(context.Background(), bson.M{"user_id": userID}, opts)
@@ -138,7 +134,6 @@ func GetUserDonations(c *fiber.Ctx) error {
 		return c.Status(500).JSON(fiber.Map{"error": "Gagal parsing data"})
 	}
 
-	// Jika kosong, kembalikan array kosong (bukan null)
 	if donations == nil {
 		donations = []models.Donation{}
 	}

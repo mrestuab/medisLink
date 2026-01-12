@@ -13,23 +13,21 @@ import {
     AlertCircle
 } from "lucide-react";
 
-// Opsi kondisi untuk Admin
 const CONDITIONS = ["Sangat Baik (Seperti Baru)", "Baik (Layak Pakai)", "Cukup (Perlu Perbaikan Kecil)", "Rusak Ringan"];
 
 const DonationsTable = ({ donations, onApprove }) => {
   const [selectedDonation, setSelectedDonation] = useState(null);
-  const [adminCondition, setAdminCondition] = useState(CONDITIONS[1]); // Default: Baik (Layak Pakai)
+  const [adminCondition, setAdminCondition] = useState(CONDITIONS[1]);
 
   const handleReviewClick = (donation) => {
       setSelectedDonation(donation);
-      setAdminCondition(CONDITIONS[1]); // Reset pilihan saat buka modal
+      setAdminCondition(CONDITIONS[1]); 
   };
 
   const handleCloseModal = () => setSelectedDonation(null);
   
   const handleConfirmApproval = () => {
     if (selectedDonation) {
-        // Kirim ID donasi DAN Kondisi yang dipilih admin
         onApprove(selectedDonation.id || selectedDonation._id, adminCondition);
         handleCloseModal();
     }

@@ -27,14 +27,12 @@ func CreateReturn(c *fiber.Ctx) error {
 		return c.Status(500).JSON(fiber.Map{"error": "Failed to create return"})
 	}
 
-	// update status peminjaman jadi selesai
 	loanColl := config.DB.Collection("loans")
 	_, _ = loanColl.UpdateOne(context.Background(),
 		bson.M{"_id": ret.LoanID},
 		bson.M{"$set": bson.M{"status": "selesai"}},
 	)
 
-	// tambah stok alat +1
 	loan := models.Loan{}
 	_ = loanColl.FindOne(context.Background(), bson.M{"_id": ret.LoanID}).Decode(&loan)
 	toolColl := config.DB.Collection("medical_tools")
