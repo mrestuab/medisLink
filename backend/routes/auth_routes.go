@@ -11,7 +11,7 @@ func AuthRoutes(app *fiber.App) {
 
 	api.Post("/register", controllers.Register)
 	api.Post("/login", controllers.Login)
-	
+
 	// Forgot Password Routes
 	api.Post("/forgot-password", controllers.RequestPasswordReset)
 	api.Post("/verify-otp", controllers.VerifyOTP)

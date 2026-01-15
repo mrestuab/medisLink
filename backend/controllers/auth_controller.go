@@ -130,7 +130,7 @@ func RequestPasswordReset(c *fiber.Ctx) error {
 
 	// Simpan OTP ke database dengan expiry 10 menit
 	resetColl := config.DB.Collection("password_resets")
-	
+
 	// Hapus OTP lama yang belum digunakan untuk email ini
 	resetColl.DeleteMany(context.Background(), bson.M{
 		"email": req.Email,
