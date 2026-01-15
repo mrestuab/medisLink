@@ -180,6 +180,11 @@ export const createDonation = async (donationData) => {
     return response.data;
 };
 
+export const getUserDonations = async () => {
+    const response = await api.get("/donations/history");
+    return response.data;
+};
+
 // Forgot Password Services
 export const requestPasswordReset = async (email) => {
   const response = await api.post('/auth/forgot-password', { email });

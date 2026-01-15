@@ -1,4 +1,3 @@
-// ...existing code...
 package controllers
 
 import (
@@ -14,14 +13,10 @@ import (
 	"go.mongodb.org/mongo-driver/mongo"
 )
 
-// ...existing code...
-
-// replace package-level var with a getter to avoid init-time nil DB
 func getUserCollection() *mongo.Collection {
 	return config.DB.Collection("users")
 }
 
-// ...existing code...
 func CreateUser(c *fiber.Ctx) error {
 	c.Context().SetUserValue("Content-Type", "application/json")
 
@@ -41,7 +36,6 @@ func CreateUser(c *fiber.Ctx) error {
 	return c.Status(201).JSON(user)
 }
 
-// ...existing code...
 func GetAllUsers(c *fiber.Ctx) error {
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
@@ -60,7 +54,6 @@ func GetAllUsers(c *fiber.Ctx) error {
 	return c.JSON(users)
 }
 
-// ...existing code...
 func GetUserByID(c *fiber.Ctx) error {
 	idParam := c.Params("id")
 	objID, err := primitive.ObjectIDFromHex(idParam)
@@ -77,7 +70,6 @@ func GetUserByID(c *fiber.Ctx) error {
 	return c.JSON(user)
 }
 
-// UpdateUser updates an existing user
 func UpdateUser(c *fiber.Ctx) error {
 	idParam := c.Params("id")
 	objID, err := primitive.ObjectIDFromHex(idParam)
@@ -90,7 +82,6 @@ func UpdateUser(c *fiber.Ctx) error {
 		return c.Status(400).JSON(fiber.Map{"error": "Invalid request"})
 	}
 
-	// Create update document
 	update := bson.M{"$set": bson.M{}}
 	if updateData.Name != "" {
 		update["$set"].(bson.M)["name"] = updateData.Name
@@ -123,7 +114,6 @@ func UpdateUser(c *fiber.Ctx) error {
 		return c.Status(500).JSON(fiber.Map{"error": "Failed to update user"})
 	}
 
-	// Return updated user
 	var user models.User
 	err = getUserCollection().FindOne(context.Background(), bson.M{"_id": objID}).Decode(&user)
 	if err != nil {
@@ -133,7 +123,6 @@ func UpdateUser(c *fiber.Ctx) error {
 	return c.JSON(user)
 }
 
-// ...existing code...
 func DeleteUser(c *fiber.Ctx) error {
 	idParam := c.Params("id")
 	objID, err := primitive.ObjectIDFromHex(idParam)

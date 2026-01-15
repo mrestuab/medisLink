@@ -10,6 +10,6 @@ type Loan struct {
 	MedicalCondition string             `json:"medical_condition" bson:"medical_condition"`
 	LoanDate         string             `json:"loan_date" bson:"loan_date"`
 	ReturnDue        string             `json:"return_due" bson:"return_due"`
-	Status           string             `json:"status" bson:"status"` // aktif, selesai
+	Status           string             `json:"status" bson:"status"`
 	Notes            string             `json:"notes" bson:"notes"`
 }

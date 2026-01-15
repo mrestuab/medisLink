@@ -14,7 +14,6 @@ import (
 )
 
 func CreateNews(c *fiber.Ctx) error {
-	// Accept multipart/form-data for image upload
 	fileHeader, err := c.FormFile("image")
 	var imageUrl string
 	if err == nil && fileHeader != nil {

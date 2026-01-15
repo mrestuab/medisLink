@@ -19,7 +19,6 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
-// Register user baru
 func Register(c *fiber.Ctx) error {
 	var user models.User
 	if err := c.BodyParser(&user); err != nil {
@@ -35,7 +34,6 @@ func Register(c *fiber.Ctx) error {
 	user.CreatedAt = primitive.NewDateTimeFromTime(time.Now())
 	user.Role = "user"
 
-	// ✅ Ambil collection di dalam fungsi
 	userColl := config.DB.Collection("users")
 
 	_, err = userColl.InsertOne(context.Background(), user)
@@ -46,7 +44,6 @@ func Register(c *fiber.Ctx) error {
 	return c.Status(201).JSON(fiber.Map{"message": "User registered successfully"})
 }
 
-// Login user
 func Login(c *fiber.Ctx) error {
 	type LoginInput struct {
 		Email    string `json:"email"`

@@ -4,6 +4,7 @@ import { Image, Tag, Ruler, Weight, Clock, CheckCircle, XCircle, Calendar, Activ
 
 import { getPublicTools, getCategories, getMyLoans } from '../services/userServices';
 import DonationPage from './DonationPage';
+import DonationHistory from '../components/DonationHistory';
 
 const UserDashboardPage = () => {
   const [activeTab, setActiveTab] = useState('jelajahi');
@@ -80,12 +81,12 @@ const UserDashboardPage = () => {
         </button>
 
         <button
-          onClick={() => setActiveTab("notifikasi")}
+          onClick={() => setActiveTab("donationHistory")}
           className={`pb-3 font-medium text-sm border-b-2 transition-colors whitespace-nowrap flex items-center gap-2 ${
-            activeTab === "notifikasi" ? "border-teal-500 text-teal-700" : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
+            activeTab === "donationHistory" ? "border-teal-500 text-teal-700" : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
           }`}
         >
-          Notifikasi <span className="text-xs px-2 py-0.5 rounded-full bg-red-100 text-red-600">0</span>
+          Riwayat Donasi
         </button>
       </div>
 
@@ -262,10 +263,8 @@ const UserDashboardPage = () => {
         <DonationPage />
       )}
 
-      {activeTab === 'notifikasi' && (
-        <div className="text-center py-16 text-gray-500 bg-white rounded-xl border border-dashed border-gray-300">
-          <p>Tidak ada notifikasi baru.</p>
-        </div>
+      {activeTab === 'donationHistory' && (
+        <DonationHistory />
       )}
     </>
   );

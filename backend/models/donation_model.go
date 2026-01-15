@@ -25,3 +25,7 @@ type UserResponse struct {
 	Email string `json:"email" bson:"email"`
 	Phone string `json:"phone" bson:"phone"`
 }
+
+type ApproveRequest struct {
+	Condition string `json:"condition"`
+}

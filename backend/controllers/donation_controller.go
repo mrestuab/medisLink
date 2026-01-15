@@ -2,6 +2,7 @@ package controllers
 
 import (
 	"context"
+	"fmt"
 	"strconv"
 	"time"
 
@@ -14,7 +15,12 @@ import (
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
+	"go.mongodb.org/mongo-driver/mongo/options"
 )
+
+type ApproveRequest struct {
+	Condition string `json:"condition"`
+}
 
 func CreateDonation(c *fiber.Ctx) error {
 	user := c.Locals("user").(*jwt.Token)
@@ -62,7 +68,6 @@ func CreateDonation(c *fiber.Ctx) error {
 func GetAllDonations(c *fiber.Ctx) error {
 	coll := config.DB.Collection("donations")
 
-	// Pipeline: Join Donation + User
 	pipeline := mongo.Pipeline{
 		{{Key: "$lookup", Value: bson.M{
 			"from":         "users",
@@ -108,52 +113,111 @@ func GetAllDonations(c *fiber.Ctx) error {
 	return c.JSON(results)
 }
 
-// [ADMIN] 2. Setujui Donasi -> Pindah ke Medical Tools
+func GetUserDonations(c *fiber.Ctx) error {
+	user := c.Locals("user").(*jwt.Token)
+	claims := user.Claims.(jwt.MapClaims)
+	userIDStr := claims["user_id"].(string)
+	userID, _ := primitive.ObjectIDFromHex(userIDStr)
+
+	coll := config.DB.Collection("donations")
+
+	opts := options.Find().SetSort(bson.D{{Key: "created_at", Value: -1}})
+
+	cursor, err := coll.Find(context.Background(), bson.M{"user_id": userID}, opts)
+	if err != nil {
+		return c.Status(500).JSON(fiber.Map{"error": "Gagal mengambil data"})
+	}
+	defer cursor.Close(context.Background())
+
+	var donations []models.Donation
+	if err = cursor.All(context.Background(), &donations); err != nil {
+		return c.Status(500).JSON(fiber.Map{"error": "Gagal parsing data"})
+	}
+
+	if donations == nil {
+		donations = []models.Donation{}
+	}
+
+	return c.JSON(donations)
+}
+
 func ApproveDonation(c *fiber.Ctx) error {
 	id := c.Params("id")
 	objID, _ := primitive.ObjectIDFromHex(id)
 
+	var req ApproveRequest
+	if err := c.BodyParser(&req); err != nil {
+		return c.Status(400).JSON(fiber.Map{"error": "Format data salah"})
+	}
+	if req.Condition == "" {
+		req.Condition = "Layak Pakai"
+	}
+
 	collDonation := config.DB.Collection("donations")
 	var donation models.Donation
 
-	// 1. Cek Data Donasi
 	err := collDonation.FindOne(context.Background(), bson.M{"_id": objID}).Decode(&donation)
 	if err != nil {
-		return c.Status(404).JSON(fiber.Map{"error": "Data tidak ditemukan"})
+		return c.Status(404).JSON(fiber.Map{"error": "Data donasi tidak ditemukan"})
 	}
 
 	if donation.Status == "approved" {
 		return c.Status(400).JSON(fiber.Map{"error": "Donasi sudah diproses sebelumnya"})
 	}
 
-	// 2. Buat Data Alat Baru (Copy dari Donasi)
-	newTool := models.MedicalTool{
-		ID:          primitive.NewObjectID(),
-		Name:        donation.ToolName,
-		CategoryID:  donation.Category,
-		Description: donation.Description + " (Sumber: Donasi)",
-		ImageURL:    donation.ImageURL,
-		Stock:       donation.Quantity,
-		Status:      "tersedia",
-		Condition:   "baik",
-		Type:        "Donasi",
-		CreatedAt:   time.Now(),
-		UpdatedAt:   time.Now(),
-	}
-
-	// 3. Masukkan ke Collection 'medical_tools'
 	collTools := config.DB.Collection("medical_tools")
-	_, err = collTools.InsertOne(context.Background(), newTool)
-	if err != nil {
-		return c.Status(500).JSON(fiber.Map{"error": "Gagal update stok inventaris"})
+	var existingTool models.MedicalTool
+
+	filter := bson.M{
+		"name":      donation.ToolName,
+		"condition": req.Condition,
 	}
 
-	// 4. Update Status Donasi jadi 'approved'
+	err = collTools.FindOne(context.Background(), filter).Decode(&existingTool)
+
+	if err == nil {
+		update := bson.M{
+			"$inc": bson.M{"stock": donation.Quantity},
+			"$set": bson.M{"updated_at": time.Now()},
+		}
+		_, errUpdate := collTools.UpdateOne(context.Background(), filter, update)
+		if errUpdate != nil {
+			return c.Status(500).JSON(fiber.Map{"error": "Gagal update stok inventaris"})
+		}
+
+	} else {
+		newTool := models.MedicalTool{
+			ID:          primitive.NewObjectID(),
+			Name:        donation.ToolName,
+			CategoryID:  donation.Category,
+			Description: fmt.Sprintf("%s (Sumber: Donasi)", donation.Description),
+			ImageURL:    donation.ImageURL,
+			Stock:       donation.Quantity,
+			Status:      "tersedia",
+
+			Condition: req.Condition,
+			Type:      "Donasi",
+
+			CreatedAt: time.Now(),
+			UpdatedAt: time.Now(),
+		}
+
+		_, errInsert := collTools.InsertOne(context.Background(), newTool)
+		if errInsert != nil {
+			return c.Status(500).JSON(fiber.Map{"error": "Gagal membuat inventaris baru"})
+		}
+	}
+
 	_, err = collDonation.UpdateOne(
 		context.Background(),
 		bson.M{"_id": objID},
-		bson.M{"$set": bson.M{"status": "approved"}},
+		bson.M{"$set": bson.M{
+			"status":         "approved",
+			"admin_qc_notes": req.Condition,
+		}},
 	)
 
-	return c.JSON(fiber.Map{"message": "Sukses! Barang masuk inventaris."})
+	return c.JSON(fiber.Map{
+		"message": "Sukses! Barang masuk inventaris dengan kondisi: " + req.Condition,
+	})
 }

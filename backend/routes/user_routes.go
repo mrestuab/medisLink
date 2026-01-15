@@ -16,7 +16,6 @@ func UserRoutes(app *fiber.App) {
 
 	api.Post("/users", controllers.CreateUser)
 
-	// 🔒 Lindungi endpoint di bawah ini pakai JWT
 	protected := api.Group("/users", middlewares.JWTProtected())
 
 	protected.Get("/", controllers.GetAllUsers)
