@@ -1,4 +1,4 @@
-import api from './api';
+﻿import api from './api';
 import { jwtDecode } from "jwt-decode";
 
 export const getCurrentUserProfile = async () => {
@@ -7,7 +7,7 @@ export const getCurrentUserProfile = async () => {
     if (!token) return null;
 
     const decoded = jwtDecode(token);
-    const userId = decoded.user_id; 
+    const userId = decoded.user_id;
 
     if (!userId) return null;
 
@@ -23,7 +23,7 @@ export const getCurrentUserProfile = async () => {
 export const getPublicTools = async () => {
   try {
     const response = await api.get('/tools');
-    
+
     return response.data.map(tool => ({
       id: tool.id,
       name: tool.name,
@@ -46,7 +46,7 @@ export const getPublicTools = async () => {
 export const getCategories = async () => {
   try {
     const response = await api.get('/categories');
-    return response.data; 
+    return response.data;
   } catch (error) {
     console.error("Gagal ambil kategori:", error);
     return [
@@ -61,7 +61,7 @@ export const getToolById = async (id) => {
   try {
     const response = await api.get(`/tools/${id}`);
     const tool = response.data;
-    
+
     return {
       id: tool.id,
       name: tool.name,
@@ -74,7 +74,7 @@ export const getToolById = async (id) => {
       stock: tool.stock,
       condition: tool.condition,
       image_url: tool.image_url,
-      reviews: [] 
+      reviews: []
     };
   } catch (error) {
     console.error("Gagal ambil detail alat:", error);
@@ -88,25 +88,25 @@ export const createLoan = async (loanData) => {
     return response.data;
   } catch (error) {
     console.error("Gagal mengajukan pinjaman:", error);
-    throw error; 
+    throw error;
   }
 };
 
 export const getMyLoans = async () => {
   try {
     const response = await api.get('/loans/my');
-    
+
     return response.data.map(loan => ({
       id: loan._id,
-      
+
       toolName: loan.tool_detail ? loan.tool_detail.name : "Alat Tidak Dikenal",
       toolImage: loan.tool_detail ? loan.tool_detail.image_url : null,
-      
+
       quantity: loan.quantity,
       loanDate: loan.loan_date,
       returnDue: loan.return_due,
-      status: loan.status, 
-      
+      status: loan.status,
+
       medicalCondition: loan.medical_condition,
       notes: loan.notes
     }));
@@ -178,4 +178,24 @@ export const createDonation = async (donationData) => {
         },
     });
     return response.data;
+};
+
+// Forgot Password Services
+export const requestPasswordReset = async (email) => {
+  const response = await api.post('/auth/forgot-password', { email });
+  return response.data;
+};
+
+export const verifyOTP = async (email, otp) => {
+  const response = await api.post('/auth/verify-otp', { email, otp });
+  return response.data;
+};
+
+export const resetPassword = async (email, otp, newPassword) => {
+  const response = await api.post('/auth/reset-password', { 
+    email, 
+    otp, 
+    new_password: newPassword 
+  });
+  return response.data;
 };

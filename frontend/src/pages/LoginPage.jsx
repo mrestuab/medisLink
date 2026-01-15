@@ -115,9 +115,9 @@ const LoginPage = () => {
           </div>
           
           <div className="flex justify-end w-full">
-            <a href="#" className="text-sm text-teal-600 hover:underline">
+            <Link to="/forgot-password" className="text-sm text-teal-600 hover:underline">
               Lupa password?
-            </a>
+            </Link>
           </div>
 
           <div className="w-full flex justify-center">
