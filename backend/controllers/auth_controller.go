@@ -25,6 +25,22 @@ func Register(c *fiber.Ctx) error {
 		return c.Status(400).JSON(fiber.Map{"error": "Invalid request"})
 	}
 
+	// Validasi email tidak boleh kosong
+	if user.Email == "" {
+		return c.Status(400).JSON(fiber.Map{"error": "Email tidak boleh kosong"})
+	}
+
+	userColl := config.DB.Collection("users")
+
+	// Cek apakah email sudah terdaftar
+	var existingUser models.User
+	err := userColl.FindOne(context.Background(), bson.M{"email": user.Email}).Decode(&existingUser)
+	if err == nil {
+		// Email sudah ada
+		return c.Status(409).JSON(fiber.Map{"error": "Email sudah terdaftar"})
+	}
+
+	// Hash password
 	hash, err := bcrypt.GenerateFromPassword([]byte(user.Password), 14)
 	if err != nil {
 		return c.Status(500).JSON(fiber.Map{"error": "Failed to hash password"})
@@ -34,8 +50,7 @@ func Register(c *fiber.Ctx) error {
 	user.CreatedAt = primitive.NewDateTimeFromTime(time.Now())
 	user.Role = "user"
 
-	userColl := config.DB.Collection("users")
-
+	// Insert user baru
 	_, err = userColl.InsertOne(context.Background(), user)
 	if err != nil {
 		return c.Status(500).JSON(fiber.Map{"error": "Failed to create user"})
