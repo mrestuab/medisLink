@@ -173,8 +173,6 @@ const RegisterPage = () => {
           </div>
         </form>
 
-        <div className="divider text-sm text-gray-500 my-8 w-full text-center">Atau daftar dengan</div>
-        
         <p className="mt-8 text-center text-sm text-gray-600 w-full">
           Sudah punya akun?{' '}
           <Link to="/login" className="font-medium text-teal-600 hover:underline">

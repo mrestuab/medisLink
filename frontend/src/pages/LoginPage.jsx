@@ -130,8 +130,6 @@ const LoginPage = () => {
           </div>
         </form>
 
-        <div className="divider text-sm text-gray-500 my-8 w-full text-center">Atau masuk dengan</div>
-        
         <p className="mt-8 text-center text-sm text-gray-600">
           Belum punya akun?{' '}
           <Link to="/register" className="font-medium text-teal-600 hover:underline">
