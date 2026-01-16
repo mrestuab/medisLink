@@ -24,7 +24,7 @@ const AddsList = ({ ads, onDelete }) => {
 							<div className="absolute top-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity">
 								<button 
 									onClick={() => onDelete(ad.id || ad._id)}
-									className="btn btn-sm btn-error bg-red-600 border-none text-white shadow-lg gap-2"
+									className="btn btn-sm btn-error bg-red-600 border-none text-white shadow-lg gap-2 p-2"
 								>
 									Hapus
 								</button>

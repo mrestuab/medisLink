@@ -161,8 +161,16 @@ const UserLayout = () => {
                         <p className="text-xs text-gray-500 capitalize">{user.role || 'User'}</p>
                     </div>
 
-                    <div className="w-9 h-9 bg-gray-100 rounded-full flex items-center justify-center text-gray-600 border border-gray-200 group-hover:border-teal-300 group-hover:bg-teal-50 group-hover:text-teal-700 transition-all">
+                    <div className="w-9 h-9 bg-gray-100 rounded-full flex items-center justify-center text-gray-600 border border-gray-200 group-hover:border-teal-300 group-hover:bg-teal-50 group-hover:text-teal-700 transition-all overflow-hidden">
+                      {user.foto_profile ? (
+                        <img
+                          src={user.foto_profile}
+                          alt="Profile"
+                          className="w-full h-full object-cover rounded-full"
+                        />
+                      ) : (
                         <User className="w-5 h-5" />
+                      )}
                     </div>
 
                     <ChevronDown className={`w-4 h-4 text-gray-400 transition-transform duration-200 ${isUserMenuOpen ? 'rotate-180' : ''}`} />
