@@ -6,8 +6,10 @@ import (
 
 	"medislink-backend/config"
 	"medislink-backend/models"
+	"medislink-backend/utils"
 
 	"github.com/gofiber/fiber/v2"
+	"github.com/golang-jwt/jwt/v4"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
@@ -70,57 +72,63 @@ func GetUserByID(c *fiber.Ctx) error {
 	return c.JSON(user)
 }
 
-func UpdateUser(c *fiber.Ctx) error {
-	idParam := c.Params("id")
-	objID, err := primitive.ObjectIDFromHex(idParam)
-	if err != nil {
-		return c.Status(400).JSON(fiber.Map{"error": "Invalid ID"})
+func UpdateProfile(c *fiber.Ctx) error {
+	user := c.Locals("user").(*jwt.Token)
+	claims := user.Claims.(jwt.MapClaims)
+	userIDStr := claims["user_id"].(string)
+	userID, _ := primitive.ObjectIDFromHex(userIDStr)
+
+	coll := config.DB.Collection("users")
+	updateFields := bson.M{}
+
+	if name := c.FormValue("name"); name != "" {
+		updateFields["name"] = name
+	}
+	if phone := c.FormValue("phone"); phone != "" {
+		updateFields["phone"] = phone
+	}
+	if address := c.FormValue("address"); address != "" {
+		updateFields["address"] = address
+	}
+	if nik := c.FormValue("nik"); nik != "" {
+		updateFields["nik"] = nik
 	}
 
-	var updateData models.User
-	if err := c.BodyParser(&updateData); err != nil {
-		return c.Status(400).JSON(fiber.Map{"error": "Invalid request"})
+	fileProfile, err := c.FormFile("foto_profile")
+	if err == nil {
+		file, _ := fileProfile.Open()
+		defer file.Close()
+		url, errUpload := utils.UploadToCloudinary(file, "profiles")
+		if errUpload == nil {
+			updateFields["foto_profile"] = url
+		}
 	}
 
-	update := bson.M{"$set": bson.M{}}
-	if updateData.Name != "" {
-		update["$set"].(bson.M)["name"] = updateData.Name
-	}
-	if updateData.Email != "" {
-		update["$set"].(bson.M)["email"] = updateData.Email
-	}
-	if updateData.Phone != "" {
-		update["$set"].(bson.M)["phone"] = updateData.Phone
-	}
-	if updateData.Address != "" {
-		update["$set"].(bson.M)["address"] = updateData.Address
-	}
-	if updateData.NIK != "" {
-		update["$set"].(bson.M)["nik"] = updateData.NIK
-	}
-	if updateData.FotoKTP != "" {
-		update["$set"].(bson.M)["foto_ktp"] = updateData.FotoKTP
-	}
-	if updateData.FotoProfile != "" {
-		update["$set"].(bson.M)["foto_profile"] = updateData.FotoProfile
+	fileKTP, err := c.FormFile("foto_ktp")
+	if err == nil {
+		file, _ := fileKTP.Open()
+		defer file.Close()
+		url, errUpload := utils.UploadToCloudinary(file, "ktp")
+		if errUpload == nil {
+			updateFields["foto_ktp"] = url
+		}
 	}
 
-	_, err = getUserCollection().UpdateOne(
+	if len(updateFields) == 0 {
+		return c.Status(400).JSON(fiber.Map{"error": "Tidak ada data yang diubah"})
+	}
+
+	_, err = coll.UpdateOne(
 		context.Background(),
-		bson.M{"_id": objID},
-		update,
+		bson.M{"_id": userID},
+		bson.M{"$set": updateFields},
 	)
+
 	if err != nil {
-		return c.Status(500).JSON(fiber.Map{"error": "Failed to update user"})
+		return c.Status(500).JSON(fiber.Map{"error": "Gagal update profile"})
 	}
 
-	var user models.User
-	err = getUserCollection().FindOne(context.Background(), bson.M{"_id": objID}).Decode(&user)
-	if err != nil {
-		return c.Status(404).JSON(fiber.Map{"error": "User not found"})
-	}
-
-	return c.JSON(user)
+	return c.JSON(fiber.Map{"message": "Profil berhasil diperbarui"})
 }
 
 func DeleteUser(c *fiber.Ctx) error {

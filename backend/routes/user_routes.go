@@ -20,6 +20,6 @@ func UserRoutes(app *fiber.App) {
 
 	protected.Get("/", controllers.GetAllUsers)
 	protected.Get("/:id", controllers.GetUserByID)
-	protected.Put("/:id", controllers.UpdateUser)
+	protected.Put("/:id", controllers.UpdateProfile)
 	protected.Delete("/:id", controllers.DeleteUser)
 }

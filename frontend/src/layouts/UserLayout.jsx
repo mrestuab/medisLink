@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Outlet, Link, useNavigate } from 'react-router-dom';
-import { LogOut, User, Bell, CheckCircle, AlertCircle, Info, X } from 'lucide-react';
+import { LogOut, User, Bell, CheckCircle, AlertCircle, Info, X, ChevronDown } from 'lucide-react';
 import { getCurrentUserProfile, getMyNotifications, markNotificationAsRead } from '../services/userServices';
 
 const UserLayout = () => {
@@ -11,6 +11,9 @@ const UserLayout = () => {
   const [unreadCount, setUnreadCount] = useState(0);
   const [isNotifOpen, setIsNotifOpen] = useState(false);
   const notifRef = useRef(null); 
+
+  const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
+  const userMenuRef = useRef(null);
 
   useEffect(() => {
     const fetchProfile = async () => {
@@ -36,7 +39,6 @@ const UserLayout = () => {
 
   useEffect(() => {
     fetchNotifs(); 
-    
     const interval = setInterval(fetchNotifs, 30000);
     return () => clearInterval(interval);
   }, []);
@@ -45,7 +47,6 @@ const UserLayout = () => {
     if (!isRead) {
       setNotifications(prev => prev.map(n => n.id === id ? { ...n, is_read: true } : n));
       setUnreadCount(prev => Math.max(0, prev - 1));
-      
       await markNotificationAsRead(id);
     }
   };
@@ -54,6 +55,9 @@ const UserLayout = () => {
     const handleClickOutside = (event) => {
       if (notifRef.current && !notifRef.current.contains(event.target)) {
         setIsNotifOpen(false);
+      }
+      if (userMenuRef.current && !userMenuRef.current.contains(event.target)) {
+        setIsUserMenuOpen(false);
       }
     };
     document.addEventListener("mousedown", handleClickOutside);
@@ -86,7 +90,7 @@ const UserLayout = () => {
             <span className="font-bold text-lg tracking-tight text-gray-800">MedisLink</span>
           </Link>
 
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-2 sm:gap-4">
             
             <div className="relative" ref={notifRef}>
                 <button 
@@ -147,18 +151,49 @@ const UserLayout = () => {
                 )}
             </div>
 
-            <div className="text-right hidden sm:block">
-              <p className="text-sm font-bold text-gray-900">{user.name}</p>
-              <p className="text-xs text-gray-500 capitalize">{user.role || 'User'}</p>
+            <div className="relative pl-2 border-l border-gray-200 ml-2" ref={userMenuRef}>
+                <button 
+                    onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}
+                    className="flex items-center gap-3 hover:bg-gray-50 p-1.5 pr-3 rounded-full sm:rounded-xl transition-all group"
+                >
+                    <div className="text-right hidden sm:block">
+                        <p className="text-sm font-bold text-gray-900 group-hover:text-teal-700 transition-colors">{user.name}</p>
+                        <p className="text-xs text-gray-500 capitalize">{user.role || 'User'}</p>
+                    </div>
+
+                    <div className="w-9 h-9 bg-gray-100 rounded-full flex items-center justify-center text-gray-600 border border-gray-200 group-hover:border-teal-300 group-hover:bg-teal-50 group-hover:text-teal-700 transition-all">
+                        <User className="w-5 h-5" />
+                    </div>
+
+                    <ChevronDown className={`w-4 h-4 text-gray-400 transition-transform duration-200 ${isUserMenuOpen ? 'rotate-180' : ''}`} />
+                </button>
+
+                {isUserMenuOpen && (
+                    <div className="absolute right-0 mt-2 w-48 bg-white border border-gray-100 rounded-xl shadow-xl overflow-hidden z-50 animate-in fade-in slide-in-from-top-2">
+                        <div className="py-1">
+                            <Link 
+                                to="/profile" 
+                                className="flex items-center gap-2 px-4 py-3 text-sm text-gray-700 hover:bg-teal-50 hover:text-teal-700 transition-colors"
+                                onClick={() => setIsUserMenuOpen(false)}
+                            >
+                                <User className="w-4 h-4" />
+                                <span>Profil Saya</span>
+                            </Link>
+
+                            <div className="h-px bg-gray-100 my-1 mx-2"></div>
+
+                            <button 
+                                onClick={handleLogout}
+                                className="w-full flex items-center gap-2 px-4 py-3 text-sm text-red-600 hover:bg-red-50 transition-colors text-left"
+                            >
+                                <LogOut className="w-4 h-4" />
+                                <span>Keluar</span>
+                            </button>
+                        </div>
+                    </div>
+                )}
             </div>
 
-            <button 
-                onClick={handleLogout} 
-                className="p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-all"
-                title="Keluar"
-            >
-              <LogOut className="w-5 h-5" />
-            </button>
           </div>
         </div>
       </header>

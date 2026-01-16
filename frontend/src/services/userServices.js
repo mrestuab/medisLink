@@ -20,6 +20,13 @@ export const getCurrentUserProfile = async () => {
   }
 };
 
+export const updateProfile = async (formData) => {
+    const response = await api.put("/users/profile", formData, {
+        headers: { "Content-Type": "multipart/form-data" },
+    });
+    return response.data;
+};
+
 export const getPublicTools = async () => {
   try {
     const response = await api.get('/tools');
