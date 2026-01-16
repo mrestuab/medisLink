@@ -111,3 +111,8 @@ export const approveDonation = async (id, condition) => {
     });
     return response.data;
 };
+
+export const receiveDonation = async (id) => {
+    const response = await api.put(`/donations/${id}/receive`);
+    return response.data;
+};

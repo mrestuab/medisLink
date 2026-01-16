@@ -6,7 +6,8 @@ import {
     Clock, 
     CheckCircle, 
     MapPin,
-    Loader2
+    Loader2,
+    ClipboardCheck
 } from "lucide-react";
 
 const DonationHistory = () => {
@@ -61,7 +62,6 @@ const DonationHistory = () => {
                             key={item.id} 
                             className="bg-white rounded-xl border border-gray-100 shadow-sm hover:shadow-md transition-all overflow-hidden flex flex-col sm:flex-row"
                         >
-                            {/* Bagian Gambar */}
                             <div className="sm:w-48 h-48 sm:h-auto bg-gray-100 shrink-0">
                                 <img 
                                     src={item.image_url} 
@@ -70,7 +70,6 @@ const DonationHistory = () => {
                                 />
                             </div>
 
-                            {/* Bagian Konten */}
                             <div className="p-5 flex flex-col justify-between w-full">
                                 <div>
                                     <div className="flex justify-between items-start mb-2">
@@ -81,14 +80,17 @@ const DonationHistory = () => {
                                             <h3 className="text-lg font-bold text-gray-900 mt-1">{item.tool_name}</h3>
                                         </div>
                                         
-                                        {/* Status Badge */}
                                         {item.status === "approved" ? (
-                                            <span className="flex items-center gap-1 bg-emerald-100 text-emerald-700 px-3 py-1 rounded-full text-xs font-bold shadow-sm">
-                                                <CheckCircle className="w-3 h-3" /> Diterima
+                                            <span className="flex items-center gap-1 bg-emerald-100 text-emerald-700 px-3 py-1 rounded-full text-xs font-bold shadow-sm border border-emerald-200">
+                                                <CheckCircle className="w-3 h-3" /> Selesai
+                                            </span>
+                                        ) : item.status === "received" ? (
+                                            <span className="flex items-center gap-1 bg-blue-100 text-blue-700 px-3 py-1 rounded-full text-xs font-bold shadow-sm border border-blue-200">
+                                                <ClipboardCheck className="w-3 h-3" /> Dalam Proses QC
                                             </span>
                                         ) : (
-                                            <span className="flex items-center gap-1 bg-amber-100 text-amber-700 px-3 py-1 rounded-full text-xs font-bold shadow-sm">
-                                                <Clock className="w-3 h-3" /> Diproses
+                                            <span className="flex items-center gap-1 bg-amber-100 text-amber-700 px-3 py-1 rounded-full text-xs font-bold shadow-sm border border-amber-200">
+                                                <Clock className="w-3 h-3" /> Menunggu Review
                                             </span>
                                         )}
                                     </div>

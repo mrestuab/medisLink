@@ -155,14 +155,13 @@ func ApproveDonation(c *fiber.Ctx) error {
 
 	collDonation := config.DB.Collection("donations")
 	var donation models.Donation
-
 	err := collDonation.FindOne(context.Background(), bson.M{"_id": objID}).Decode(&donation)
 	if err != nil {
 		return c.Status(404).JSON(fiber.Map{"error": "Data donasi tidak ditemukan"})
 	}
 
 	if donation.Status == "approved" {
-		return c.Status(400).JSON(fiber.Map{"error": "Donasi sudah diproses sebelumnya"})
+		return c.Status(400).JSON(fiber.Map{"error": "Donasi ini sudah selesai diproses (Stok sudah masuk)"})
 	}
 
 	collTools := config.DB.Collection("medical_tools")
@@ -180,11 +179,7 @@ func ApproveDonation(c *fiber.Ctx) error {
 			"$inc": bson.M{"stock": donation.Quantity},
 			"$set": bson.M{"updated_at": time.Now()},
 		}
-		_, errUpdate := collTools.UpdateOne(context.Background(), filter, update)
-		if errUpdate != nil {
-			return c.Status(500).JSON(fiber.Map{"error": "Gagal update stok inventaris"})
-		}
-
+		collTools.UpdateOne(context.Background(), filter, update)
 	} else {
 		newTool := models.MedicalTool{
 			ID:          primitive.NewObjectID(),
@@ -194,18 +189,12 @@ func ApproveDonation(c *fiber.Ctx) error {
 			ImageURL:    donation.ImageURL,
 			Stock:       donation.Quantity,
 			Status:      "tersedia",
-
-			Condition: req.Condition,
-			Type:      "Donasi",
-
-			CreatedAt: time.Now(),
-			UpdatedAt: time.Now(),
+			Condition:   req.Condition,
+			Type:        "Donasi",
+			CreatedAt:   time.Now(),
+			UpdatedAt:   time.Now(),
 		}
-
-		_, errInsert := collTools.InsertOne(context.Background(), newTool)
-		if errInsert != nil {
-			return c.Status(500).JSON(fiber.Map{"error": "Gagal membuat inventaris baru"})
-		}
+		collTools.InsertOne(context.Background(), newTool)
 	}
 
 	_, err = collDonation.UpdateOne(
@@ -218,6 +207,25 @@ func ApproveDonation(c *fiber.Ctx) error {
 	)
 
 	return c.JSON(fiber.Map{
-		"message": "Sukses! Barang masuk inventaris dengan kondisi: " + req.Condition,
+		"message": "Sukses! Barang validasi QC selesai dan stok bertambah.",
 	})
+}
+
+func ReceiveDonation(c *fiber.Ctx) error {
+	id := c.Params("id")
+	objID, _ := primitive.ObjectIDFromHex(id)
+
+	coll := config.DB.Collection("donations")
+
+	_, err := coll.UpdateOne(
+		context.Background(),
+		bson.M{"_id": objID},
+		bson.M{"$set": bson.M{"status": "received"}},
+	)
+
+	if err != nil {
+		return c.Status(500).JSON(fiber.Map{"error": "Gagal update status"})
+	}
+
+	return c.JSON(fiber.Map{"message": "Barang berhasil diterima oleh Admin. Lanjutkan ke QC."})
 }

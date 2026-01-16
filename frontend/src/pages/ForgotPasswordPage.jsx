@@ -20,7 +20,6 @@ const ForgotPasswordPage = () => {
       });
 
       if (response.data) {
-        // Redirect ke halaman verify OTP dengan email sebagai state
         navigate('/verify-otp', { 
           state: { email: email.trim() },
           replace: true 
@@ -40,19 +39,16 @@ const ForgotPasswordPage = () => {
 
   return (
     <div className="flex items-center justify-center min-h-screen bg-gray-50 px-4 sm:px-6 lg:px-8 relative overflow-hidden">
-      {/* Background decoration */}
       <div className="absolute top-0 right-0 w-72 h-72 bg-blue-500/10 rounded-full blur-3xl animate-pulse"></div>
       <div className="absolute bottom-10 left-10 w-96 h-96 bg-teal-500/5 rounded-full blur-3xl animate-pulse delay-1000"></div>
 
       <div className="relative z-10 max-w-md w-full p-8 sm:p-10 bg-white/70 backdrop-blur-md rounded-3xl shadow-xl border border-gray-200/50">
-        {/* Logo */}
         <Link to="/" className="flex items-center gap-2 group mb-4 justify-center">
           <div className="w-9 h-9 bg-teal-500 rounded-xl flex items-center justify-center text-white font-bold text-lg shadow-teal-200 shadow-lg">
             M
           </div>
         </Link>
 
-        {/* Header */}
         <div className="flex flex-col items-center mb-8">
           <div className="w-16 h-16 bg-teal-100 rounded-full flex items-center justify-center mb-4">
             <Mail className="w-8 h-8 text-teal-600" />
@@ -65,7 +61,6 @@ const ForgotPasswordPage = () => {
           </p>
         </div>
 
-        {/* Form */}
         <form className="space-y-5 w-full" onSubmit={handleSubmit}>
           {error && (
             <div className="p-3 bg-red-100 border border-red-300 text-red-700 rounded-lg text-sm text-center">
@@ -101,7 +96,6 @@ const ForgotPasswordPage = () => {
           </button>
         </form>
 
-        {/* Back to Login */}
         <div className="mt-8 text-center">
           <Link 
             to="/login" 

@@ -22,6 +22,7 @@ import {
     getAds,      
     createAd,    
     deleteAd,
+    receiveDonation,
     approveDonation,     
     getDonations
 } from "../../services/adminServices";
@@ -183,6 +184,17 @@ export default function AdminDashboard() {
       }
   };
 
+  const handleReceiveDonation = async (id) => {
+    try {
+      await receiveDonation(id);
+      alert("Status barang berhasil diubah menjadi 'Barang Diterima Admin'.");
+      fetchData();
+    } catch (error) {
+      console.error(error);
+      alert("Gagal update status donasi.");
+    }
+  };
+
   if (isLoading) {
     return (
         <div className="flex justify-center items-center h-screen bg-gray-50">
@@ -280,7 +292,7 @@ export default function AdminDashboard() {
 
         {activeTab === "donations" && (
             <div className="mt-6">
-                <DonationsTable donations={donations} onApprove={handleApproveDonation} />
+                <DonationsTable donations={donations} onReceive={handleReceiveDonation} onApprove={handleApproveDonation} />
             </div>
         )}
 

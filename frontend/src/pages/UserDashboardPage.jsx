@@ -175,7 +175,7 @@ const UserDashboardPage = () => {
                     </div>
                     <h3 className="text-lg font-bold text-gray-900">Belum Ada Riwayat</h3>
                     <p className="text-gray-500 mb-6">Anda belum pernah mengajukan peminjaman alat.</p>
-                    <button onClick={() => setActiveTab('jelajahi')} className="btn btn-primary bg-teal-600 hover:bg-teal-700 text-white border-none btn-sm">
+                    <button onClick={() => setActiveTab('jelajahi')} className="btn btn-primary bg-teal-600 hover:bg-teal-700 text-white border-none btn-sm p-4">
                         Pinjam Sekarang
                     </button>
                 </div>

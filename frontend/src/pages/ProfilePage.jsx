@@ -7,6 +7,10 @@ import {
 import { getCurrentUserProfile, updateProfile } from "../services/userServices";
 
 const ProfilePage = () => {
+        const [editLoading, setEditLoading] = useState(false);
+        const [backupFormData, setBackupFormData] = useState(null);
+        const [backupPreviewProfile, setBackupPreviewProfile] = useState("");
+        const [backupPreviewKTP, setBackupPreviewKTP] = useState("");
     const navigate = useNavigate();
     
     const [user, setUser] = useState(null);
@@ -109,8 +113,28 @@ const ProfilePage = () => {
         );
     }
 
+    if (editLoading) {
+        return (
+            <div className="flex justify-center py-20">
+                <span className="loading loading-spinner loading-lg text-teal-600"></span>
+            </div>
+        );
+    }
+
     return (
         <div className="w-full max-w-4xl mx-auto font-sans pb-10">
+            <div className="pt-8 pb-2 px-2 flex">
+                <button
+                    type="button"
+                    onClick={() => navigate(user?.role === "admin" ? "/admin" : "/dashboard")}
+                    className="flex items-center gap-2 text-teal-600 hover:text-teal-800 font-semibold text-sm px-4 py-2 rounded-lg border border-teal-100 bg-white shadow-sm hover:bg-teal-50 transition-all"
+                >
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-5 h-5">
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" />
+                    </svg>
+                    Kembali ke Dashboard
+                </button>
+            </div>
             <div className="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">                
                 <div className="h-40 bg-teal-600 w-full relative">
                     <div className="absolute inset-0 bg-white/10 pattern-grid-lg opacity-20"></div>
@@ -184,7 +208,27 @@ const ProfilePage = () => {
 
                             <div className="flex gap-4 pt-4 border-t border-gray-100">
                                 <button 
-                                    onClick={() => setIsEditing(true)}
+                                    onClick={async () => {
+                                        setEditLoading(true);
+                                        setBackupFormData(formData);
+                                        setBackupPreviewProfile(previewProfile);
+                                        setBackupPreviewKTP(previewKTP);
+                                        try {
+                                            const data = await getCurrentUserProfile();
+                                            setFormData({
+                                                name: data.name || "",
+                                                phone: data.phone || "",
+                                                address: data.address || "",
+                                                nik: data.nik || ""
+                                            });
+                                            setPreviewProfile(data.foto_profile || "");
+                                            setPreviewKTP(data.foto_ktp || "");
+                                        } catch (error) {
+                                            console.error("Gagal load profile", error);
+                                        }
+                                        setEditLoading(false);
+                                        setIsEditing(true);
+                                    }}
                                     className="flex-1 btn bg-teal-600 hover:bg-teal-700 text-white border-none rounded-xl font-bold shadow-md flex gap-2"
                                 >
                                     <Edit2 className="w-4 h-4" /> Lengkapi Data Diri
@@ -222,15 +266,15 @@ const ProfilePage = () => {
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 <div className="form-control">
                                     <label className="label text-xs font-bold text-gray-500 uppercase">Nama Lengkap</label>
-                                    <input type="text" value={formData.name} onChange={(e) => setFormData({...formData, name: e.target.value})} className="input input-bordered w-full rounded-lg bg-gray-50 focus:bg-white" placeholder="Nama Sesuai KTP" />
+                                    <input type="text" value={formData.name} onChange={(e) => setFormData({...formData, name: e.target.value})} className="w-full rounded-lg bg-gray-50 focus:bg-white pl-3 border border-teal-600 focus:border-teal-600 outline-none py-2" placeholder="Nama Sesuai KTP" />
                                 </div>
                                 <div className="form-control">
                                     <label className="label text-xs font-bold text-gray-500 uppercase">No. WhatsApp</label>
-                                    <input type="text" value={formData.phone} onChange={(e) => setFormData({...formData, phone: e.target.value})} className="input input-bordered w-full rounded-lg bg-gray-50 focus:bg-white" placeholder="08..." />
+                                    <input type="text" value={formData.phone} onChange={(e) => setFormData({...formData, phone: e.target.value})} className="w-full rounded-lg bg-gray-50 focus:bg-white pl-3 border border-teal-600 focus:border-teal-600 outline-none py-2" placeholder="08..." />
                                 </div>
                                 <div className="form-control md:col-span-2">
                                     <label className="label text-xs font-bold text-gray-500 uppercase">Alamat Domisili</label>
-                                    <textarea value={formData.address} onChange={(e) => setFormData({...formData, address: e.target.value})} className="textarea textarea-bordered w-full rounded-lg bg-gray-50 focus:bg-white resize-none" rows={2} placeholder="Alamat lengkap..." />
+                                    <textarea value={formData.address} onChange={(e) => setFormData({...formData, address: e.target.value})} className="w-full rounded-lg bg-gray-50 focus:bg-white resize-none pl-3 border border-teal-600 focus:border-teal-600 outline-none py-2" rows={2} placeholder="Alamat lengkap..." />
                                 </div>
                             </div>
 
@@ -241,7 +285,7 @@ const ProfilePage = () => {
                                 <div className="space-y-4">
                                     <div className="form-control">
                                         <label className="label text-xs font-bold text-orange-900/70 uppercase">NIK (16 Digit)</label>
-                                        <input type="number" value={formData.nik} onChange={(e) => setFormData({...formData, nik: e.target.value})} className="input input-bordered border-orange-300 w-full rounded-lg font-semibold" placeholder="NIK" required disabled={!!user?.nik} />
+                                        <input type="number" value={formData.nik} onChange={(e) => setFormData({...formData, nik: e.target.value})} className="w-full rounded-lg font-semibold pl-3 border border-teal-600 focus:border-teal-600 outline-none py-2" placeholder="NIK" required disabled={!!user?.nik} />
                                     </div>
                                     <div className="form-control">
                                         <label className="label text-xs font-bold text-orange-900/70 uppercase">Upload Foto KTP</label>
@@ -266,7 +310,12 @@ const ProfilePage = () => {
                             </div>
 
                             <div className="flex gap-3 pt-2">
-                                <button type="button" onClick={() => setIsEditing(false)} className="flex-1 btn btn-ghost border-gray-300 rounded-xl text-gray-500">Batal</button>
+                                    <button type="button" onClick={() => {
+                                        setFormData(backupFormData || formData);
+                                        setPreviewProfile(backupPreviewProfile || previewProfile);
+                                        setPreviewKTP(backupPreviewKTP || previewKTP);
+                                        setIsEditing(false);
+                                    }} className="flex-1 btn btn-ghost border-gray-300 rounded-xl text-gray-500">Batal</button>
                                 <button type="submit" className="flex-1 btn bg-teal-600 hover:bg-teal-700 text-white border-none rounded-xl shadow-lg">
                                     <Save className="w-4 h-4" /> Simpan Data
                                 </button>

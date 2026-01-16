@@ -16,4 +16,5 @@ func DonationRoutes(app *fiber.App) {
 	api.Get("/history", controllers.GetUserDonations)
 	api.Get("/", controllers.GetAllDonations)
 	api.Put("/:id/approve", controllers.ApproveDonation)
+	api.Put("/:id/receive", controllers.ReceiveDonation)
 }

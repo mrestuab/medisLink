@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { ArrowLeft, Check, AlertCircle, Calendar, Activity, Ruler, Weight, Info, Heart } from "lucide-react";
 
-import { getToolById, createLoan } from "../services/userServices";
+import { getToolById, createLoan, getCurrentUserProfile } from "../services/userServices";
 
 export default function ToolDetailPage() {
   const { id } = useParams();
@@ -11,6 +11,8 @@ export default function ToolDetailPage() {
   const [tool, setTool] = useState(null);
   const [loading, setLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [user, setUser] = useState(null);
+  const [userLoading, setUserLoading] = useState(true);
 
   const [formData, setFormData] = useState({
     loanDate: "",
@@ -37,6 +39,18 @@ export default function ToolDetailPage() {
       setLoading(false);
     };
     fetchData();
+    const fetchUser = async () => {
+      try {
+        const userData = await getCurrentUserProfile();
+        setUser(userData);
+      } catch (err) {
+        console.error("Gagal mengambil data user:", err);
+        setUser(null);
+      } finally {
+        setUserLoading(false);
+      }
+    };
+    fetchUser();
   }, [id]);
 
   const handleChange = (e) => {
@@ -92,13 +106,15 @@ export default function ToolDetailPage() {
     }
   };
 
-  if (loading) {
+  if (loading || userLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50">
         <span className="loading loading-spinner loading-lg text-teal-600"></span>
       </div>
     );
   }
+
+  const isVerified = user?.nik && user?.foto_ktp;
 
   if (!tool) {
     return (
@@ -183,22 +199,18 @@ export default function ToolDetailPage() {
           <div>
             <div className="bg-white border border-teal-100 rounded-2xl p-6 shadow-lg sticky top-24">
               
-              <div className="mb-6 pb-6 border-b border-gray-100">
-                <p className="text-gray-500 text-xs font-semibold uppercase tracking-wider mb-2">Status Ketersediaan</p>
-                {tool.stock > 0 ? (
-                  <div className="flex items-center gap-2 text-green-600">
-                    <Check className="w-6 h-6" />
-                    <span className="text-xl font-bold">Tersedia ({tool.stock} Unit)</span>
-                  </div>
-                ) : (
-                  <div className="flex items-center gap-2 text-red-600">
-                    <AlertCircle className="w-6 h-6" />
-                    <span className="text-xl font-bold">Stok Habis</span>
-                  </div>
-                )}
-              </div>
-
-              <form onSubmit={handleSubmit} className="space-y-4">
+              {/* KTP Verification Check */}
+              {!isVerified ? (
+                <div className="bg-red-50 border border-red-200 text-red-600 p-4 rounded-lg mb-6">
+                  <AlertCircle className="w-5 h-5 inline mr-2" />
+                  Anda harus melengkapi data KTP di profil sebelum bisa meminjam alat medis.<br />
+                  <a href="/profile" className="underline text-teal-600 font-bold">Lengkapi Data Diri</a>
+                </div>
+              ) : null}
+              
+              {/* Form hanya muncul jika sudah verifikasi KTP */}
+              {isVerified && (
+                <form onSubmit={handleSubmit} className="space-y-4">
                   <div className="form-control">
                     <label className="label-text text-xs font-bold text-gray-500 mb-1 block">
                       Tanggal Mulai Pinjam
@@ -279,7 +291,8 @@ export default function ToolDetailPage() {
                   >
                     {isSubmitting ? "Mengirim..." : "Ajukan Permintaan"}
                   </button>
-              </form>
+                </form>
+              )}
 
               <div className="mt-4 bg-blue-50 p-3 rounded-lg flex gap-3 items-start">
                   <Info className="w-5 h-5 text-blue-500 flex-shrink-0 mt-0.5" />

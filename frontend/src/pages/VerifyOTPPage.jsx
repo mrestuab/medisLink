@@ -16,14 +16,13 @@ const VerifyOTPPage = () => {
   const location = useLocation();
   const email = location.state?.email;
 
-  // Redirect jika tidak ada email
+  
   useEffect(() => {
     if (!email) {
       navigate('/forgot-password', { replace: true });
     }
   }, [email, navigate]);
 
-  // Countdown timer untuk resend OTP
   useEffect(() => {
     if (countdown > 0) {
       const timer = setTimeout(() => setCountdown(countdown - 1), 1000);
@@ -34,21 +33,18 @@ const VerifyOTPPage = () => {
   }, [countdown]);
 
   const handleChange = (index, value) => {
-    // Hanya terima angka
     if (value && !/^\d$/.test(value)) return;
 
     const newOtp = [...otp];
     newOtp[index] = value;
     setOtp(newOtp);
 
-    // Auto focus ke input berikutnya
     if (value && index < 5) {
       inputRefs.current[index + 1]?.focus();
     }
   };
 
   const handleKeyDown = (index, e) => {
-    // Handle backspace
     if (e.key === 'Backspace' && !otp[index] && index > 0) {
       inputRefs.current[index - 1]?.focus();
     }
@@ -66,7 +62,6 @@ const VerifyOTPPage = () => {
     }
     setOtp(newOtp);
 
-    // Focus ke input terakhir yang terisi
     const lastIndex = Math.min(pastedData.length, 5);
     inputRefs.current[lastIndex]?.focus();
   };
@@ -90,7 +85,6 @@ const VerifyOTPPage = () => {
       });
 
       if (response.data && response.data.valid) {
-        // Redirect ke halaman reset password
         navigate('/reset-password', { 
           state: { email: email, otp: otpCode },
           replace: true 
@@ -103,7 +97,6 @@ const VerifyOTPPage = () => {
         setError('Kode OTP tidak valid. Silakan coba lagi.');
       }
       console.error('Verify OTP error:', err);
-      // Clear OTP inputs on error
       setOtp(['', '', '', '', '', '']);
       inputRefs.current[0]?.focus();
     } finally {
@@ -122,6 +115,7 @@ const VerifyOTPPage = () => {
       setOtp(['', '', '', '', '', '']);
       inputRefs.current[0]?.focus();
     } catch (err) {
+      console.error('Resend OTP error:', err);
       setError('Gagal mengirim ulang kode OTP');
     } finally {
       setResendLoading(false);
@@ -130,19 +124,16 @@ const VerifyOTPPage = () => {
 
   return (
     <div className="flex items-center justify-center min-h-screen bg-gray-50 px-4 sm:px-6 lg:px-8 relative overflow-hidden">
-      {/* Background decoration */}
       <div className="absolute top-0 right-0 w-72 h-72 bg-blue-500/10 rounded-full blur-3xl animate-pulse"></div>
       <div className="absolute bottom-10 left-10 w-96 h-96 bg-teal-500/5 rounded-full blur-3xl animate-pulse delay-1000"></div>
 
       <div className="relative z-10 max-w-md w-full p-8 sm:p-10 bg-white/70 backdrop-blur-md rounded-3xl shadow-xl border border-gray-200/50">
-        {/* Logo */}
         <Link to="/" className="flex items-center gap-2 group mb-4 justify-center">
           <div className="w-9 h-9 bg-teal-500 rounded-xl flex items-center justify-center text-white font-bold text-lg shadow-teal-200 shadow-lg">
             M
           </div>
         </Link>
 
-        {/* Header */}
         <div className="flex flex-col items-center mb-8">
           <div className="w-16 h-16 bg-teal-100 rounded-full flex items-center justify-center mb-4">
             <ShieldCheck className="w-8 h-8 text-teal-600" />
@@ -158,7 +149,6 @@ const VerifyOTPPage = () => {
           </p>
         </div>
 
-        {/* Form */}
         <form className="space-y-6 w-full" onSubmit={handleSubmit}>
           {error && (
             <div className="p-3 bg-red-100 border border-red-300 text-red-700 rounded-lg text-sm text-center">
@@ -166,7 +156,6 @@ const VerifyOTPPage = () => {
             </div>
           )}
 
-          {/* OTP Input Boxes */}
           <div className="flex justify-center gap-2">
             {otp.map((digit, index) => (
               <input
@@ -185,7 +174,6 @@ const VerifyOTPPage = () => {
             ))}
           </div>
 
-          {/* Timer and Resend */}
           <div className="text-center">
             {!canResend ? (
               <p className="text-sm text-gray-600">
@@ -229,7 +217,6 @@ const VerifyOTPPage = () => {
           </button>
         </form>
 
-        {/* Back to Forgot Password */}
         <div className="mt-8 text-center">
           <Link 
             to="/forgot-password" 

@@ -46,11 +46,24 @@ const DonationPage = () => {
         setPreviewUrl("");
     };
 
+    const getToday = () => {
+        const today = new Date();
+        const yyyy = today.getFullYear();
+        const mm = String(today.getMonth() + 1).padStart(2, '0');
+        const dd = String(today.getDate()).padStart(2, '0');
+        return `${yyyy}-${mm}-${dd}`;
+    };
+
     const handleSubmit = async (e) => {
         e.preventDefault();
 
         if (!imageFile) {
             alert("Mohon sertakan foto alat medis agar memudahkan verifikasi.");
+            return;
+        }
+
+        if (formData.pickup_date < getToday()) {
+            alert("Tanggal penjemputan tidak boleh kurang dari hari ini.");
             return;
         }
 
@@ -168,7 +181,6 @@ const DonationPage = () => {
                         </div>
                     </div>
 
-                    {/* ... Input Foto TETAP SAMA ... */}
                     <div className="form-control">
                         <label className="label-text text-sm font-bold text-gray-700 mb-2 block">
                             Foto Alat (Wajib)
@@ -212,6 +224,7 @@ const DonationPage = () => {
                                 onChange={handleChange}
                                 className="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-teal-500 outline-none"
                                 required
+                                min={getToday()}
                             />
                         </div>
 

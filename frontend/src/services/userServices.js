@@ -192,7 +192,6 @@ export const getUserDonations = async () => {
     return response.data;
 };
 
-// Forgot Password Services
 export const requestPasswordReset = async (email) => {
   const response = await api.post('/auth/forgot-password', { email });
   return response.data;
