@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { ArrowLeft, Check, AlertCircle, Calendar, Activity, Ruler, Weight, Info, Heart } from "lucide-react";
+import { ArrowLeft, Check, AlertCircle, Calendar, Activity, Ruler, Info, CheckCircle } from "lucide-react";
 
 import { getToolById, createLoan, getCurrentUserProfile } from "../services/userServices";
 
@@ -11,6 +11,9 @@ export default function ToolDetailPage() {
   const [tool, setTool] = useState(null);
   const [loading, setLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isSuccess, setIsSuccess] = useState(false); 
+  const [errorMessage, setErrorMessage] = useState(""); 
+
   const [user, setUser] = useState(null);
   const [userLoading, setUserLoading] = useState(true);
 
@@ -55,6 +58,7 @@ export default function ToolDetailPage() {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
+    setErrorMessage(""); 
     
     if (name === "loanDate") {
         if (formData.returnDue && value > formData.returnDue) {
@@ -69,18 +73,19 @@ export default function ToolDetailPage() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
+    setErrorMessage("");
+
     if(!formData.loanDate || !formData.medicalCondition) {
-        alert("Mohon lengkapi Tanggal Mulai dan Kondisi Medis.");
+        setErrorMessage("Mohon lengkapi Tanggal Mulai dan Kondisi Medis.");
         return;
     }
 
     if (new Date(formData.loanDate) < new Date(todayString)) {
-        alert("Tanggal mulai tidak boleh di masa lalu.");
+        setErrorMessage("Tanggal mulai tidak boleh di masa lalu.");
         return;
     }
     if (formData.returnDue && new Date(formData.returnDue) < new Date(formData.loanDate)) {
-        alert("Tanggal kembali tidak boleh lebih awal dari tanggal mulai.");
+        setErrorMessage("Tanggal kembali tidak boleh lebih awal dari tanggal mulai.");
         return;
     }
 
@@ -95,13 +100,14 @@ export default function ToolDetailPage() {
             notes: formData.notes
         });
         
-        alert("Permintaan berhasil diajukan! Cek status di Riwayat.");
-        navigate("/dashboard"); 
+        setIsSuccess(true);
+        setTimeout(() => {
+            navigate("/dashboard"); 
+        }, 2000);
 
     } catch (error) {
         console.error("Gagal mengajukan pinjaman:", error);
-        alert("Gagal mengajukan pinjaman. Coba lagi.");
-    } finally {
+        setErrorMessage("Gagal mengajukan pinjaman. Silakan coba lagi.");
         setIsSubmitting(false);
     }
   };
@@ -111,6 +117,26 @@ export default function ToolDetailPage() {
       <div className="min-h-screen flex items-center justify-center bg-gray-50">
         <span className="loading loading-spinner loading-lg text-teal-600"></span>
       </div>
+    );
+  }
+
+  if (isSuccess) {
+    return (
+        <div className="min-h-screen bg-gray-50 flex items-center justify-center px-4">
+            <div className="bg-white rounded-2xl shadow-xl p-8 max-w-sm w-full text-center animate-in zoom-in duration-300">
+                <div className="w-20 h-20 bg-emerald-100 rounded-full flex items-center justify-center mx-auto mb-6">
+                    <CheckCircle className="w-10 h-10 text-emerald-600" />
+                </div>
+                <h2 className="text-xl font-bold text-gray-900 mb-2">Permintaan Terkirim!</h2>
+                <p className="text-gray-500 text-sm mb-6">
+                    Pengajuan pinjaman Anda berhasil dibuat. Cek status persetujuan di Riwayat Peminjaman.
+                </p>
+                <div className="w-full bg-gray-100 rounded-full h-1.5 overflow-hidden">
+                    <div className="bg-emerald-500 h-full w-full animate-[progress_2s_ease-in-out]"></div>
+                </div>
+                <p className="text-xs text-gray-400 mt-2">Mengalihkan ke dashboard...</p>
+            </div>
+        </div>
     );
   }
 
@@ -199,16 +225,14 @@ export default function ToolDetailPage() {
           <div>
             <div className="bg-white border border-teal-100 rounded-2xl p-6 shadow-lg sticky top-24">
               
-              {/* KTP Verification Check */}
               {!isVerified ? (
                 <div className="bg-red-50 border border-red-200 text-red-600 p-4 rounded-lg mb-6">
                   <AlertCircle className="w-5 h-5 inline mr-2" />
                   Anda harus melengkapi data KTP di profil sebelum bisa meminjam alat medis.<br />
-                  <a href="/profile" className="underline text-teal-600 font-bold">Lengkapi Data Diri</a>
+                  <a href="/profile" className="underline text-teal-600 font-bold block mt-2">Lengkapi Data Diri &rarr;</a>
                 </div>
               ) : null}
               
-              {/* Form hanya muncul jika sudah verifikasi KTP */}
               {isVerified && (
                 <form onSubmit={handleSubmit} className="space-y-4">
                   <div className="form-control">
@@ -284,12 +308,26 @@ export default function ToolDetailPage() {
                     </div>
                   </div>
 
+                  {errorMessage && (
+                    <div className="bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-xl flex items-start gap-3 animate-in slide-in-from-top-2">
+                        <AlertCircle className="w-5 h-5 flex-shrink-0 mt-0.5" />
+                        <div>
+                            <p className="font-bold text-sm">Perhatian</p>
+                            <p className="text-sm">{errorMessage}</p>
+                        </div>
+                    </div>
+                  )}
+
                   <button 
                       type="submit"
                       disabled={tool.stock === 0 || isSubmitting}
                       className="btn btn-primary w-full bg-teal-600 rounded-lg hover:bg-teal-700 border-none text-white mt-4 shadow-lg shadow-teal-100 disabled:bg-gray-300 disabled:text-gray-500"
                   >
-                    {isSubmitting ? "Mengirim..." : "Ajukan Permintaan"}
+                    {isSubmitting ? (
+                        <>
+                            <span className="loading loading-spinner loading-sm"></span> Mengirim...
+                        </>
+                    ) : "Ajukan Permintaan"}
                   </button>
                 </form>
               )}

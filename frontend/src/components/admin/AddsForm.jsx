@@ -1,20 +1,21 @@
-import React from "react";
+import React, { useState } from "react";
 import { Image as ImageIcon, X, Link as LinkIcon } from "lucide-react";
 
 const AddsForm = ({ newAd, setNewAd, onSubmit }) => {
+    const [showSizeError, setShowSizeError] = useState(false);
     const handleImageChange = (e) => {
         const file = e.target.files[0];
         if (file) {
             if (file.size > 2 * 1024 * 1024) {
-                alert("Ukuran gambar maksimal 2MB");
+                setShowSizeError(true);
                 return;
             }
             const reader = new FileReader();
             reader.onloadend = () => {
                 setNewAd({
                     ...newAd,
-                    image_url: reader.result, 
-                    raw_image: file 
+                    image_url: reader.result,
+                    raw_image: file
                 });
             };
             reader.readAsDataURL(file);
@@ -38,6 +39,20 @@ const AddsForm = ({ newAd, setNewAd, onSubmit }) => {
     };
 
     return (
+        <>
+        {/* Modal Error */}
+        {showSizeError && (
+            <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40">
+                <div className="bg-white rounded-lg shadow-lg p-6 max-w-xs w-full text-center">
+                    <div className="text-red-500 font-bold text-lg mb-2">Ukuran gambar terlalu besar</div>
+                    <div className="text-gray-600 text-sm mb-4">Ukuran gambar maksimal 2MB. Silakan pilih gambar lain.</div>
+                    <button
+                        className="px-4 py-2 bg-teal-600 text-white rounded hover:bg-teal-700 transition"
+                        onClick={() => setShowSizeError(false)}
+                    >Tutup</button>
+                </div>
+            </div>
+        )}
         <form onSubmit={handleSubmit} className="space-y-4" encType="multipart/form-data">
             <div className="form-control">
                 <label className="label-text text-xs font-bold text-gray-500 mb-1 block">
@@ -130,6 +145,7 @@ const AddsForm = ({ newAd, setNewAd, onSubmit }) => {
                 Upload & Tampilkan di Slider
             </button>
         </form>
+        </>
     );
 };
 

@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Image as ImageIcon, X, UploadCloud, MapPin, Package, Calendar } from "lucide-react";
+import { Image as ImageIcon, X, UploadCloud, MapPin, Package, Calendar, AlertCircle, CheckCircle } from "lucide-react";
 import { createDonation } from "../services/userServices";
 
 const TOOL_CATEGORIES = [
@@ -14,6 +14,8 @@ const TOOL_CATEGORIES = [
 const DonationPage = () => {
     const navigate = useNavigate();
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const [isSuccess, setIsSuccess] = useState(false); 
+    const [errorMessage, setErrorMessage] = useState("");
 
     const [formData, setFormData] = useState({
         tool_name: "",
@@ -29,6 +31,7 @@ const DonationPage = () => {
 
     const handleChange = (e) => {
         setFormData({ ...formData, [e.target.name]: e.target.value });
+        setErrorMessage("");
     };
 
     const handleImageChange = (e) => {
@@ -36,7 +39,10 @@ const DonationPage = () => {
         if (file) {
             setImageFile(file);
             const reader = new FileReader();
-            reader.onloadend = () => setPreviewUrl(reader.result);
+            reader.onloadend = () => {
+                setPreviewUrl(reader.result);
+                setErrorMessage("");
+            };
             reader.readAsDataURL(file);
         }
     };
@@ -56,14 +62,15 @@ const DonationPage = () => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+        setErrorMessage("");
 
         if (!imageFile) {
-            alert("Mohon sertakan foto alat medis agar memudahkan verifikasi.");
+            setErrorMessage("Mohon sertakan foto alat medis agar memudahkan verifikasi.");
             return;
         }
 
         if (formData.pickup_date < getToday()) {
-            alert("Tanggal penjemputan tidak boleh kurang dari hari ini.");
+            setErrorMessage("Tanggal penjemputan tidak boleh kurang dari hari ini.");
             return;
         }
 
@@ -81,27 +88,38 @@ const DonationPage = () => {
 
             await createDonation(dataToSend);
 
-            setFormData({
-                tool_name: "",
-                category: TOOL_CATEGORIES[0],
-                quantity: 1,
-                description: "",
-                pickup_address: "",
-                pickup_date: "",
-            });
-            setImageFile(null);
-            setPreviewUrl("");
-
-            alert("Terima kasih! Donasi Anda berhasil dikirim dan menunggu verifikasi Admin.");
-            navigate("/dashboard"); 
+            setIsSuccess(true);
+            
+            setTimeout(() => {
+                navigate("/dashboard");
+            }, 2000);
 
         } catch (error) {
             console.error("Gagal donasi:", error);
-            alert("Maaf, terjadi kesalahan saat mengirim data. Coba lagi nanti.");
-        } finally {
+            setErrorMessage("Maaf, terjadi kesalahan saat mengirim data. Coba lagi nanti.");
             setIsSubmitting(false);
-        }
+        } 
     };
+
+    if (isSuccess) {
+        return (
+            <div className="min-h-screen bg-gray-50 flex items-center justify-center px-4">
+                <div className="bg-white rounded-2xl shadow-xl p-8 max-w-sm w-full text-center animate-in zoom-in duration-300">
+                    <div className="w-20 h-20 bg-emerald-100 rounded-full flex items-center justify-center mx-auto mb-6">
+                        <CheckCircle className="w-10 h-10 text-emerald-600" />
+                    </div>
+                    <h2 className="text-2xl font-bold text-gray-900 mb-2">Terima Kasih!</h2>
+                    <p className="text-gray-500 text-sm mb-6">
+                        Donasi Anda berhasil dikirim dan sedang menunggu verifikasi Admin.
+                    </p>
+                    <div className="w-full bg-gray-100 rounded-full h-1.5 overflow-hidden">
+                        <div className="bg-emerald-500 h-full w-full animate-[progress_2s_ease-in-out]"></div>
+                    </div>
+                    <p className="text-xs text-gray-400 mt-2">Mengalihkan ke dashboard...</p>
+                </div>
+            </div>
+        );
+    }
 
     return (
         <div className="min-h-screen bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
@@ -204,7 +222,7 @@ const DonationPage = () => {
                                 <button
                                     type="button"
                                     onClick={handleRemoveImage}
-                                    className="absolute top-2 right-2 bg-red-500 text-white p-2 rounded-lg"
+                                    className="absolute top-2 right-2 bg-red-500 text-white p-2 rounded-lg shadow-md hover:bg-red-600 transition-colors"
                                 >
                                     <X className="w-4 h-4" />
                                 </button>
@@ -244,6 +262,16 @@ const DonationPage = () => {
                         </div>
                     </div>
 
+                    {errorMessage && (
+                        <div className="bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-xl flex items-start gap-3 animate-in slide-in-from-top-2">
+                            <AlertCircle className="w-5 h-5 flex-shrink-0 mt-0.5" />
+                            <div>
+                                <p className="font-bold text-sm">Perhatian</p>
+                                <p className="text-sm">{errorMessage}</p>
+                            </div>
+                        </div>
+                    )}
+
                     <div className="pt-6 border-t border-gray-100 flex justify-end gap-4">
                         <button
                             type="button"
@@ -257,7 +285,11 @@ const DonationPage = () => {
                             disabled={isSubmitting}
                             className="px-8 py-2.5 rounded-lg bg-teal-600 hover:bg-teal-700 text-white font-bold shadow-lg shadow-teal-200 disabled:opacity-70 disabled:cursor-not-allowed flex items-center gap-2 transition-all"
                         >
-                            {isSubmitting ? "Mengirim..." : "Kirim Donasi"}
+                            {isSubmitting ? (
+                                <>
+                                    <span className="loading loading-spinner loading-sm"></span> Mengirim...
+                                </>
+                            ) : "Kirim Donasi"}
                         </button>
                     </div>
 

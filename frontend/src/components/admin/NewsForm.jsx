@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Image as ImageIcon, X } from "lucide-react";
+import { Image as ImageIcon, X, AlertCircle } from "lucide-react";
 
 const NewsForm = ({ onSubmit }) => {
   const [title, setTitle] = useState("");
@@ -7,14 +7,16 @@ const NewsForm = ({ onSubmit }) => {
   
   const [imageFile, setImageFile] = useState(null);
   const [previewUrl, setPreviewUrl] = useState("");
+  const [errorMessage, setErrorMessage] = useState("");
 
   const handleImageChange = (e) => {
     const file = e.target.files[0];
     if (file) {
       if (file.size > 2 * 1024 * 1024) { 
-        alert("Ukuran gambar maksimal 2MB");
+        setErrorMessage("Ukuran gambar maksimal 2MB");
         return;
       }
+      setErrorMessage(""); 
       setImageFile(file);
       
       const reader = new FileReader();
@@ -32,8 +34,14 @@ const NewsForm = ({ onSubmit }) => {
 
   const submit = (e) => {
     e.preventDefault();
-    if (!title.trim() || !content.trim()) {
-        alert("Judul dan Konten wajib diisi!");
+    setErrorMessage(""); 
+
+    if (!title.trim()) {
+        setErrorMessage("Judul berita wajib diisi!");
+        return;
+    }
+    if (!content.trim()) {
+        setErrorMessage("Konten berita tidak boleh kosong!");
         return;
     }
 
@@ -50,20 +58,22 @@ const NewsForm = ({ onSubmit }) => {
     setTitle("");
     setContent("");
     clearImage();
+    setErrorMessage("");
   };
 
   return (
     <form onSubmit={submit} className="space-y-4">
+      
       <div className="form-control">
         <label className="label-text text-xs font-bold text-gray-500 mb-1 block">
           Judul Berita
         </label>
-        <div className="w-full border border-gray-300 rounded-lg px-3 py-2 focus-within:border-teal-500 bg-white">
+        <div className="w-full border border-gray-300 rounded-lg px-3 py-2 focus-within:border-teal-500 bg-white transition-all">
           <input
             type="text"
             placeholder="Contoh: Kegiatan Donor Darah 2024"
             value={title}
-            onChange={(e) => setTitle(e.target.value)}
+            onChange={(e) => { setTitle(e.target.value); setErrorMessage(""); }}
             className="w-full outline-none border-none bg-transparent text-sm"
           />
         </div>
@@ -75,26 +85,31 @@ const NewsForm = ({ onSubmit }) => {
         </label>
         
         {!previewUrl ? (
-            <div className="w-full border border-dashed border-gray-300 rounded-lg p-4 flex flex-col items-center justify-center bg-gray-50 hover:bg-gray-100 transition-colors cursor-pointer relative">
+            <div className="w-full border border-dashed border-gray-300 rounded-lg p-4 flex flex-col items-center justify-center bg-gray-50 hover:bg-gray-100 transition-colors cursor-pointer relative group">
                 <input 
                     type="file" 
                     className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
                     onChange={handleImageChange}
                     accept="image/*"
                 />
-                <ImageIcon className="w-6 h-6 text-gray-400 mb-2" />
-                <span className="text-xs text-gray-500">Klik untuk upload gambar</span>
+                <div className="bg-white p-3 rounded-full shadow-sm mb-2 group-hover:scale-110 transition-transform">
+                    <ImageIcon className="w-6 h-6 text-teal-500" />
+                </div>
+                <span className="text-xs text-gray-500 font-medium">Klik untuk upload gambar</span>
+                <span className="text-[10px] text-gray-400 mt-1">Maks. 2MB (JPG/PNG)</span>
             </div>
         ) : (
-            <div className="relative w-full h-48 rounded-lg overflow-hidden border border-gray-200 group">
+            <div className="relative w-full h-48 rounded-lg overflow-hidden border border-gray-200 group shadow-sm">
                 <img src={previewUrl} alt="Preview" className="w-full h-full object-cover" />
-                <button 
-                    type="button"
-                    onClick={clearImage}
-                    className="absolute top-2 right-2 bg-red-500 text-white p-1 rounded-full shadow-md opacity-0 group-hover:opacity-100 transition-opacity"
-                >
-                    <X className="w-4 h-4" />
-                </button>
+                <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                    <button 
+                        type="button"
+                        onClick={clearImage}
+                        className="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-full shadow-lg flex items-center gap-2 text-xs font-bold transition-transform hover:scale-105"
+                    >
+                        <X className="w-4 h-4" /> Hapus Gambar
+                    </button>
+                </div>
             </div>
         )}
       </div>
@@ -103,20 +118,27 @@ const NewsForm = ({ onSubmit }) => {
         <label className="label-text text-xs font-bold text-gray-500 mb-1 block">
           Konten Berita
         </label>
-        <div className="w-full border border-gray-300 rounded-lg px-3 py-2 focus-within:border-teal-500 bg-white">
+        <div className="w-full border border-gray-300 rounded-lg px-3 py-2 focus-within:border-teal-500 bg-white transition-all">
           <textarea
-            rows={5}
-            placeholder="Tulis isi berita di sini..."
+            rows={6}
+            placeholder="Tulis detail berita lengkap di sini..."
             value={content}
-            onChange={(e) => setContent(e.target.value)}
-            className="w-full outline-none border-none bg-transparent text-sm resize-none"
+            onChange={(e) => { setContent(e.target.value); setErrorMessage(""); }}
+            className="w-full outline-none border-none bg-transparent text-sm resize-none leading-relaxed"
           />
         </div>
       </div>
 
+      {errorMessage && (
+        <div className="bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-lg flex items-start gap-3 animate-in fade-in slide-in-from-top-1">
+            <AlertCircle className="w-5 h-5 flex-shrink-0 mt-0.5" />
+            <p className="text-sm font-medium">{errorMessage}</p>
+        </div>
+      )}
+
       <button
         type="submit"
-        className="btn w-full bg-teal-600 hover:bg-teal-700 text-white rounded-lg font-semibold shadow-lg shadow-teal-100 mt-2 border-none normal-case"
+        className="btn w-full bg-teal-600 hover:bg-teal-700 text-white rounded-lg font-bold shadow-md hover:shadow-lg transition-all mt-2 border-none normal-case h-12"
       >
         Publikasikan Berita
       </button>

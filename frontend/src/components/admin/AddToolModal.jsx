@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { X, Info, Image as ImageIcon } from "lucide-react";
+import { X, Info, Image as ImageIcon, AlertCircle } from "lucide-react";
 
 const TOOL_PRESETS = {
   MOBILITAS: {
@@ -40,6 +40,7 @@ const AddToolModal = ({ isOpen, onClose, onSubmit }) => {
   const [selectedTool, setSelectedTool] = useState(""); 
   const [customName, setCustomName] = useState("");     
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [errorMessage, setErrorMessage] = useState(""); 
   
   const [formData, setFormData] = useState({
     type: "", size: "", dimensions: "", weight_cap: "", 
@@ -59,6 +60,7 @@ const AddToolModal = ({ isOpen, onClose, onSubmit }) => {
          image_url: "", raw_image: null
        });
        setIsSubmitting(false);
+       setErrorMessage("");
     }
   }, [isOpen]);
 
@@ -72,30 +74,40 @@ const AddToolModal = ({ isOpen, onClose, onSubmit }) => {
   const handleImageUpload = (e) => {
     const file = e.target.files[0];
     if (file) {
-      if (file.size > 2 * 1024 * 1024) { alert("Maks 2MB"); return; }
+      if (file.size > 2 * 1024 * 1024) { 
+          setErrorMessage("Ukuran file terlalu besar (Maks 2MB)");
+          return; 
+      }
       
       const reader = new FileReader();
-      reader.onloadend = () => setFormData({ 
-          ...formData, 
-          image_url: reader.result, 
-          raw_image: file          
-      });
+      reader.onloadend = () => {
+          setFormData({ 
+            ...formData, 
+            image_url: reader.result, 
+            raw_image: file          
+          });
+          setErrorMessage("");
+      };
       reader.readAsDataURL(file);
     }
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
+    setErrorMessage(""); 
+
     const finalName = selectedTool === "Lainnya" ? customName : selectedTool;
 
-    if (!finalName || !formData.stock) {
-        alert("Nama alat dan stok harus diisi!");
+    if (!finalName) {
+        setErrorMessage("Silakan pilih atau isi nama alat terlebih dahulu.");
         return;
     }
-
+    if (!formData.stock || formData.stock < 1) {
+        setErrorMessage("Stok alat minimal 1 unit.");
+        return;
+    }
     if (!formData.raw_image) {
-        alert("Mohon upload foto alat!");
+        setErrorMessage("Foto alat wajib diupload sebagai bukti fisik.");
         return;
     }
 
@@ -120,6 +132,7 @@ const AddToolModal = ({ isOpen, onClose, onSubmit }) => {
         
     } catch (error) {
         console.error(error);
+        setErrorMessage("Gagal menyimpan data. Coba lagi.");
     } finally {
         setIsSubmitting(false); 
     }
@@ -174,7 +187,6 @@ const AddToolModal = ({ isOpen, onClose, onSubmit }) => {
                             placeholder="Ketik nama alat..." 
                             value={customName}
                             onChange={(e) => setCustomName(e.target.value)}
-                            required
                         />
                     )}
                 </div>
@@ -194,7 +206,6 @@ const AddToolModal = ({ isOpen, onClose, onSubmit }) => {
                             value={formData.type} 
                             onChange={(e) => setFormData({...formData, type: e.target.value})} 
                             className="input input-bordered w-full bg-gray-50 focus:bg-white focus:border-teal-500 border-gray-300 transition-all" 
-                            required 
                         />
                     </div>
                     <div className="form-control">
@@ -222,7 +233,6 @@ const AddToolModal = ({ isOpen, onClose, onSubmit }) => {
                             value={formData.stock} 
                             onChange={(e) => setFormData({...formData, stock: e.target.value})} 
                             className="input input-bordered w-full bg-gray-50 focus:bg-white focus:border-teal-500 border-teal-200 transition-all font-semibold text-gray-900" 
-                            required 
                         />
                     </div>
                 </div>
@@ -273,6 +283,16 @@ const AddToolModal = ({ isOpen, onClose, onSubmit }) => {
                     </div>
                 </div>
             </div>
+
+            {errorMessage && (
+                <div className="bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-xl flex items-start gap-3 animate-in slide-in-from-top-2">
+                    <AlertCircle className="w-5 h-5 flex-shrink-0 mt-0.5" />
+                    <div>
+                        <p className="font-bold text-sm">Gagal Simpan</p>
+                        <p className="text-xs">{errorMessage}</p>
+                    </div>
+                </div>
+            )}
 
             <div className="flex justify-end gap-3 mt-8 pt-5 border-t border-gray-100">
                 <button 

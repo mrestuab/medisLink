@@ -2,20 +2,23 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { 
     User, Mail, Phone, LogOut, Edit2, Save, MapPin, 
-    CreditCard, FileText, AlertCircle, CheckCircle, UploadCloud, Shield 
+    CreditCard, FileText, AlertCircle, CheckCircle, UploadCloud, Shield, X 
 } from "lucide-react";
 import { getCurrentUserProfile, updateProfile } from "../services/userServices";
 
 const ProfilePage = () => {
-        const [editLoading, setEditLoading] = useState(false);
-        const [backupFormData, setBackupFormData] = useState(null);
-        const [backupPreviewProfile, setBackupPreviewProfile] = useState("");
-        const [backupPreviewKTP, setBackupPreviewKTP] = useState("");
     const navigate = useNavigate();
     
     const [user, setUser] = useState(null);
     const [loading, setLoading] = useState(true);
+    
     const [isEditing, setIsEditing] = useState(false);
+    const [editLoading, setEditLoading] = useState(false);
+    const [backupFormData, setBackupFormData] = useState(null);
+    const [backupPreviewProfile, setBackupPreviewProfile] = useState("");
+    const [backupPreviewKTP, setBackupPreviewKTP] = useState("");
+
+    const [notification, setNotification] = useState({ type: "", message: "" });
 
     const [formData, setFormData] = useState({
         name: "",
@@ -56,6 +59,12 @@ const ProfilePage = () => {
     const handleFileChange = (e, type) => {
         const file = e.target.files[0];
         if (file) {
+            if (file.size > 2 * 1024 * 1024) {
+                setNotification({ type: "error", message: "Ukuran file terlalu besar (Max 2MB)" });
+                return;
+            }
+            setNotification({ type: "", message: "" }); 
+
             const reader = new FileReader();
             reader.onloadend = () => {
                 if (type === "profile") {
@@ -72,9 +81,10 @@ const ProfilePage = () => {
 
     const handleUpdate = async (e) => {
         e.preventDefault();
+        setNotification({ type: "", message: "" }); 
         
         if (!formData.nik) {
-            alert("NIK Wajib diisi untuk keperluan verifikasi!");
+            setNotification({ type: "error", message: "NIK Wajib diisi untuk keperluan verifikasi!" });
             return;
         }
 
@@ -89,12 +99,16 @@ const ProfilePage = () => {
 
         try {
             await updateProfile(dataToSend);
-            alert("Data diri berhasil diperbarui!");
+            
+            setNotification({ type: "success", message: "Data diri berhasil diperbarui!" });
             setIsEditing(false);
             fetchProfile(); 
+            
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+
         } catch (error) {
             console.error(error);
-            alert("Gagal update profil.");
+            setNotification({ type: "error", message: "Gagal update profil. Silakan coba lagi." });
         }
     };
 
@@ -105,15 +119,41 @@ const ProfilePage = () => {
         }
     };
 
-    if (loading) {
-        return (
-            <div className="flex justify-center py-20">
-                <span className="loading loading-spinner loading-lg text-teal-600"></span>
-            </div>
-        );
-    }
+    const handleStartEditing = async () => {
+        setNotification({ type: "", message: "" }); 
+        setEditLoading(true);
+        
+        setBackupFormData(formData);
+        setBackupPreviewProfile(previewProfile);
+        setBackupPreviewKTP(previewKTP);
 
-    if (editLoading) {
+        try {
+            const data = await getCurrentUserProfile();
+            setFormData({
+                name: data.name || "",
+                phone: data.phone || "",
+                address: data.address || "",
+                nik: data.nik || ""
+            });
+            setPreviewProfile(data.foto_profile || "");
+            setPreviewKTP(data.foto_ktp || "");
+        } catch (error) {
+            console.error("Gagal refresh data", error);
+        }
+        
+        setEditLoading(false);
+        setIsEditing(true);
+    };
+
+    const handleCancelEditing = () => {
+        setNotification({ type: "", message: "" });
+        if (backupFormData) setFormData(backupFormData);
+        if (backupPreviewProfile) setPreviewProfile(backupPreviewProfile);
+        if (backupPreviewKTP) setPreviewKTP(backupPreviewKTP);
+        setIsEditing(false);
+    };
+
+    if (loading || editLoading) {
         return (
             <div className="flex justify-center py-20">
                 <span className="loading loading-spinner loading-lg text-teal-600"></span>
@@ -135,6 +175,7 @@ const ProfilePage = () => {
                     Kembali ke Dashboard
                 </button>
             </div>
+
             <div className="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">                
                 <div className="h-40 bg-teal-600 w-full relative">
                     <div className="absolute inset-0 bg-white/10 pattern-grid-lg opacity-20"></div>
@@ -153,7 +194,6 @@ const ProfilePage = () => {
                                     </div>
                                 )}
                             </div>
-                            
                             <div className="absolute bottom-1 right-0 bg-teal-700 text-white text-[10px] font-bold px-3 py-1 rounded-full border-2 border-white shadow-sm flex items-center gap-1">
                                 <Shield className="w-3 h-3" />
                                 {user?.role === "admin" ? "Admin" : "Member"}
@@ -178,6 +218,27 @@ const ProfilePage = () => {
                         </div>
                     </div>
 
+                    {notification.message && (
+                        <div className={`mb-6 px-4 py-3 rounded-xl border flex items-start gap-3 animate-in fade-in slide-in-from-top-2 ${
+                            notification.type === 'error' 
+                                ? 'bg-red-50 border-red-200 text-red-700' 
+                                : 'bg-teal-50 border-teal-200 text-teal-700'
+                        }`}>
+                            {notification.type === 'error' ? (
+                                <AlertCircle className="w-5 h-5 flex-shrink-0 mt-0.5" />
+                            ) : (
+                                <CheckCircle className="w-5 h-5 flex-shrink-0 mt-0.5" />
+                            )}
+                            <div className="flex-1">
+                                <p className="text-sm font-bold">{notification.type === 'error' ? 'Gagal' : 'Berhasil'}</p>
+                                <p className="text-sm">{notification.message}</p>
+                            </div>
+                            <button onClick={() => setNotification({ type: "", message: "" })} className="hover:opacity-70">
+                                <X className="w-4 h-4" />
+                            </button>
+                        </div>
+                    )}
+
                     {!isEditing ? (
                         <div className="max-w-2xl mx-auto space-y-6 animate-in fade-in duration-300">
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -188,7 +249,6 @@ const ProfilePage = () => {
                                     </div>
                                     <p className="font-semibold text-gray-800 pl-6">{user?.phone || "-"}</p>
                                 </div>
-                                
                                 <div className="p-4 bg-gray-50 rounded-xl border border-gray-100">
                                     <div className="flex items-center gap-2 mb-1">
                                         <CreditCard className="w-4 h-4 text-teal-600" />
@@ -196,7 +256,6 @@ const ProfilePage = () => {
                                     </div>
                                     <p className="font-semibold text-gray-800 pl-6">{user?.nik || "-"}</p>
                                 </div>
-
                                 <div className="md:col-span-2 p-4 bg-gray-50 rounded-xl border border-gray-100">
                                     <div className="flex items-center gap-2 mb-1">
                                         <MapPin className="w-4 h-4 text-teal-600" />
@@ -208,27 +267,7 @@ const ProfilePage = () => {
 
                             <div className="flex gap-4 pt-4 border-t border-gray-100">
                                 <button 
-                                    onClick={async () => {
-                                        setEditLoading(true);
-                                        setBackupFormData(formData);
-                                        setBackupPreviewProfile(previewProfile);
-                                        setBackupPreviewKTP(previewKTP);
-                                        try {
-                                            const data = await getCurrentUserProfile();
-                                            setFormData({
-                                                name: data.name || "",
-                                                phone: data.phone || "",
-                                                address: data.address || "",
-                                                nik: data.nik || ""
-                                            });
-                                            setPreviewProfile(data.foto_profile || "");
-                                            setPreviewKTP(data.foto_ktp || "");
-                                        } catch (error) {
-                                            console.error("Gagal load profile", error);
-                                        }
-                                        setEditLoading(false);
-                                        setIsEditing(true);
-                                    }}
+                                    onClick={handleStartEditing}
                                     className="flex-1 btn bg-teal-600 hover:bg-teal-700 text-white border-none rounded-xl font-bold shadow-md flex gap-2"
                                 >
                                     <Edit2 className="w-4 h-4" /> Lengkapi Data Diri
@@ -243,7 +282,6 @@ const ProfilePage = () => {
                         </div>
                     ) : (
                         <form onSubmit={handleUpdate} className="max-w-2xl mx-auto space-y-5 animate-in slide-in-from-bottom-2 duration-300">
-                            
                             <div className="flex items-center gap-4 p-4 bg-teal-50 rounded-xl border border-teal-100">
                                 <div className="w-14 h-14 rounded-full overflow-hidden bg-gray-200 border-2 border-white shrink-0">
                                     {previewProfile ? (
@@ -310,12 +348,13 @@ const ProfilePage = () => {
                             </div>
 
                             <div className="flex gap-3 pt-2">
-                                    <button type="button" onClick={() => {
-                                        setFormData(backupFormData || formData);
-                                        setPreviewProfile(backupPreviewProfile || previewProfile);
-                                        setPreviewKTP(backupPreviewKTP || previewKTP);
-                                        setIsEditing(false);
-                                    }} className="flex-1 btn btn-ghost border-gray-300 rounded-xl text-gray-500">Batal</button>
+                                <button 
+                                    type="button" 
+                                    onClick={handleCancelEditing} 
+                                    className="flex-1 btn btn-ghost border-gray-300 rounded-xl text-gray-500"
+                                >
+                                    Batal
+                                </button>
                                 <button type="submit" className="flex-1 btn bg-teal-600 hover:bg-teal-700 text-white border-none rounded-xl shadow-lg">
                                     <Save className="w-4 h-4" /> Simpan Data
                                 </button>

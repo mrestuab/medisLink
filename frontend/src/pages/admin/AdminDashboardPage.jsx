@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { LogOut, Plus, Link as LinkIcon, Image as ImageIcon } from "lucide-react";
+import { LogOut, Plus, Link as LinkIcon, Image as ImageIcon, CheckCircle, AlertCircle, X } from "lucide-react";
 
 import NewsForm from "../../components/admin/NewsForm";
 import NewsList from "../../components/admin/NewsList";
@@ -36,6 +36,8 @@ export default function AdminDashboard() {
   const [isAddToolOpen, setIsAddToolOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   
+  const [notification, setNotification] = useState(null);
+  
   const [user, setUser] = useState({ name: "Memuat...", role: "" });
   
   const [loans, setLoans] = useState([]); 
@@ -55,6 +57,13 @@ export default function AdminDashboard() {
     fetchData();
     fetchUserData();
   }, []);
+
+  const showNotification = (type, message) => {
+      setNotification({ type, message });
+      setTimeout(() => {
+          setNotification(null);
+      }, 3000);
+  };
 
   const fetchUserData = async () => {
     try {
@@ -86,6 +95,7 @@ export default function AdminDashboard() {
       
     } catch (error) {
       console.error("Error fetching dashboard data:", error);
+      showNotification("error", "Gagal memuat data dashboard.");
     } finally {
       setIsLoading(false);
     }
@@ -108,10 +118,10 @@ export default function AdminDashboard() {
     try {
       await updateLoanStatus(id, newStatus);
       fetchData(); 
-      alert("Status berhasil diperbarui!");
+      showNotification("success", "Status berhasil diperbarui!");
     } catch (error) {
       console.error(error);
-      alert("Gagal update status.");
+      showNotification("error", "Gagal update status.");
     }
   };
   
@@ -120,10 +130,10 @@ export default function AdminDashboard() {
         await createTool(formData);
         setIsAddToolOpen(false);
         fetchData(); 
-        alert("Berhasil menambahkan alat baru!");
+        showNotification("success", "Berhasil menambahkan alat baru!");
       } catch (error) {
         console.error("Gagal create tool:", error);
-        alert("Gagal menambahkan alat.");
+        showNotification("error", "Gagal menambahkan alat.");
       }
   };
 
@@ -132,9 +142,10 @@ export default function AdminDashboard() {
         try {
             await deleteTool(id);
             setTools(prev => prev.filter(t => t.id !== id));
+            showNotification("success", "Alat berhasil dihapus.");
         } catch (error) {
             console.error("Gagal delete tool:", error);
-            alert("Gagal menghapus alat.");
+            showNotification("error", "Gagal menghapus alat.");
         }
     }
   };
@@ -142,12 +153,11 @@ export default function AdminDashboard() {
   const handleCreateNews = async (formData) => {
     try {
       await apiCreateNews(formData); 
-      
       fetchData(); 
-      alert("Berita berhasil dipublikasikan!");
+      showNotification("success", "Berita berhasil dipublikasikan!");
     } catch (error) {
       console.error(error);
-      alert("Gagal membuat berita.");
+      showNotification("error", "Gagal membuat berita.");
     }
   };
 
@@ -156,10 +166,10 @@ export default function AdminDashboard() {
         await createAd(formData);
         setNewAd({ title: "", description: "", image_url: "", link: "" }); 
         fetchData();
-        alert("Iklan berhasil ditambahkan ke Slider Homepage!");
+        showNotification("success", "Iklan berhasil ditambahkan ke Slider Homepage!");
       } catch (error) {
         console.error(error);
-        alert("Gagal membuat iklan.");
+        showNotification("error", "Gagal membuat iklan.");
       }
     };
 
@@ -168,30 +178,32 @@ export default function AdminDashboard() {
       try {
           await deleteAd(id);
           fetchData();
+          showNotification("success", "Iklan berhasil dihapus.");
       } catch (error) {
           console.error(error);
-          alert("Gagal menghapus iklan.");
+          showNotification("error", "Gagal menghapus iklan.");
       }
   };
+
   const handleApproveDonation = async (id, condition) => {
       try {
           await approveDonation(id, condition);
-          alert("Berhasil! Stok inventaris telah diperbarui sesuai kondisi barang.");
+          showNotification("success", "Stok inventaris telah diperbarui sesuai kondisi barang.");
           fetchData(); 
       } catch (error) {
           console.error(error);
-          alert("Gagal memproses donasi.");
+          showNotification("error", "Gagal memproses donasi.");
       }
   };
 
   const handleReceiveDonation = async (id) => {
     try {
       await receiveDonation(id);
-      alert("Status barang berhasil diubah menjadi 'Barang Diterima Admin'.");
+      showNotification("success", "Status barang: Diterima Admin.");
       fetchData();
     } catch (error) {
       console.error(error);
-      alert("Gagal update status donasi.");
+      showNotification("error", "Gagal update status donasi.");
     }
   };
 
@@ -204,7 +216,29 @@ export default function AdminDashboard() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 font-sans text-gray-900">
+    <div className="min-h-screen bg-gray-50 font-sans text-gray-900 relative">
+      
+      {notification && (
+        <div className={`fixed top-20 right-6 z-50 max-w-sm w-full px-4 py-3 rounded-xl shadow-2xl border flex items-start gap-3 animate-in slide-in-from-right duration-300 ${
+            notification.type === 'success' 
+                ? 'bg-emerald-50 text-emerald-800 border-emerald-200' 
+                : 'bg-red-50 text-red-800 border-red-200'
+        }`}>
+            {notification.type === 'success' ? (
+                <CheckCircle className="w-5 h-5 flex-shrink-0 mt-0.5" />
+            ) : (
+                <AlertCircle className="w-5 h-5 flex-shrink-0 mt-0.5" />
+            )}
+            <div className="flex-1">
+                <h4 className="font-bold text-sm">{notification.type === 'success' ? 'Berhasil' : 'Gagal'}</h4>
+                <p className="text-xs mt-0.5 opacity-90 leading-snug">{notification.message}</p>
+            </div>
+            <button onClick={() => setNotification(null)} className="p-1 hover:bg-black/5 rounded-full transition-colors">
+                <X className="w-4 h-4" />
+            </button>
+        </div>
+      )}
+
       <header className="fixed top-0 w-full bg-white z-40 shadow-sm">
         <div className="max-w-7xl mx-auto flex items-center justify-between px-6 py-4">
           <div className="flex items-center gap-2">
@@ -252,7 +286,7 @@ export default function AdminDashboard() {
 
         {activeTab === "inventory" && (
           <div>
-             <div className="flex justify-end mb-6">
+              <div className="flex justify-end mb-6">
                 <button 
                     onClick={() => setIsAddToolOpen(true)}
                     className="btn btn-primary bg-teal-500 hover:bg-teal-600 rounded-xl text-white gap-2 normal-case font-medium px-6"
